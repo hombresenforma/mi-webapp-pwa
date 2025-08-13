@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progreso - Programa Hombres en Forma</title>
@@ -387,7 +383,7 @@
 
         // --- GLOBAL APP STATE & VARIABLES ---
         let supabase = null;
-        let userIdentifier = null;
+        let userId = null;
         let bodyRecords = []; 
         let progressChartInstance = null; 
         let photoComparatorState = {
@@ -470,6 +466,18 @@
             document.getElementById('confirmCancelBtn').onclick = () => { confirmContainer.remove(); };
         }
 
+        /**
+         * Función para obtener un parámetro de la URL.
+         */
+        function obtenerParametroUrl(nombre) {
+            nombre = nombre.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
+                resultados = regex.exec(window.location.href);
+            if (!resultados) return null;
+            if (!resultados[2]) return '';
+            return decodeURIComponent(resultados[2].replace(/\+/g, ' '));
+        }
+
         function initializeSupabaseClient() {
             const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
@@ -484,30 +492,29 @@
                 return;
             }
 
-            const path = window.location.pathname;
-            const match = path.match(/\/registro_([^/]+)/); 
-            userIdentifier = match ? match[1] : null;
+            // Usar la nueva función para obtener el ID de usuario
+            userId = obtenerParametroUrl('usuario');
 
-            if (!userIdentifier) {
+            if (!userId) {
                 const mainAppContainer = document.querySelector('.main-container');
                 if (mainAppContainer) {
                     mainAppContainer.innerHTML = `
                         <div class="text-center p-8 bg-red-900/50 rounded-lg shadow-lg">
                             <h2 class="text-2xl font-bold text-red-400 mb-4">Error de Acceso</h2>
                             <p class="text-gray-200">No se pudo identificar tu ID de Cliente desde la URL.</p>
-                            <p class="text-gray-200 mt-2">Asegúrate de que la URL tenga el formato correcto: <br><code>www.aceleratumetabolismo.es/registro_TU_ID</code></p>
+                            <p class="text-gray-200 mt-2">Asegúrate de que la URL tenga el formato correcto: <br><code>.../registro.html?usuario=TU_ID</code></p>
                             <p class="text-gray-200 mt-4">Por favor, contacta con soporte si el problema persiste.</p>
                         </div>`;
                 }
                 showCustomAlert("Error crítico: ID de Cliente no encontrado en la URL. Formato incorrecto.", "error");
                 return;
             }
-            console.log(`User ID obtained from URL: ${userIdentifier}`);
+            console.log(`User ID obtained from URL: ${userId}`);
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             initializeSupabaseClient();
-            if (userIdentifier) {
+            if (userId) {
                 await initializeBodyRecordApp();
             }
         });
@@ -549,13 +556,13 @@
         // #                   BODY RECORD APP LOGIC                   #
         // #############################################################
         async function fetchUserConfig() {
-            if (!supabase || !userIdentifier) return;
+            if (!supabase || !userId) return;
 
-            console.log(`Fetching config for user: ${userIdentifier}...`);
+            console.log(`Fetching config for user: ${userId}...`);
             const { data, error } = await supabase
                 .from('user_configs')
                 .select('config_data')
-                .eq('client_id', userIdentifier)
+                .eq('client_id', userId)
                 .single();
 
             if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "no rows found"
@@ -594,8 +601,10 @@
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
 
-            if (userIdentifier) {
-                mainMenuButton.href = `https://www.aceleratumetabolismo.es/panel_${userIdentifier}`;
+            // Actualizar el enlace del botón de menú principal
+            if (mainMenuButton && userId) {
+                // Usamos la ruta y el parámetro 'usuario' proporcionados en la solicitud
+                mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userId}`;
             }
 
             const today = new Date();
@@ -684,11 +693,11 @@
 
             async function loadBodyRecords() {
                 recordsHistoryContainer.innerHTML = '<p class="text-center text-gray-400">Cargando registros...</p>';
-                if (!supabase || !userIdentifier) {
+                if (!supabase || !userId) {
                     recordsHistoryContainer.innerHTML = '<p class="text-center text-red-400">Error: Supabase no inicializado o usuario no identificado.</p>';
                     return;
                 }
-                const { data, error } = await supabase.from('registros_corporales').select('*').eq('client_id', userIdentifier).order('fecha_registro', { ascending: false });
+                const { data, error } = await supabase.from('registros_corporales').select('*').eq('client_id', userId).order('fecha_registro', { ascending: false });
                 if (error) {
                     console.error("Error cargando registros desde Supabase:", error);
                     showCustomAlert("No se pudieron cargar los registros.", "error");
@@ -741,7 +750,7 @@
                         <div class="record-card-header flex justify-between items-center">
                             <div>
                                 <h3 class="text-md font-semibold text-yellow-300">${formatRecordDate(record.fecha_registro)}</h3>
-                                <p class="text-xs text-gray-400">ID: ${userIdentifier}</p>
+                                <p class="text-xs text-gray-400">ID: ${userId}</p>
                             </div>
                             <div class="flex items-center">
                                 <button onclick="window.deleteRecord('${record.id}', event)" class="danger-button text-xs py-1 px-2 rounded mr-2"><i class="fas fa-trash-alt"></i></button>
@@ -759,7 +768,7 @@
 
             recordForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const newTab = window.open(`${appConfig.urls.bodyRecordSubmission}?contact_id=${userIdentifier}`, '_blank');
+                const newTab = window.open(`${appConfig.urls.bodyRecordSubmission}?contact_id=${userId}`, '_blank');
                 if (!newTab) {
                     showCustomAlert("No se pudo abrir el formulario. Por favor, deshabilita el bloqueador de pop-ups para este sitio.", "warning");
                 }
@@ -772,7 +781,7 @@
                     const filesToUpload = Array.from(files).slice(0, 3);
                     const BUCKET_NAME = 'fotos';
                     for (const file of filesToUpload) {
-                        const filePath = `${userIdentifier}/${Date.now()}-${file.name}`;
+                        const filePath = `${userId}/${Date.now()}-${file.name}`;
                         const { error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
                         if (uploadError) {
                             console.error(`Error uploading photo:`, uploadError);
@@ -785,7 +794,7 @@
                         uploadedPhotoUrls.push(data.publicUrl);
                     }
                 }
-                const newRecordData = { client_id: userIdentifier, fecha_registro: recordDateInput.value, photo_urls: uploadedPhotoUrls.length > 0 ? uploadedPhotoUrls : null };
+                const newRecordData = { client_id: userId, fecha_registro: recordDateInput.value, photo_urls: uploadedPhotoUrls.length > 0 ? uploadedPhotoUrls : null };
                 let hasAnyMetricValue = false;
                 appConfig.bodyMetrics.filter(m => m.active).forEach(metric => {
                     const inputElement = document.getElementById(`record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}`);
