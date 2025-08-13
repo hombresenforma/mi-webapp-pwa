@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <!-- MODIFIED: Updated manifest and icon paths to include the repository name -->
+    <link rel="manifest" href="/mi-webapp-pwa/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/mi-webapp-pwa/icons/icon-192x192.png">
     <meta charset="UTF-8">
     <!-- MODIFIED: Added user-scalable=no to prevent zoom on double-tap -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -932,9 +933,9 @@
             const mainMenuButton = document.getElementById('mainMenuButton');
             if (mainMenuButton && userIdentifier) {
                 // MODIFIED: Changed the link to point to index.html with the `usuario` parameter
-                mainMenuButton.href = `/index.html?usuario=${userIdentifier}`;
+                mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userIdentifier}`;
             } else if (mainMenuButton) {
-                mainMenuButton.href = `/index.html`;
+                mainMenuButton.href = `/mi-webapp-pwa/index.html`;
                 console.warn("User identifier not found for main menu button. Using default link.");
             }
 
@@ -2173,7 +2174,7 @@
                         .insert([sessionSummaryLog]);
                     if (summaryInsertError) {
                         throw new Error(`Error inserting workout session summary: ${summaryInsertError.message}`);
-                    }
+                        }
                     showCustomAlert("¡Entrenamiento registrado con éxito!", "info");
                     await loadWorkoutLogs();
                     isWorkoutInProgress = false;
