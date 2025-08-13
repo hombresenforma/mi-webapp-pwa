@@ -501,10 +501,12 @@
         // =================== APP CONFIGURATION =========================
         // =================================================================
         const APP_CONFIG = {
+            // Se añade la ruta base para que los enlaces internos funcionen en GitHub Pages
+            basePath: '/mi-webapp-pwa', 
             urls: {
-                nutritionData: 'https://raw.githubusercontent.com/hombresenforma/ivan-diet/main/', // Base URL, will be completed dynamically
+                nutritionData: 'https://raw.githubusercontent.com/hombresenforma/ivan-diet/main/',
                 equivalencesTable: 'https://app.guaranteedcrm.io/v2/preview/keNxZmcpsgYuraFllzvO?notrack=true',
-                // Rutas relativas para la PWA
+                // Rutas relativas para la PWA, ahora se construyen con el basePath
                 workoutExternalUrl: '/entrenamiento.html?usuario=', 
                 progressExternalUrl: '/registro.html?usuario=', 
             },
@@ -598,16 +600,17 @@
             const tabs = document.querySelectorAll('.app-tab');
             const tabContents = document.querySelectorAll('.tab-content');
             const workoutAppButton = document.getElementById('workoutAppButton');
-
+            
             // Initialize Supabase and userIdentifier first
             initializeSupabaseClient();
 
             // Set the href for the "Ir a Entrenamiento" button
             if (workoutAppButton && userIdentifier) {
-                workoutAppButton.href = `${APP_CONFIG.urls.workoutExternalUrl}${userIdentifier}`;
+                const fullUrl = `${APP_CONFIG.basePath}${APP_CONFIG.urls.workoutExternalUrl}${userIdentifier}`;
+                workoutAppButton.href = fullUrl;
                 console.log("Workout button href set to:", workoutAppButton.href); // Debugging
             } else if (workoutAppButton) {
-                workoutAppButton.href = `${APP_CONFIG.urls.workoutExternalUrl}default-user`; // Fallback
+                workoutAppButton.href = `${APP_CONFIG.basePath}${APP_CONFIG.urls.workoutExternalUrl}default-user`; // Fallback
                 console.warn("User identifier not found for workout button. Using default link.");
             }
 
@@ -633,7 +636,8 @@
                     if (targetContentId === 'bodyRecordSection') {
                         event.preventDefault(); // Prevenir el cambio de pestaña
                         if (userIdentifier) {
-                            const progressUrl = `${APP_CONFIG.urls.progressExternalUrl}${userIdentifier}`;
+                            // Usar basePath para construir la URL relativa correctamente
+                            const progressUrl = `${APP_CONFIG.basePath}${APP_CONFIG.urls.progressExternalUrl}${userIdentifier}`;
                             console.log("Redirecting to progress URL:", progressUrl); // Mensaje de log actualizado
                             window.location.href = progressUrl; // Redirige en la misma pestaña
                         } else {
