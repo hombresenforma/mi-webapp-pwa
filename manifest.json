@@ -2,7 +2,7 @@
   "name": "Hombres en Forma by @ivanptrainer",
   "short_name": "Hombres en Forma",
   "description": "Programación Online de @ivanptrainer.",
-  "start_url": "/?utm_source=pwa",
+  "start_url": "/mi-webapp-pwa/entrenamiento.html?utm_source=pwa",
   "display": "standalone",
   "background_color": "#1A263A",
   "theme_color": "#FACC15",
