@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Principal - Programa Hombres en Forma</title>
+    <!-- Tailwind CSS para un estilo rápido y responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Supabase Client para interacción con la base de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* Estilos Generales del Cuerpo y la Barra de Desplazamiento */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821c6f4dbcf316861282241.png');
+            background-color: #1A263A; /* Color de respaldo */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden; 
+            color: #e5e7eb;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #4A5568; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #eab308; }
+
+        /* Contenedor Principal de la Aplicación */
+        .main-container {
+            width: 100%;
+            max-width: 36rem; /* Equivalente a max-w-md */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 640px) { .main-container { max-width: 42rem; } } /* sm:max-w-lg */
+        @media (min-width: 768px) { .main-container { max-width: 48rem; } } /* md:max-w-2xl */
+
+        /* Navegación por Pestañas */
+        .app-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 columnas para Nutrición, Contenido, Progreso */
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .app-tab {
+            position: relative;
+            padding: 0.75rem 0.5rem; /* Relleno ajustado para pantallas pequeñas */
+            font-weight: 600;
+            color: #d1d5db;
+            background-color: rgba(31, 41, 55, 0.8);
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem; /* Fuente ligeramente más pequeña para móvil */
+        }
+        .app-tab:hover {
+            background-color: rgba(55, 65, 81, 0.9);
+            color: #facc15;
+        }
+        .app-tab.active {
+            background-color: #facc15;
+            color: #1f2937;
+            border-color: #facc15;
+        }
+        /* Estilo para pestañas con notificación activa (verde) */
+        .app-tab.app-tab-notify {
+            background-color: #22c55e; /* Color verde */
+            color: #1f2937;
+            border-color: #22c55e;
+        }
+        .app-tab.app-tab-notify:hover {
+            background-color: #16a34a; /* Verde más oscuro al pasar el ratón */
+            border-color: #16a34a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos de Modales */
+        .modal, .modal-base { 
+            transition: opacity 0.25s ease; 
+        }
+        .modal-content { 
+            transition: transform 0.25s ease; 
+            max-height: 90vh; 
+        }
+        /* Tamaños específicos de modales */
+        #recipe-modal .modal-content, #days-selection-modal .modal-content, #shopping-list-modal .modal-content, #meal-selection-modal .modal-content { /* Added meal-selection-modal */
+            width: 95%;
+            max-width: 700px; 
+        }
+        #weekdayNoticeModal .modal-content, #shopping-list-choice-modal .modal-content, #accessDeniedModal .modal-content { /* Added accessDeniedModal */
+            width: 95%;
+            max-width: 450px;
+        }
+
+        /* Estilos Específicos de Nutrición para mejoras visuales */
+        .nutrition-menu-selector {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: #1f2937; /* Fondo oscuro */
+            color: #facc15; /* Texto amarillo */
+            border: 1px solid #facc15; /* Borde amarillo */
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            appearance: none; /* Eliminar el estilo predeterminado del navegador */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%23facc15%22%20d%3D%22M287%20197.9c-3.6%203.6-7.8%205.4-12.3%205.4s-8.7-1.8-12.3-5.4L146.2%2084.7%2030%20197.9c-3.6%203.6-7.8%205.4-12.3%205.4s-8.7-1.8-12.3-5.4c-7.2-7.2-7.2-18.9%200-26.1L133.9%205.4c7.2-7.2%2018.9-7.2%2026.1%200L287%20171.8c7.2%207.2%207.2%2018.9%200%2026.1z%22%2F%3E%3C%2Fsvg%3E'); /* Flecha personalizada amarilla */
+            background-repeat: no-repeat;
+            background-position: right 0.7rem top 50%;
+            background-size: 0.65rem auto;
+            transition: all 0.2s ease-in-out;
+        }
+        .nutrition-menu-selector:hover {
+            background-color: #2d3748; /* Fondo un poco más claro al pasar el ratón */
+            border-color: #eab308; /* Borde amarillo más oscuro al pasar el ratón */
+            color: #eab308; /* Texto amarillo más oscuro al pasar el ratón */
+        }
+        .nutrition-menu-selector option {
+            background-color: #1f2937; /* Fondo oscuro para las opciones */
+            color: #facc15; /* Texto amarillo para las opciones */
+        }
+
+
+        .nutrition-summary-card { 
+            background-color: #313E53;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            text-align: center;
+            border: 1px solid #4A5568;
+        }
+        .nutrition-summary-card .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columnas para mejor espaciado en móvil */
+            gap: 1rem; /* Espaciado aumentado */
+            margin-top: 0.5rem; 
+        }
+        @media (min-width: 640px) { /* breakpoint sm */
+            .nutrition-summary-card .macros-grid {
+                grid-template-columns: repeat(4, 1fr); /* Vuelve a 4 columnas en pantallas más grandes */
+            }
+        }
+        .nutrition-summary-card .macro-item {
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .nutrition-summary-card .macro-label {
+            font-weight: bold;
+            color: #FACC15;
+            display: block;
+            font-size: 1.1rem; /* Etiqueta ligeramente más grande */
+        }
+        .nutrition-summary-card .macro-value {
+            color: white;
+            font-size: 1.5rem; /* Valor más grande */
+            font-weight: 600;
+        }
+        @media (min-width: 640px) { /* breakpoint sm */
+            .nutrition-summary-card .macro-value {
+                font-size: 1.8rem; /* Aún más grande en escritorio */
+            }
+        }
+
+        .meal-item-card {
+            display: flex;
+            align-items: center;
+            background-color: #2D3748; /* Fondo más oscuro para elementos de comida individuales */
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .meal-item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        .meal-item-card img {
+            width: 80px; /* Imagen más grande */
+            height: 80px; /* Imagen más grande */
+            object-fit: cover;
+            border-radius: 0.375rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            border: 1px solid #4A5568;
+        }
+        .meal-item-card .meal-details {
+            flex-grow: 1;
+        }
+        .meal-item-card .meal-name {
+            font-weight: 600;
+            color: #FDE047;
+            font-size: 1rem;
+        }
+        .meal-item-card .meal-macros {
+            font-size: 0.8rem;
+            color: #D1D5DB;
+            margin-top: 0.25rem;
+        }
+
+        /* Estilos de la Sección de Contenido */
+        #contentSection .video-item { background-color: #374151; border: 1px solid #4b5563; transition: all 0.3s ease-in-out; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        #contentSection .video-item.is-new { border-left-width: 4px; border-left-color: #facc15; box-shadow: 0 4px 15px rgba(250, 204, 21, 0.1); }
+        #contentSection .video-item.is-watched { opacity: 0.85; background-color: #4b5563; }
+        #contentSection .new-badge { background-color: #facc15; color: #1f2937; font-size: 0.7rem; font-weight: bold; padding: 0.125rem 0.5rem; border-radius: 9999px; display: inline-block; margin-top: 0.25rem; }
+        #contentSection .action-button { background-color: #facc15; color: #1f2937; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; text-decoration: none; display: inline-flex; align-items: center; cursor: pointer; font-size: 0.875rem; }
+        #contentSection .action-button:hover:not(.action-button-watched) { background-color: #eab308; }
+        #contentSection .action-button-watched { background-color: #374151; color: #9ca3af; border: 1px solid #4b5563; cursor: default; }
+        #contentSection .action-button-watched:hover { background-color: #424d5e; color: #aab1bb; }
+        #contentSection .claim-text { display: none; } /* Ocultar el párrafo */
+        
+        /* Otros estilos */
+        .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #FACC15; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .shopping-item-label input:checked ~ span { text-decoration: line-through; color: #9CA3AF; }
+
+        /* Estilos para los botones de alternar vista de nutrición */
+        .nutrition-view-toggle-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .nutrition-view-toggle-button {
+            padding: 0.75rem 0.5rem;
+            font-weight: 600;
+            color: #d1d5db;
+            background-color: rgba(31, 41, 55, 0.8);
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
+        }
+        .nutrition-view-toggle-button:hover {
+            background-color: rgba(55, 65, 81, 0.9);
+            color: #facc15;
+        }
+        .nutrition-view-toggle-button.active {
+            background-color: #facc15;
+            color: #1f2937;
+            border-color: #facc15;
+        }
+
+        /* Estilos para los botones de navegación de comidas */
+        .meal-title .nav-button {
+            background-color: rgba(31, 41, 55, 0.6);
+            border: 1px solid #4b5563;
+            color: #facc15;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px; /* fully rounded */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .meal-title .nav-button:hover {
+            background-color: #4b5563;
+            color: #eab308;
+        }
+        .meal-title .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: rgba(31, 41, 55, 0.3);
+            border-color: #4b5563;
+            color: #9ca3af;
+        }
+
+        /* Styles for +/- buttons in shopping list modals */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quantity-control button {
+            background-color: #4A5568;
+            color: #facc15;
+            border: 1px solid #facc15;
+            border-radius: 0.375rem;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+        }
+        .quantity-control button:hover {
+            background-color: #facc15;
+            color: #1f2937;
+        }
+        .quantity-control span {
+            min-width: 2rem;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
+
+    <div class="main-container mb-8">
+        <header class="bg-gray-800/90 backdrop-blur-md shadow-xl rounded-t-xl p-4 sm:p-6 mb-0 border-b-2 border-yellow-500 text-center">
+            <div class="flex justify-center items-center">
+                <img src="https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821cea25072096f7d31d5c1.png" alt="Logo Programa Hombres en Forma" class="h-12 sm:h-14 md:h-16" onerror="this.alt='Logo HEF'; this.src='https://placehold.co/250x80/1a202c/facc15?text=Logo+Error';">
+            </div>
+        </header>
+
+        <main class="bg-gray-800/85 backdrop-blur-md shadow-xl rounded-b-xl p-3 sm:p-4 md:p-6">
+            <!-- Botón de Entrenamiento (redirige a la app externa) -->
+            <div class="mb-4">
+                <a id="workoutAppButton" href="#" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors">
+                    <i class="fas fa-dumbbell mr-2"></i>Ir a Entrenamiento
+                </a>
+            </div>
+
+            <!-- Pestañas de la Aplicación -->
+            <div class="app-tabs">
+                <button class="app-tab active" data-tab="nutritionSection">Nutrición</button>
+                <button class="app-tab" data-tab="contentSection">Contenido</button>
+                <button class="app-tab" data-tab="bodyRecordSection">Progreso</button>
+            </div>
+
+            <!-- Contenido de Nutrición -->
+            <div id="nutritionSection" class="tab-content active">
+                <header class="text-center mb-6">
+                    <h2 class="text-white text-lg font-semibold text-yellow-400">SELECCIONA TU MENÚ</h2>
+                </header>
+                <div id="loading-container" class="flex flex-col items-center justify-center p-4">
+                    <div class="spinner"></div>
+                    <p class="text-white mt-4">Cargando menús...</p>
+                </div>
+
+                <!-- Controles para la selección de vista de Nutrición (Días vs Comidas) -->
+                <div class="nutrition-view-toggle-buttons">
+                    <button id="viewByDayBtn" class="nutrition-view-toggle-button active">Ver por Días</button>
+                    <button id="viewByMealBtn" class="nutrition-view-toggle-button">Ver por Comidas</button>
+                </div>
+
+                <!-- Controles Específicos de la Vista por Día (Visibilidad controlada por JS) -->
+                <div id="nutrition-view-controls" class="mb-6">
+                    <label for="menu-selector" class="sr-only">Seleccionar Menú</label>
+                    <select id="menu-selector" class="nutrition-menu-selector"></select>
+                </div>
+
+                <!-- Área de visualización principal para comidas/recetas -->
+                <div id="plan-display"></div>
+
+                <!-- Resumen de Macros Totales (Visualización Condicional) -->
+                <div id="total-macros-summary" class="nutrition-summary-card hidden">
+                    <div class="macros-grid">
+                        <div class="macro-item">
+                            <span class="macro-label">Kcal</span>
+                            <span class="macro-value" id="total-kcal-value">0</span>
+                        </div>
+                        <div class="macro-item">
+                            <span class="macro-label">Prot.</span>
+                            <span class="macro-value" id="total-prot-value">0 g</span>
+                        </div>
+                        <div class="macro-item">
+                            <span class="macro-label">Carbs</span>
+                            <span class="macro-value" id="total-carbs-value">0 g</span>
+                        </div>
+                        <div class="macro-item">
+                            <span class="macro-label">Grasas</span>
+                            <span class="macro-value" id="total-fats-value">0 g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción (Siempre visibles) -->
+                <div class="summary-card">
+                    <button id="shopping-list-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Generar lista de la compra</button>
+                    <button id="equivalencesTableLink" class="block text-center mt-3 w-full bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2 px-4 rounded-md">Tabla de Equivalencias</button>
+                </div>
+                <!-- Button to refresh nutrition data -->
+                <div class="mt-4 text-center">
+                    <button id="refreshNutritionDataBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-md text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i>Actualizar Datos de Nutrición
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección de Contenido -->
+            <div id="contentSection" class="tab-content">
+                 <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 text-center mb-2">CONTENIDO DEL PROGRAMA</h2>
+                 <p class="claim-text"></p>
+                <div id="videoListContainer" class="space-y-3 sm:space-y-4">
+                    <p class="text-center text-gray-400">Cargando vídeos...</p>
+                </div>
+            </div>
+
+            <!-- Sección de Registro Corporal (Progreso) -->
+            <div id="bodyRecordSection" class="tab-content">
+                <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 text-center mb-6">REGISTROS CORPORALES</h2>
+                <p class="text-center text-gray-400 mt-8">Serás redirigido a la página de progreso.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALES (Compartidos entre todas las secciones) -->
+    
+    <!-- Modal de Receta -->
+    <div id="recipe-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 modal-base">
+        <div class="bg-gray-800 rounded-lg p-5 max-w-lg w-full max-h-[90vh] overflow-y-auto text-white">
+            <div class="flex justify-between items-center mb-4"><h2 id="modal-title" class="text-2xl font-bold text-yellow-400"></h2><button id="modal-close" class="text-white text-4xl font-light leading-none">&times;</button></div>
+            <img id="modal-image" src="" alt="" class="w-full h-60 object-cover rounded-lg mb-4" onerror="this.src='https://placehold.co/500x240/313E53/FACC15?text=Imagen+no+disponible';">
+            <h3 class="text-xl font-bold text-yellow-400 mb-2">Ingredientes</h3>
+            <ul id="modal-ingredients" class="list-disc list-inside mb-4 pl-2"></ul>
+            <h3 class="text-xl font-bold text-yellow-400 mb-2">Preparación</h3>
+            <p id="modal-preparation" class="text-base"></p>
+        </div>
+    </div>
+    <!-- Modal de Selección de Días para Lista de la Compra -->
+    <div id="days-selection-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 modal-base">
+        <div class="bg-gray-800 rounded-lg p-5 max-w-lg w-full max-h-[90vh] overflow-y-auto text-white">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-yellow-400">Calcular Lista de la Compra por Días</h2><button id="days-selection-close" class="text-white text-4xl font-light leading-none">&times;</button></div>
+            <p class="mb-4">¿Cuántos días por menú quieres calcular?</p>
+            <div id="days-selection-list" class="space-y-4 mb-6"></div>
+            <button id="generate-list-from-days-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Generar Lista</button>
+        </div>
+    </div>
+    <!-- Modal de Selección de Comidas para Lista de la Compra -->
+    <div id="meal-selection-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 modal-base">
+        <div class="bg-gray-800 rounded-lg p-5 max-w-lg w-full max-h-[90vh] overflow-y-auto text-white">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-yellow-400">Calcular Lista de la Compra por Comidas</h2><button id="meal-selection-close" class="text-white text-4xl font-light leading-none">&times;</button></div>
+            <p class="mb-4">Selecciona la cantidad deseada para cada opción de comida:</p>
+            <div id="meal-selection-list" class="space-y-6 mb-6"></div>
+            <button id="generate-list-from-meals-btn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Generar Lista</button>
+        </div>
+    </div>
+
+    <!-- Modal de Lista de la Compra (resultado) -->
+    <div id="shopping-list-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 modal-base">
+        <div class="bg-gray-800 rounded-lg p-5 max-w-lg w-full max-h-[90vh] overflow-y-auto text-white">
+            <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-yellow-400">Lista de la Compra</h2><button id="shopping-list-close" class="text-white text-4xl font-light leading-none">&times;</button></div>
+            <div id="shopping-list-items" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Elección de Tipo de Lista de la Compra -->
+    <div id="shopping-list-choice-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-60 modal-base">
+        <div class="bg-gray-800 rounded-lg p-6 text-center max-w-sm w-full text-white">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">¿Cómo quieres generar la lista?</h3>
+            <div class="flex flex-col space-y-3">
+                <button id="choice-by-days-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">Por Días de Menú</button>
+                <button id="choice-by-meals-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Por Comidas Individuales</button>
+                <button onclick="closeModalElement(shoppingListChoiceModal)" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aviso de Día de la Semana -->
+    <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">Función No Disponible</h3>
+            <p class="text-gray-300 mb-6">Esta función solo está disponible en los días configurados.</p>
+            <button onclick="closeModalElement(weekdayNoticeModal)" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal de Acceso Denegado -->
+    <div id="accessDeniedModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">Acceso No Disponible</h3>
+            <p class="text-gray-300 mb-6">No tienes acceso a esta funcionalidad en este momento.</p>
+            <button onclick="closeModalElement(document.getElementById('accessDeniedModal'))" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        // =================================================================
+        // =================== APP CONFIGURATION =========================
+        // =================================================================
+        const APP_CONFIG = {
+            urls: {
+                nutritionData: 'https://raw.githubusercontent.com/hombresenforma/ivan-diet/main/', // Base URL, will be completed dynamically
+                equivalencesTable: 'https://app.guaranteedcrm.io/v2/preview/keNxZmcpsgYuraFllzvO?notrack=true',
+                workoutExternalUrl: 'https://www.aceleratumetabolismo.es/app_', 
+                progressExternalUrl: 'https://aceleratumetabolismo.es/registro_', 
+            },
+            showEquivalences: true, // NUEVO: Controla el acceso a la tabla de equivalencias
+            // Los videos ya no están aquí, se cargan desde Supabase
+            NUTRITION_VIEW_MODE: 'by_day', // Can be 'by_day' or 'by_meal'
+            CACHE_DURATION_HOURS: 360, // How long nutrition data is cached in localStorage
+            progressButtonConfig: {
+                activeWeeks: 'even', // 'all', 'none', 'even', 'odd', or an array like [14, 20, 24]
+                activeDays: [0, 5, 6] // 0=Sunday, 1=Monday, ..., 6=Saturday
+            }
+        };
+        // =================================================================
+        // =================== END OF CONFIGURATION ======================
+        // =================================================================
+
+
+        // --- GLOBAL APP STATE & VARIABLES ---
+        let isNutritionInitialized = false;
+        let isContentInitialized = false;
+        let programVideos = []; // Variable para almacenar los vídeos de Supabase
+
+        // --- Supabase Setup (Moved to global scope) ---
+        let supabase = null;
+        let userIdentifier = null; // Stores the client_id from the URL
+
+        // --- UTILITY FUNCTIONS (SHARED) ---
+        function openModal(modalElement) {
+            if (!modalElement) return;
+            modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+            modalElement.classList.add('opacity-100');
+            const content = modalElement.querySelector('.modal-content, .relative'); 
+            if (content) {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }
+        }
+
+        function closeModalElement(modalElement) {
+            if (!modalElement) return;
+            const content = modalElement.querySelector('.modal-content, .relative'); 
+            if (content) {
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+            }
+            modalElement.classList.remove('opacity-100', 'pointer-events-auto');
+            modalElement.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                if (!modalElement.classList.contains('opacity-100')) {
+                    modalElement.classList.add('hidden');
+                }
+            }, 300);
+        }
+
+        function showCustomAlert(message, type = 'info') {
+            const alertContainerId = 'customAlert';
+            const existingAlert = document.getElementById(alertContainerId);
+            if (existingAlert) existingAlert.remove();
+
+            const alertContainer = document.createElement('div');
+            alertContainer.id = alertContainerId;
+            alertContainer.className = `fixed top-5 right-5 z-[100] p-4 rounded-md shadow-lg text-white max-w-sm transition-opacity duration-300 ease-out opacity-0`;
+            
+            let bgColor = 'bg-blue-500 border-blue-700';
+            let iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            if (type === 'error') { bgColor = 'bg-red-500 border-red-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; } 
+            else if (type === 'warning') { bgColor = 'bg-yellow-500 border-yellow-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`; } 
+            else if (type === 'info') { bgColor = 'bg-sky-500 border-sky-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm0-3a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z"></path></svg>`; }
+            
+            alertContainer.classList.add(...bgColor.split(' '));
+            alertContainer.innerHTML = `<div class="flex items-center">${iconSVG}<span class="text-sm">${message}</span><button onclick="this.closest('#${alertContainerId}').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white hover:text-gray-200 rounded-lg p-1.5 inline-flex h-8 w-8 items-center justify-center"><span class="sr-only">Cerrar</span><svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>`;
+            document.body.appendChild(alertContainer);
+            setTimeout(() => { alertContainer.classList.remove('opacity-0'); alertContainer.classList.add('opacity-100'); }, 10);
+            setTimeout(() => { alertContainer.classList.remove('opacity-100'); alertContainer.classList.add('opacity-0'); setTimeout(() => {alertContainer.remove();}, 7000); }, 7000);
+        }
+
+        // --- TAB NAVIGATION LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.app-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const workoutAppButton = document.getElementById('workoutAppButton');
+
+            // Initialize Supabase and userIdentifier first
+            initializeSupabaseClient();
+
+            // Set the href for the "Ir a Entrenamiento" button
+            if (workoutAppButton && userIdentifier) {
+                workoutAppButton.href = `${APP_CONFIG.urls.workoutExternalUrl}${userIdentifier}`;
+                console.log("Workout button href set to:", workoutAppButton.href); // Debugging
+            } else if (workoutAppButton) {
+                workoutAppButton.href = `${APP_CONFIG.urls.workoutExternalUrl}default-user`; // Fallback
+                console.warn("User identifier not found for workout button. Using default link.");
+            }
+
+            // **MODIFICACIÓN**: Controlar el clic del botón de equivalencias
+            const equivalencesTableLink = document.getElementById('equivalencesTableLink');
+            if (equivalencesTableLink) {
+                equivalencesTableLink.addEventListener('click', (event) => {
+                    event.preventDefault(); // Prevenir el comportamiento por defecto siempre
+                    if (APP_CONFIG.showEquivalences) {
+                        window.open(APP_CONFIG.urls.equivalencesTable, '_blank', 'noopener,noreferrer');
+                    } else {
+                        const accessDeniedModal = document.getElementById('accessDeniedModal');
+                        openModal(accessDeniedModal);
+                    }
+                });
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', (event) => {
+                    const targetContentId = tab.getAttribute('data-tab');
+
+                    // MODIFICACIÓN: Cambiado para redirigir en la misma pestaña
+                    if (targetContentId === 'bodyRecordSection') {
+                        event.preventDefault(); // Prevenir el cambio de pestaña
+                        if (userIdentifier) {
+                            const progressUrl = `${APP_CONFIG.urls.progressExternalUrl}${userIdentifier}`;
+                            console.log("Redirecting to progress URL:", progressUrl); // Mensaje de log actualizado
+                            window.location.href = progressUrl; // Redirige en la misma pestaña
+                        } else {
+                            showCustomAlert("No se pudo obtener el ID de usuario para la redirección.", "warning");
+                        }
+                        return; // Detener la ejecución para evitar cambiar de pestaña
+                    }
+
+                    // Lógica normal de cambio de pestañas para las otras
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(targetContentId).classList.add('active');
+
+                    if (targetContentId === 'nutritionSection' && !isNutritionInitialized) { initializeNutritionApp(); }
+                    if (targetContentId === 'contentSection' && !isContentInitialized) { initializeContentApp(); }
+                });
+            });
+
+            // Carga inicial de la app de Nutrición (pestaña activa por defecto)
+            if (document.getElementById('nutritionSection').classList.contains('active')) {
+                initializeNutritionApp();
+            }
+
+            // Actualizar el estado del botón de progreso al cargar
+            updateProgressButtonState();
+        });
+
+        // Función para inicializar el cliente de Supabase y obtener el identificador de usuario
+        function initializeSupabaseClient() {
+            const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
+            // Clave de acceso anónimo proporcionada por el usuario
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
+            
+            try {
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
+                    db: { schema: 'public' }
+                });
+            } catch (e) {
+                console.error("Error inicializando Supabase:", e);
+                showCustomAlert("Error de configuración: No se pudo conectar a la base de datos.", "error");
+                return;
+            }
+
+            const path = window.location.pathname;
+            let userIdentifierFromPath = null;
+
+            // Intentar encontrar /panel_
+            let match = path.match(/\/panel_([^/]+)/);
+            if (match) {
+                userIdentifierFromPath = match[1];
+            } else {
+                // Si no es /panel_, intentar encontrar /app_
+                match = path.match(/\/app_([^/]+)/);
+                if (match) {
+                    userIdentifierFromPath = match[1];
+                }
+            }
+            
+            userIdentifier = userIdentifierFromPath;
+
+            if (!userIdentifier) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const userFromQuery = urlParams.get('user');
+                if (userFromQuery) {
+                    userIdentifier = userFromQuery;
+                } else {
+                    console.warn("Identificador de usuario no encontrado en la URL. Usando un marcador de posición. Los datos podrían no aislarse correctamente.");
+                    userIdentifier = "default-user-id"; // Marcador para desarrollo
+                    showCustomAlert("Advertencia: Usuario no identificado en la URL. Los datos pueden no guardarse correctamente.", "warning");
+                }
+            }
+            console.log("Detected userIdentifier:", userIdentifier); // Debug: Registrar el ID detectado
+            
+            // Lógica para construir la URL de nutrición dinámicamente
+            // Nueva base URL para los archivos JS de los usuarios
+            const nutritionBaseUrl = 'https://raw.githubusercontent.com/hombresenforma/ivan-diet/main/';
+            APP_CONFIG.urls.nutritionData = `${nutritionBaseUrl}${userIdentifier}.js`;
+            console.log("Dynamic nutrition data URL set to:", APP_CONFIG.urls.nutritionData);
+        }
+        
+        // #############################################################
+        // #                    NUTRITION APP LOGIC                    #
+        // #############################################################
+        let foodDatabase = {};
+        let dailyMenus = [];
+        let nutritionData = null; // Datos procesados por día
+        const recipeModal = document.getElementById('recipe-modal');
+        const shoppingListModal = document.getElementById('shopping-list-modal');
+        const daysSelectionModal = document.getElementById('days-selection-modal');
+        const mealSelectionModal = document.getElementById('meal-selection-modal');
+        const shoppingListChoiceModal = document.getElementById('shopping-list-choice-modal');
+        const loadingContainer = document.getElementById('loading-container');
+        const menuSelector = document.getElementById('menu-selector'); 
+        const totalMacrosSummary = document.getElementById('total-macros-summary');
+        const totalKcalValue = document.getElementById('total-kcal-value');
+        const totalProtValue = document.getElementById('total-prot-value');
+        const totalCarbsValue = document.getElementById('total-carbs-value');
+        const totalFatsValue = document.getElementById('total-fats-value');
+
+        const viewByDayBtn = document.getElementById('viewByDayBtn'); 
+        const viewByMealBtn = document.getElementById('viewByMealBtn'); 
+        const nutritionViewControls = document.getElementById('nutrition-view-controls'); 
+
+        const mealTypes = ['Desayuno', 'Comida', 'Cena', 'Extra']; // Orden consistente para iteración
+        let mealViewData = { desayuno: [], comida: [], cena: [], extra: [] };
+        let mealViewCurrentIndex = { desayuno: 0, comida: 0, cena: 0, extra: 0 };
+        let mealQuantitiesForShopping = {}; // Para almacenar cantidades para la lista de la compra por comidas
+
+        /**
+         * Limpia un nombre de receta eliminando el texto entre paréntesis.
+         * @param {string} name - El nombre de la receta.
+         * @returns {string} El nombre de la receta limpio.
+         */
+        function cleanRecipeName(name) { 
+            if (typeof name !== 'string') return ''; 
+            return name.replace(/\s*\(.*\)\s*/, '').trim(); 
+        }
+
+        /**
+         * Abre el modal de la receta con los detalles de la comida.
+         * @param {string} foodId - El ID de la comida/receta.
+         */
+        function openRecipeModal(foodId) { 
+            const recipe = foodDatabase[foodId]; 
+            if (!recipe) return; 
+            document.getElementById('modal-title').textContent = cleanRecipeName(recipe.name); 
+            document.getElementById('modal-image').src = recipe.image; 
+            
+            document.getElementById('modal-ingredients').innerHTML = (recipe.ingredients || []).map(ing => { 
+                const quantityValue = parseFloat(ing.quantity) || 0;
+                const unitText = ing.unit || 'unidades'; 
+
+                let quantityDisplay;
+                if (unitText.toLowerCase().includes('g')) {
+                    quantityDisplay = `${quantityValue}g`;
+                } else if (unitText.toLowerCase().includes('unidad')) {
+                    quantityDisplay = `${quantityValue} ${quantityValue === 1 ? 'unidad' : 'unidades'}`;
+                } else {
+                    quantityDisplay = `${quantityValue} ${unitText}`;
+                }
+                return `<li>${ing.name} (${quantityDisplay})</li>`; 
+            }).join(''); 
+            document.getElementById('modal-preparation').textContent = recipe.preparation; 
+            openModal(recipeModal); 
+        }
+
+        /**
+         * Rellena el modal de selección de días para la lista de la compra.
+         * Usa botones +/- para la cantidad.
+         */
+        function populateDaysSelectionModal() { 
+            const listContainer = document.getElementById('days-selection-list'); 
+            listContainer.innerHTML = ''; // Limpiar contenido anterior
+
+            Object.keys(nutritionData).forEach((key, index) => {
+                const menuName = nutritionData[key].nombre;
+                // Inicializar cantidad a 0 o recuperar si ya está establecida en esta sesión
+                const currentQuantity = listContainer.querySelector(`[data-menu-key="${key}"]`)?.dataset.quantity || '0';
+
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between';
+                div.innerHTML = `
+                    <label class="text-white">Menú ${index + 1} (${menuName})</label>
+                    <div class="quantity-control" data-menu-key="${key}" data-quantity="${currentQuantity}">
+                        <button onclick="adjustQuantity(this, -1, 'menu')" class="minus-btn">-</button>
+                        <span class="quantity-display">${currentQuantity}</span>
+                        <button onclick="adjustQuantity(this, 1, 'menu')" class="plus-btn">+</button>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+            openModal(daysSelectionModal); 
+        }
+
+        /**
+         * Ajusta la cantidad para un elemento dado en los modales de la lista de la compra.
+         * @param {HTMLElement} button - El botón de más/menos pulsado.
+         * @param {number} change - El cambio en la cantidad (-1 o 1).
+         * @param {string} type - 'menu' para selección por días, 'meal' para selección por comidas.
+         */
+        function adjustQuantity(button, change, type) {
+            const controlDiv = button.closest('.quantity-control');
+            let currentQuantity = parseInt(controlDiv.dataset.quantity || '0', 10);
+            currentQuantity += change;
+            if (currentQuantity < 0) currentQuantity = 0;
+
+            controlDiv.dataset.quantity = currentQuantity;
+            controlDiv.querySelector('.quantity-display').textContent = currentQuantity;
+
+            if (type === 'meal') {
+                const mealKey = controlDiv.dataset.mealKey;
+                const mealOptionIndex = parseInt(controlDiv.dataset.mealOptionIndex, 10);
+                mealQuantitiesForShopping[`${mealKey}-${mealOptionIndex}`] = currentQuantity;
+            }
+        }
+
+        /**
+         * Genera y muestra la lista de la compra agregada basada en los días seleccionados.
+         */
+        function generateShoppingListByDays() {
+            const ingredientsMap = new Map();
+            document.querySelectorAll('#days-selection-list .quantity-control').forEach(controlDiv => {
+                const days = parseInt(controlDiv.dataset.quantity || '0', 10);
+                if (days > 0) {
+                    const menuKey = controlDiv.dataset.menu-key;
+                    Object.values(nutritionData[menuKey].plan).flat().forEach(foodItem => {
+                        (foodItem.ingredients || []).forEach(ingredient => {
+                            // FIX V3: Try multiple property names for quantity and category for robustness.
+                            const rawQuantity = ingredient.quantity || ingredient.amount || ingredient.qty || '0';
+                            const quantityValue = parseFloat(String(rawQuantity).replace(',', '.').trim()) || 0;
+                            const rawCategory = ingredient.category || ingredient.cat || ingredient.group;
+                            const unit = ingredient.unit || 'g';
+
+                            let existing = ingredientsMap.get(ingredient.name);
+                            if (!existing) {
+                                existing = {
+                                    name: ingredient.name,
+                                    grams: 0,
+                                    units: 0,
+                                    unit_name: unit,
+                                    category: rawCategory
+                                };
+                            }
+
+                            if (unit.toLowerCase().includes('g') || unit.toLowerCase().includes('(en crudo)')) {
+                                existing.grams += quantityValue * days;
+                                existing.unit_name = 'g';
+                            } else {
+                                existing.units += quantityValue * days;
+                                existing.unit_name = unit;
+                            }
+                            ingredientsMap.set(ingredient.name, existing);
+                        });
+                    });
+                }
+            });
+            displayShoppingList(ingredientsMap);
+            closeModalElement(daysSelectionModal);
+        }
+
+        /**
+         * Genera y muestra la lista de la compra agregada basada en las comidas individuales seleccionadas.
+         */
+        function generateShoppingListByMeals() {
+            const ingredientsMap = new Map();
+
+            for (const key in mealQuantitiesForShopping) {
+                const quantity = mealQuantitiesForShopping[key];
+                if (quantity > 0) {
+                    const [mealKey, mealOptionIndex] = key.split('-');
+                    const mealGroupOrItem = mealViewData[mealKey][parseInt(mealOptionIndex, 10)];
+
+                    let itemsToAggregate = [];
+                    if (mealKey === 'extra') {
+                        itemsToAggregate = [mealGroupOrItem];
+                    } else {
+                        itemsToAggregate = mealGroupOrItem;
+                    }
+
+                    itemsToAggregate.forEach(foodItem => {
+                        (foodItem.ingredients || []).forEach(ingredient => {
+                            // FIX V3: Try multiple property names for quantity and category for robustness.
+                            const rawQuantity = ingredient.quantity || ingredient.amount || ingredient.qty || '0';
+                            const quantityValue = parseFloat(String(rawQuantity).replace(',', '.').trim()) || 0;
+                            const rawCategory = ingredient.category || ingredient.cat || ingredient.group;
+                            const unit = ingredient.unit || 'g';
+
+                            let existing = ingredientsMap.get(ingredient.name);
+                            if (!existing) {
+                                existing = {
+                                    name: ingredient.name,
+                                    grams: 0,
+                                    units: 0,
+                                    unit_name: unit,
+                                    category: rawCategory
+                                };
+                            }
+
+                            if (unit.toLowerCase().includes('g') || unit.toLowerCase().includes('(en crudo)')) {
+                                existing.grams += quantityValue * quantity;
+                                existing.unit_name = 'g';
+                            } else {
+                                existing.units += quantityValue * quantity;
+                                existing.unit_name = unit;
+                            }
+                            ingredientsMap.set(ingredient.name, existing);
+                        });
+                    });
+                }
+            }
+            displayShoppingList(ingredientsMap);
+            closeModalElement(mealSelectionModal);
+        }
+
+
+        /**
+         * Muestra la lista de la compra en un modal.
+         * @param {Map<string, object>} ingredientsMap - Mapa de ingredientes agregados.
+         */
+        function displayShoppingList(ingredientsMap) { 
+            const listContainer = document.getElementById('shopping-list-items'); 
+            listContainer.innerHTML = ''; 
+            if (ingredientsMap.size === 0) { 
+                listContainer.innerHTML = '<p class="text-gray-400 text-center">No se han seleccionado elementos para la lista de la compra.</p>'; 
+                openModal(shoppingListModal); 
+                return; 
+            } 
+            const groupedByCategory = {}; 
+            ingredientsMap.forEach(ing => { 
+                const category = ing.category || 'otros'; 
+                if (!groupedByCategory[category]) { 
+                    groupedByCategory[category] = []; 
+                } 
+                groupedByCategory[category].push(ing); 
+            }); 
+            const categoryOrder = ['frutas', 'verduras', 'carnes', 'pescados', 'lacteos', 'cereales', 'legumbres', 'grasas', 'otros']; 
+            categoryOrder.forEach(categoryKey => { 
+                if (groupedByCategory[categoryKey]) { 
+                    const categoryName = categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1); 
+                    let categoryHtml = `<div class="mb-4"><h4 class="text-lg font-semibold text-yellow-400 mb-2 border-b border-gray-600 pb-1">${categoryName}</h4><ul>`; 
+                    groupedByCategory[categoryKey].forEach(ing => { 
+                        let quantityText = ''; 
+                        if (ing.unit_name === 'g') {
+                            quantityText = `${ing.grams.toFixed(0)}g`; 
+                        } else {
+                            if (ing.unit_name.toLowerCase() === 'unidad') {
+                                quantityText = `${parseFloat(ing.units.toFixed(1))} ${ing.units === 1 ? 'unidad' : 'unidades'}`;
+                            } else {
+                                quantityText = `${parseFloat(ing.units.toFixed(1))} ${ing.unit_name}`;
+                            }
+                        }
+                        categoryHtml += `<li><label class="flex items-center cursor-pointer shopping-item-label"><input type="checkbox" class="form-checkbox h-5 w-5 rounded text-yellow-400 bg-gray-700 border-gray-600 focus:ring-yellow-400"><span class="ml-3 text-white">${ing.name} (${quantityText.trim()})</span></label></li>`; 
+                    }); 
+                    categoryHtml += '</ul></div>'; 
+                    listContainer.innerHTML += categoryHtml; 
+                } 
+            }); 
+            openModal(shoppingListModal); 
+        }
+
+        /**
+         * Procesa los datos de nutrición brutos en un formato más utilizable por día.
+         * @returns {object} Datos de nutrición procesados por día.
+         */
+        function processNutritionData() { 
+            const processed = {}; 
+            dailyMenus.forEach(menu => { 
+                const planDetails = {}; 
+                mealTypes.forEach(type => { // Usar el array mealTypes para consistencia
+                    const mealItems = menu[type.toLowerCase()]; // Acceder por clave en minúsculas
+                    if (mealItems && mealItems.length > 0) { 
+                        planDetails[type] = mealItems.map(id => foodDatabase[id]).filter(Boolean); 
+                    } 
+                }); 
+                processed[menu.name] = { nombre: menu.name, plan: planDetails }; 
+            }); 
+            return processed; 
+        }
+
+        /**
+         * Prepara los datos de las comidas para la vista "por comida", agrupando opciones únicas.
+         * Asegura que los elementos 'Extra' sean únicos por su ID.
+         */
+        function prepareMealViewData() {
+            mealTypes.forEach(mealType => {
+                mealViewData[mealType.toLowerCase()] = []; 
+                mealViewCurrentIndex[mealType.toLowerCase()] = 0; 
+            });
+
+            const mealGroupsMap = {
+                desayuno: [],
+                comida: [],
+                cena: [],
+                extra: new Map() 
+            };
+
+            Object.keys(nutritionData).forEach(menuKey => {
+                const menu = nutritionData[menuKey];
+                mealTypes.forEach(mealType => {
+                    const mealKey = mealType.toLowerCase();
+                    const items = menu.plan[mealType]; 
+
+                    if (items && items.length > 0) {
+                        if (mealKey === 'extra') {
+                            items.forEach(item => {
+                                if (!mealGroupsMap.extra.has(item.id)) { // Asegurar unicidad por ID de comida
+                                    mealGroupsMap.extra.set(item.id, item);
+                                }
+                            });
+                        } else {
+                            const groupToAdd = items; 
+                            const newGroupString = JSON.stringify(groupToAdd.map(item => item.id).sort()); 
+
+                            const existingGroupsStrings = mealGroupsMap[mealKey].map(group => JSON.stringify(group.map(item => item.id).sort()));
+
+                            if (!existingGroupsStrings.includes(newGroupString)) {
+                                mealGroupsMap[mealKey].push(groupToAdd);
+                            }
+                        }
+                    }
+                });
+            });
+
+            mealTypes.forEach(mealType => {
+                const mealKey = mealType.toLowerCase();
+                if (mealKey === 'extra') {
+                    mealViewData.extra = Array.from(mealGroupsMap.extra.values());
+                } else {
+                    mealViewData[mealKey] = mealGroupsMap[mealKey];
+                }
+            });
+        }
+
+        /**
+         * Actualiza la vista de nutrición basada en el modo configurado (por día o por comida).
+         */
+        function updateNutritionView() {
+            const planDisplay = document.getElementById('plan-display');
+
+            planDisplay.innerHTML = ''; 
+            totalMacrosSummary.classList.add('hidden'); 
+
+            viewByDayBtn.classList.remove('active');
+            viewByMealBtn.classList.remove('active');
+            if (APP_CONFIG.NUTRITION_VIEW_MODE === 'by_day') {
+                viewByDayBtn.classList.add('active');
+                nutritionViewControls.classList.remove('hidden'); 
+                const selectedMenuKey = menuSelector.value;
+                if (selectedMenuKey && nutritionData[selectedMenuKey]) {
+                    displayDayView(selectedMenuKey);
+                } else {
+                    const firstMenuKey = Object.keys(nutritionData)[0];
+                    if (firstMenuKey) {
+                        menuSelector.value = firstMenuKey;
+                        displayDayView(firstMenuKey);
+                    }
+                }
+                totalMacrosSummary.classList.remove('hidden'); 
+            } else { 
+                viewByMealBtn.classList.add('active');
+                nutritionViewControls.classList.add('hidden'); 
+                displayMealView();
+            }
+        }
+
+        /**
+         * Muestra el plan de nutrición para un día seleccionado.
+         * @param {string} menuKey - La clave del menú diario.
+         */
+        function displayDayView(menuKey) { 
+            const menuData = nutritionData[menuKey]; 
+            const planDisplay = document.getElementById('plan-display'); 
+            if (!menuData || !menuData.plan) { 
+                planDisplay.innerHTML = ''; 
+                return; 
+            } 
+
+            const macros = { calories: 0, protein: 0, carbs: 0, fats: 0 }; 
+            
+            Object.values(menuData.plan).flat().forEach(item => {
+                macros.calories += item.calories || 0;
+                macros.protein += item.protein || 0;
+                macros.carbs += item.carbs || 0;
+                macros.fats += item.fats || 0;
+            });
+
+            let mealCardsHtml = mealTypes.map(mealName => { 
+                const items = menuData.plan[mealName]; 
+                if (!items || items.length === 0) return ''; 
+                const itemsHtml = items.map(item => { 
+                    return `
+                        <li class="meal-item-card" data-food-id="${item.id}" onclick="openRecipeModal('${item.id.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
+                            <img src="${item.image}" alt="" class="w-20 h-20 object-cover rounded-md mr-4 flex-shrink-0" onerror="this.src='https://placehold.co/80x80/313E53/FACC15?text=Img'; this.alt='Imagen no disponible';">
+                            <div class="meal-details">
+                                <p class="meal-name">${cleanRecipeName(item.name)}</p>
+                                <p class="meal-macros">Kcal: ${Math.round(item.calories || 0)} | Prot: ${Math.round(item.protein || 0)}g | Carbs: ${Math.round(item.carbs || 0)}g | Grasas: ${Math.round(item.fats || 0)}g</p>
+                            </div>
+                        </li>
+                    `; 
+                }).join(''); 
+                const extraNote = mealName === 'Extra' ? '<p class="text-sm text-gray-400 mt-4">Añade estas opciones al resto de comidas como mejor te venga.</p>' : ''; 
+                return `<div class="meal-card"><h3 class="meal-title">${mealName}</h3><ul>${itemsHtml}</ul>${extraNote}</div>`; 
+            }).join(''); 
+            
+            planDisplay.innerHTML = mealCardsHtml; 
+
+            totalKcalValue.textContent = Math.round(macros.calories);
+            totalProtValue.textContent = `${Math.round(macros.protein)} g`;
+            totalCarbsValue.textContent = `${Math.round(macros.carbs)} g`;
+            totalFatsValue.textContent = `${Math.round(macros.fats)} g`;
+
+            planDisplay.querySelectorAll('[data-food-id]').forEach(card => card.addEventListener('click', (e) => openRecipeModal(e.currentTarget.dataset.foodId))); 
+        }
+
+        /**
+         * Muestra la vista de nutrición "por comida".
+         */
+        function displayMealView() {
+            const planDisplay = document.getElementById('plan-display');
+            planDisplay.innerHTML = ''; 
+
+            mealTypes.forEach(mealType => {
+                const mealKey = mealType.toLowerCase();
+                const items = mealViewData[mealKey]; 
+                const currentIndex = mealViewCurrentIndex[mealKey];
+
+                if (items.length === 0) {
+                    planDisplay.innerHTML += `
+                        <div class="meal-card">
+                            <h3 class="meal-title">${mealType}</h3>
+                            <p class="text-gray-400 text-center">No hay opciones de ${mealType.toLowerCase()} disponibles.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const currentMealGroupOrItem = items[currentIndex];
+
+                let itemsHtml = '';
+                let currentMealItemsToRender = [];
+
+                if (mealKey === 'extra') {
+                    currentMealItemsToRender = [currentMealGroupOrItem]; 
+                } else {
+                    currentMealItemsToRender = currentMealGroupOrItem; 
+                }
+
+                itemsHtml = currentMealItemsToRender.map(item => {
+                    const escapedFoodId = item.id.replace(/'/g, "\\'").replace(/"/g, '\\"'); 
+                    return `
+                        <li class="meal-item-card" data-food-id="${item.id}" onclick="openRecipeModal('${escapedFoodId}')">
+                            <img src="${item.image}" alt="" class="w-20 h-20 object-cover rounded-md mr-4 flex-shrink-0" onerror="this.src='https://placehold.co/80x80/313E53/FACC15?text=Img'; this.alt='Imagen no disponible';">
+                            <div class="meal-details">
+                                <p class="meal-name">${cleanRecipeName(item.name)}</p>
+                                <p class="meal-macros">Kcal: ${Math.round(item.calories || 0)} | Prot: ${Math.round(item.protein || 0)}g | Carbs: ${Math.round(item.carbs || 0)}g | Grasas: ${Math.round(item.fats || 0)}g</p>
+                            </div>
+                        </li>
+                    `;
+                }).join('');
+
+                planDisplay.innerHTML += `
+                    <div class="meal-card">
+                        <h3 class="meal-title flex justify-between items-center">
+                            <span>${mealType}</span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="navigateMealOptions('${mealKey}', -1)" class="nav-button" ${items.length <= 1 ? 'disabled' : ''}>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <span class="text-sm text-gray-400">${currentIndex + 1} / ${items.length}</span>
+                                <button onclick="navigateMealOptions('${mealKey}', 1)" class="nav-button" ${items.length <= 1 ? 'disabled' : ''}>
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </h3>
+                        <ul id="meal-list-${mealKey}">
+                            ${itemsHtml}
+                        </ul>
+                    </div>
+                `;
+            });
+        }
+
+        /**
+         * Navega entre las opciones de comida para un tipo de comida dado.
+         * @param {string} mealKey - La clave del tipo de comida (p. ej., 'desayuno').
+         * @param {number} direction - La dirección de navegación (-1 para anterior, 1 para siguiente).
+         */
+        function navigateMealOptions(mealKey, direction) {
+            const items = mealViewData[mealKey];
+            if (items.length <= 1) return;
+
+            let newIndex = mealViewCurrentIndex[mealKey] + direction;
+            if (newIndex < 0) {
+                newIndex = items.length - 1;
+            } else if (newIndex >= items.length) {
+                newIndex = 0;
+            }
+            mealViewCurrentIndex[mealKey] = newIndex;
+            displayMealView(); 
+        }
+
+        /**
+         * Abre el modal para seleccionar opciones de comida para la lista de la compra.
+         */
+        function openMealSelectionForShoppingListModal() {
+            const listContainer = document.getElementById('meal-selection-list');
+            listContainer.innerHTML = ''; // Limpiar contenido anterior
+            mealQuantitiesForShopping = {}; // Reiniciar cantidades para esta sesión
+
+            mealTypes.forEach(mealType => {
+                const mealKey = mealType.toLowerCase();
+                const items = mealViewData[mealKey]; // Array de grupos/elementos de comida
+
+                if (items.length === 0) {
+                    listContainer.innerHTML += `
+                        <div class="mb-4">
+                            <h4 class="text-lg font-semibold text-yellow-400 mb-2 border-b border-gray-600 pb-1">${mealType}</h4>
+                            <p class="text-gray-400">No hay opciones disponibles.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let mealOptionsHtml = `<div class="mb-4"><h4 class="text-lg font-semibold text-yellow-400 mb-2 border-b border-gray-600 pb-1">${mealType}</h4>`;
+                items.forEach((mealOption, index) => {
+                    let optionName;
+                    if (mealKey === 'extra') {
+                        optionName = cleanRecipeName(mealOption.name); // mealOption es un solo elemento de comida para 'extra'
+                    } else if (mealOption.length > 1) {
+                        optionName = `${cleanRecipeName(mealOption[0].name)} + ${cleanRecipeName(mealOption[1].name)}`;
+                    } else {
+                        optionName = cleanRecipeName(mealOption[0].name);
+                    }
+
+                    // Inicializar cantidad desde la sesión anterior si está disponible, si no 0
+                    const currentQuantity = mealQuantitiesForShopping[`${mealKey}-${index}`] || 0;
+
+                    mealOptionsHtml += `
+                        <div class="flex items-center justify-between py-2">
+                            <label class="text-white">${optionName}</label>
+                            <div class="quantity-control" data-meal-key="${mealKey}" data-meal-option-index="${index}" data-quantity="${currentQuantity}">
+                                <button onclick="adjustQuantity(this, -1, 'meal')">-</button>
+                                <span class="quantity-display">${currentQuantity}</span>
+                                <button onclick="adjustQuantity(this, 1, 'meal')">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                mealOptionsHtml += `</div>`;
+                listContainer.innerHTML += mealOptionsHtml;
+            });
+
+            openModal(mealSelectionModal);
+        }
+
+        /**
+         * Inicializa la app de nutrición, cargando datos y configurando eventos.
+         * Implementa caché usando localStorage.
+         * @param {boolean} forceRefresh - Si es true, omite la caché y obtiene los datos de la red.
+         */
+        async function initializeNutritionApp(forceRefresh = false) { 
+            if (isNutritionInitialized && !forceRefresh) return; 
+
+            loadingContainer.style.display = 'flex'; // Mostrar spinner
+            
+            const CACHE_KEY_FOOD_DB = 'hombresEnFormaFoodDatabase';
+            const CACHE_KEY_DAILY_MENUS = 'hombresEnFormaDailyMenus';
+            const CACHE_KEY_TIMESTAMP = 'hombresEnFormaNutritionCacheTimestamp';
+
+            let cachedFoodDb = localStorage.getItem(CACHE_KEY_FOOD_DB);
+            let cachedDailyMenus = localStorage.getItem(CACHE_KEY_DAILY_MENUS);
+            let cachedTimestamp = localStorage.getItem(CACHE_KEY_TIMESTAMP);
+
+            const now = Date.now();
+            const cacheExpired = !cachedTimestamp || (now - parseInt(cachedTimestamp, 10) > APP_CONFIG.CACHE_DURATION_HOURS * 60 * 60 * 1000);
+
+            if (!forceRefresh && cachedFoodDb && cachedDailyMenus && !cacheExpired) {
+                try {
+                    foodDatabase = JSON.parse(cachedFoodDb);
+                    dailyMenus = JSON.parse(cachedDailyMenus);
+                    console.log("Nutrition data loaded from cache.");
+                    showCustomAlert("Datos de nutrición cargados desde caché.", "info");
+                } catch (e) {
+                    console.error("Error parsing cached nutrition data, fetching from network.", e);
+                    // Continuar con la obtención desde la red si el parseo falla
+                }
+            }
+
+            if (Object.keys(foodDatabase).length === 0 || dailyMenus.length === 0 || forceRefresh || cacheExpired) {
+                try { 
+                    const response = await fetch(APP_CONFIG.urls.nutritionData); 
+                    if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`); 
+                    const dataText = await response.text(); 
+                    
+                    const foodDbRegex = /const foodDatabase = ({[\s\S]*?});/; 
+                    const foodDbMatch = dataText.match(foodDbRegex); 
+                    if (!foodDbMatch) throw new Error("No se encontró el objeto 'foodDatabase' en el archivo fuente."); 
+                    foodDatabase = new Function(`return ${foodDbMatch[1]}`)(); 
+
+                    const menusRegex = /const dailyMenus = (\[[\s\S]*?\]);/; 
+                    const menusMatch = dataText.match(menusRegex); 
+                    if (!menusMatch) throw new Error("No se encontró el array 'dailyMenus' en el archivo fuente."); 
+                    dailyMenus = new Function(`return ${menusMatch[1]}`)(); 
+
+                    // Guardar en caché los datos recién obtenidos
+                    localStorage.setItem(CACHE_KEY_FOOD_DB, JSON.stringify(foodDatabase));
+                    localStorage.setItem(CACHE_KEY_DAILY_MENUS, JSON.stringify(dailyMenus));
+                    localStorage.setItem(CACHE_KEY_TIMESTAMP, now.toString());
+                    console.log("Nutrition data fetched from network and cached.");
+                    if (forceRefresh) {
+                        showCustomAlert("Datos de nutrición actualizados.", "info");
+                    }
+
+                } catch (error) { 
+                    console.error("Error initializing nutrition app:", error); 
+                    loadingContainer.innerHTML = `<p class="text-center text-red-400">Error al cargar los menús. Revisa el archivo en GitHub.</p>`; 
+                    return; // Detener la inicialización si la obtención de datos falla
+                } 
+            }
+
+            loadingContainer.style.display = 'none'; // Ocultar spinner
+
+            // Configurar los event listeners (solo una vez)
+            if (!isNutritionInitialized) {
+                document.getElementById('modal-close').addEventListener('click', () => closeModalElement(recipeModal)); 
+                recipeModal.addEventListener('click', e => { if(e.target === recipeModal) closeModalElement(recipeModal); }); 
+                document.getElementById('days-selection-close').addEventListener('click', () => closeModalElement(daysSelectionModal)); 
+                daysSelectionModal.addEventListener('click', e => { if(e.target === daysSelectionModal) closeModalElement(daysSelectionModal); }); 
+                document.getElementById('shopping-list-close').addEventListener('click', () => closeModalElement(shoppingListModal)); 
+                shoppingListModal.addEventListener('click', e => { if(e.target === shoppingListModal) closeModalElement(shoppingListModal); }); 
+                document.getElementById('meal-selection-close').addEventListener('click', () => closeModalElement(mealSelectionModal)); 
+                mealSelectionModal.addEventListener('click', e => { if(e.target === mealSelectionModal) closeModalElement(mealSelectionModal); }); 
+                
+                document.getElementById('generate-list-from-days-btn').addEventListener('click', generateShoppingListByDays); 
+                document.getElementById('generate-list-from-meals-btn').addEventListener('click', generateShoppingListByMeals); 
+                
+                document.getElementById('shopping-list-btn').addEventListener('click', () => {
+                    openModal(shoppingListChoiceModal);
+                });
+                document.getElementById('choice-by-days-btn').addEventListener('click', () => {
+                    closeModalElement(shoppingListChoiceModal);
+                    populateDaysSelectionModal();
+                });
+                document.getElementById('choice-by-meals-btn').addEventListener('click', () => {
+                    closeModalElement(shoppingListChoiceModal);
+                    openMealSelectionForShoppingListModal();
+                });
+
+                // Añadir event listener para el botón de refrescar
+                document.getElementById('refreshNutritionDataBtn').addEventListener('click', () => initializeNutritionApp(true));
+
+                // Añadir event listeners para los botones de cambio de vista
+                viewByDayBtn.addEventListener('click', () => {
+                    APP_CONFIG.NUTRITION_VIEW_MODE = 'by_day';
+                    updateNutritionView();
+                });
+                viewByMealBtn.addEventListener('click', () => {
+                    APP_CONFIG.NUTRITION_VIEW_MODE = 'by_meal';
+                    updateNutritionView();
+                });
+            }
+
+            // Procesar y preparar datos (siempre hacer esto después de cargar los datos)
+            nutritionData = processNutritionData(); 
+            prepareMealViewData(); 
+
+            // Poblar el selector de menú para la vista "por día"
+            menuSelector.innerHTML = Object.keys(nutritionData).map(key => 
+                `<option value="${key}">${cleanRecipeName(nutritionData[key].nombre)}</option>`
+            ).join('');
+            
+            // Añadir event listener para el dropdown de selección
+            menuSelector.addEventListener('change', (e) => {
+                displayDayView(e.target.value);
+            });
+
+            // Mostrar la vista inicial basada en la configuración
+            updateNutritionView(); 
+
+            isNutritionInitialized = true; 
+        }
+
+        // #############################################################
+        // #                     CONTENT APP LOGIC                     #
+        // #############################################################
+        const WATCHED_VIDEOS_KEY = 'hombresEnFormaWatchedVideos';
+        /**
+         * Obtiene el estado de los vídeos vistos desde el almacenamiento local.
+         * @returns {object} Un objeto donde las claves son los ID de los vídeos y los valores son booleanos.
+         */
+        function getWatchedStatus() { 
+            const stored = localStorage.getItem(WATCHED_VIDEOS_KEY); 
+            return stored ? JSON.parse(stored) : {}; 
+        }
+
+        /**
+         * Guarda el estado de los vídeos vistos en el almacenamiento local.
+         * @param {object} watchedVideos - Objeto con el estado de los vídeos vistos.
+         */
+        function saveWatchedStatus(watchedVideos) { 
+            localStorage.setItem(WATCHED_VIDEOS_KEY, JSON.stringify(watchedVideos)); 
+        }
+
+        /**
+         * Formatea una cadena de fecha a un formato legible en español.
+         * @param {string} dateString - La cadena de fecha (p. ej., 'YYYY-MM-DD').
+         * @returns {string} La fecha formateada.
+         */
+        function formatDate(dateString) { 
+            const date = new Date(dateString + 'T00:00:00'); 
+            const options = { year: 'numeric', month: 'long', day: 'numeric' }; 
+            return date.toLocaleDateString('es-ES', options); 
+        }
+
+        /**
+         * Comprueba si un vídeo fue lanzado esta semana.
+         * @param {string} releaseDateStr - La fecha de lanzamiento del vídeo (YYYY-MM-DD).
+         * @param {Date} today - La fecha actual.
+         * @returns {boolean} True si fue lanzado esta semana, false en caso contrario.
+         */
+        function isVideoReleasedThisWeek(releaseDateStr, today) { 
+            const releaseDate = new Date(releaseDateStr + 'T00:00:00'); 
+            const todayMidnight = new Date(today); 
+            todayMidnight.setHours(0, 0, 0, 0); 
+            const currentDay = todayMidnight.getDay(); 
+            const daysSinceMonday = (currentDay === 0) ? 6 : currentDay - 1; 
+            const lastMonday = new Date(todayMidnight); 
+            lastMonday.setDate(todayMidnight.getDate() - daysSinceMonday); 
+            return releaseDate >= lastMonday && releaseDate <= todayMidnight; 
+        }
+
+        /**
+         * Marca un vídeo como visto y vuelve a renderizar la lista de vídeos.
+         * @param {string} videoId - El ID del vídeo.
+         */
+        function markVideoAsWatchedAndRender(videoId) { 
+            const watchedVideos = getWatchedStatus(); 
+            if (!watchedVideos[videoId]) { 
+                watchedVideos[videoId] = true; 
+                saveWatchedStatus(watchedVideos); 
+                renderVideos(); 
+            } 
+        }
+
+        /**
+         * Maneja el clic en el botón "Ver Vídeo", abre el enlace y lo marca como visto.
+         * @param {string} videoUrl - La URL del vídeo.
+         * @param {string} videoId - El ID del vídeo.
+         * @param {boolean} isCurrentlyWatched - Si el vídeo ya está marcado como visto.
+         */
+        function handleWatchVideoClick(videoUrl, videoId, isCurrentlyWatched) { 
+            window.open(videoUrl, '_blank', 'noopener,noreferrer'); 
+            if (!isCurrentlyWatched) { 
+                markVideoAsWatchedAndRender(videoId); 
+            } 
+        }
+
+        /**
+         * Renderiza la lista de vídeos de contenido.
+         */
+        function renderVideos() { 
+            const videoListContainer = document.getElementById('videoListContainer'); 
+            const contentTab = document.querySelector('.app-tab[data-tab="contentSection"]'); // Obtener el botón de la pestaña de contenido
+            if (!videoListContainer || !contentTab) { return; } 
+
+            const watchedVideosData = getWatchedStatus(); 
+            const today = new Date(); 
+            
+            if (!programVideos || programVideos.length === 0) {
+                 videoListContainer.innerHTML = '<p class="text-center text-gray-400">Aún no hay vídeos de contenido disponibles. ¡Vuelve pronto!</p>';
+                 contentTab.classList.remove('app-tab-notify');
+                 return;
+            }
+
+            const availableVideos = programVideos
+                .filter(video => video.show && new Date(video.releaseDate + 'T00:00:00') <= today)
+                .map(video => { 
+                    const isWatched = !!watchedVideosData[video.id]; 
+                    const releasedThisWeek = isVideoReleasedThisWeek(video.releaseDate, today); 
+                    const isEffectivelyNew = releasedThisWeek && !isWatched; 
+                    return { ...video, watched: isWatched, isNew: isEffectivelyNew }; 
+                }); 
+            
+            // Agrupar vídeos por módulo
+            const videosByModule = availableVideos.reduce((acc, video) => {
+                const moduleName = video.module || 'Sin Módulo';
+                if (!acc[moduleName]) {
+                    acc[moduleName] = [];
+                }
+                acc[moduleName].push(video);
+                return acc;
+            }, {});
+
+            // Ordenar módulos (opcional, pero bueno para la consistencia)
+            const sortedModuleNames = Object.keys(videosByModule).sort();
+
+            let videosHtml = '';
+            sortedModuleNames.forEach(moduleName => {
+                videosHtml += `<h3 class="text-lg sm:text-xl font-semibold text-yellow-400 mt-6 mb-3 border-b border-gray-600 pb-2">${moduleName}</h3>`;
+                videosByModule[moduleName].sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)).forEach(video => {
+                    const videoItemClasses = `video-item p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0 sm:space-x-4 ${video.isNew ? 'is-new' : ''} ${video.watched ? 'is-watched' : ''}`; 
+                    const buttonText = video.watched ? 'Visto' : 'Ver Vídeo'; 
+                    const buttonIcon = video.watched ? '<i class="fas fa-check mr-1 sm:mr-2"></i>' : '<i class="fas fa-play mr-1 sm:mr-2"></i>'; 
+                    const buttonClasses = `action-button ${video.watched ? 'action-button-watched' : ''}`; 
+                    const clickHandler = `handleWatchVideoClick('${video.url}', '${video.id}', ${video.watched})`; 
+                    videosHtml += ` 
+                        <div class="${videoItemClasses}" data-video-id="${video.id}"> 
+                            <div class="video-info flex-grow"> 
+                                <h3 class="text-lg font-semibold ${video.isNew ? 'text-yellow-300' : 'text-gray-100'}">${video.title}</h3> 
+                                <p class="text-xs sm:text-sm text-gray-400">${video.module} - Liberado: ${formatDate(video.releaseDate)}</p> 
+                                ${video.isNew ? '<span class="new-badge">NUEVO</span>' : ''} 
+                            </div> 
+                            <div class="video-actions flex items-center self-end sm:self-center"> 
+                                <button onclick="${clickHandler}" class="${buttonClasses}"> 
+                                    ${buttonIcon}${buttonText} 
+                                </button> 
+                            </div> 
+                        </div> 
+                    `; 
+                });
+            });
+
+            // Comprobar si hay vídeos sin ver o nuevos
+            const hasUnwatchedOrNewVideos = availableVideos.some(video => !video.watched || video.isNew);
+            if (hasUnwatchedOrNewVideos) {
+                contentTab.classList.add('app-tab-notify');
+            } else {
+                contentTab.classList.remove('app-tab-notify');
+            }
+
+            videoListContainer.innerHTML = videosHtml; 
+        }
+
+        /**
+         * Inicializa la app de contenido, extrayendo datos de Supabase.
+         * @param {boolean} forceRefresh - Si es true, omite la caché y obtiene los datos de Supabase.
+         */
+        async function initializeContentApp(forceRefresh = false) { 
+            if(isContentInitialized && !forceRefresh) return; 
+            
+            const videoListContainer = document.getElementById('videoListContainer');
+            videoListContainer.innerHTML = '<p class="text-center p-4"><div class="spinner mx-auto mb-4"></div>Cargando vídeos...</p>';
+            isContentInitialized = true; // Evitar llamadas múltiples
+            
+            try { 
+                if (!supabase) {
+                    throw new Error("Cliente de Supabase no inicializado.");
+                }
+
+                // Buscar la configuración del usuario por client_id
+                const { data, error } = await supabase
+                    .from('user_configs')
+                    .select('videos_data')
+                    .eq('client_id', userIdentifier)
+                    .single();
+
+                if (error) {
+                    throw new Error(`Error al cargar datos de videos: ${error.message}`);
+                }
+
+                if (data && data.videos_data) {
+                    programVideos = data.videos_data;
+                } else {
+                    programVideos = [];
+                    showCustomAlert("No se encontraron vídeos para este usuario.", "warning");
+                }
+
+                renderVideos(); 
+                
+            } catch (e) { 
+                console.error("Error initializing content app:", e); 
+                const container = document.getElementById('videoListContainer'); 
+                if (container) { 
+                    container.innerHTML = '<p class="text-center text-red-500 font-bold p-4">Ha ocurrido un error al cargar los vídeos.</p>'; 
+                } 
+            } 
+        }
+        
+        // #############################################################
+        // #                   BODY RECORD APP LOGIC                   #
+        // #############################################################
+
+        // Helper function to get ISO week number
+        function getISOWeekNumber(d) {
+            // Copy date so don't modify original
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            // Set to nearest Thursday: current date + 4 - current day number
+            // Make Sunday's day number 7
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            // Get first day of year
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            // Calculate full weeks to nearest Thursday
+            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return weekNo;
+        }
+
+        /**
+         * Comprueba si una semana está activa según la configuración.
+         * @param {string|number[]} activeWeeksConfig - 'all', 'none', 'even', 'odd', o un array de números de semana.
+         * @param {Date} today - La fecha actual.
+         * @returns {boolean} True si la semana actual está activa, false en caso contrario.
+         */
+        function isWeekActive(activeWeeksConfig, today) {
+            if (activeWeeksConfig === 'all') return true;
+            if (activeWeeksConfig === 'none') return false;
+
+            const weekNumber = getISOWeekNumber(today);
+            const isEvenWeek = weekNumber % 2 === 0;
+
+            if (activeWeeksConfig === 'even' && isEvenWeek) return true;
+            if (activeWeeksConfig === 'odd' && !isEvenWeek) return true;
+
+            // Si es un array de números de semana específicos
+            if (Array.isArray(activeWeeksConfig)) {
+                return activeWeeksConfig.includes(weekNumber);
+            }
+
+            return false;
+        }
+
+        /**
+         * Comprueba si el día actual está activo según la configuración.
+         * @param {number[]} activeDaysConfig - Un array de números que representan los días activos (0=Domingo, 1=Lunes, ..., 6=Sábado).
+         * @param {Date} today - La fecha actual.
+   * @returns {boolean} True si el día actual está activo, false en caso contrario.
+         */
+        function isDayActive(activeDaysConfig, today) {
+            const currentDay = today.getDay(); // 0 para Domingo, 1 para Lunes, ..., 6 para Sábado
+            return activeDaysConfig.includes(currentDay);
+        }
+
+        /**
+         * Actualiza el estado visual (color verde) del botón "Progreso" basado en APP_CONFIG.
+         */
+        function updateProgressButtonState() {
+            const progressTab = document.querySelector('.app-tab[data-tab="bodyRecordSection"]');
+            if (!progressTab) return;
+
+            const today = new Date();
+            const config = APP_CONFIG.progressButtonConfig;
+
+            const weekIsActive = isWeekActive(config.activeWeeks, today);
+            const dayIsActive = isDayActive(config.activeDays, today);
+
+            if (weekIsActive && dayIsActive) {
+                progressTab.classList.add('app-tab-notify'); // Añadir clase verde
+            } else {
+                progressTab.classList.remove('app-tab-notify'); // Quitar clase verde
+            }
+        }
+    </script>
+</body>
+</html>
