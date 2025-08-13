@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-        <link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <!-- Configuración PWA y metadatos -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Principal - Programa Hombres en Forma</title>
@@ -502,8 +504,9 @@
             urls: {
                 nutritionData: 'https://raw.githubusercontent.com/hombresenforma/ivan-diet/main/', // Base URL, will be completed dynamically
                 equivalencesTable: 'https://app.guaranteedcrm.io/v2/preview/keNxZmcpsgYuraFllzvO?notrack=true',
-                workoutExternalUrl: 'https://www.aceleratumetabolismo.es/app_', 
-                progressExternalUrl: 'https://aceleratumetabolismo.es/registro_', 
+                // Rutas relativas para la PWA
+                workoutExternalUrl: '/entrenamiento.html?usuario=', 
+                progressExternalUrl: '/registro.html?usuario=', 
             },
             showEquivalences: true, // NUEVO: Controla el acceso a la tabla de equivalencias
             videos: [
