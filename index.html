@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="manifest" href="/manifest.json">
+        <link rel="manifest" href="/manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
@@ -506,7 +506,19 @@
                 progressExternalUrl: 'https://aceleratumetabolismo.es/registro_', 
             },
             showEquivalences: true, // NUEVO: Controla el acceso a la tabla de equivalencias
-            // Los videos ya no están aquí, se cargan desde Supabase
+            videos: [
+                { id: 'vid_tutorialentreno', title: 'Tutorial: Entrenamiento', module: 'Primeros Pasos', url: 'https://youtu.be/dasgPFzmv3U', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_tutorialpanel', title: 'Tutorial: Panel Principal', module: 'Primeros Pasos', url: 'https://www.youtube.com/shorts/ECiRbc1QJ-0', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_primer_freno', title: 'Primer Freno', module: 'Frenos Metabólicos', url: 'https://www.youtube.com/watch?v=YZVr0yuLxUc', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_segundo_freno', title: 'Segundo Freno', module: 'Frenos Metabólicos', url: 'https://www.youtube.com/watch?v=imuI3NAbFm0', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_tercer_freno', title: 'Tercer Freno', module: 'Frenos Metabólicos', url: 'https://www.youtube.com/watch?v=NegkiKeyeGs', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_cuarto_freno', title: 'Cuarto Freno', module: 'Frenos Metabólicos', url: 'xxx', releaseDate: '2025-01-01', show: true },
+                { id: 'vid_quinto_freno', title: 'Quinto Freno', module: 'Frenos Metabólicos', url: 'https://www.youtube.com/watch?v=G6x-t56Pevs', releaseDate: '2025-01-01', show: true },
+
+                { id: 'vid_ejemplo_modulo_2', title: 'Video de Ejemplo Módulo 2', module: 'Módulo 2', url: 'URL_EJEMPLO_MODULO_2_AQUI', releaseDate: '2025-06-01', show: false },
+                { id: 'vid_otro_modulo_3', title: 'Otro Video Módulo 3', url: 'URL_OTRO_MODULO_3_AQUI', releaseDate: '2025-07-20', show: false },
+                { id: 'vid_ejemplo_modulo_1', title: 'Video de Ejemplo Módulo 1', url: 'URL_EJEMPLO_MODULO_1_AQUI', releaseDate: '2025-05-20', show: false }
+            ],
             NUTRITION_VIEW_MODE: 'by_day', // Can be 'by_day' or 'by_meal'
             CACHE_DURATION_HOURS: 360, // How long nutrition data is cached in localStorage
             progressButtonConfig: {
@@ -522,7 +534,6 @@
         // --- GLOBAL APP STATE & VARIABLES ---
         let isNutritionInitialized = false;
         let isContentInitialized = false;
-        let programVideos = []; // Variable para almacenar los vídeos de Supabase
 
         // --- Supabase Setup (Moved to global scope) ---
         let supabase = null;
@@ -648,51 +659,55 @@
             updateProgressButtonState();
         });
 
+        /**
+         * Función para obtener el ID de usuario de la URL.
+         * Comprueba primero la ruta (`/panel_`, `/app_`) y luego los parámetros (`?user=`, `?usuario=`).
+         * @returns {string|null} El ID de usuario o null si no se encuentra.
+         */
+        function getUserIdentifierFromUrl() {
+            const path = window.location.pathname;
+            const urlParams = new URLSearchParams(window.location.search);
+            let userIdentifier = null;
+
+            // 1. Check path for patterns like /panel_annasc or /app_annasc
+            let match = path.match(/\/(?:panel|app)_([^/]+)/);
+            if (match && match[1]) {
+                userIdentifier = match[1];
+                console.log('User ID found in path:', userIdentifier);
+                return userIdentifier;
+            }
+
+            // 2. Check query parameters for 'user' or 'usuario'
+            userIdentifier = urlParams.get('user') || urlParams.get('usuario');
+            if (userIdentifier) {
+                console.log('User ID found in query parameter:', userIdentifier);
+                return userIdentifier;
+            }
+
+            console.warn("User ID not found in URL path or parameters. Using a placeholder.");
+            return "default-user-id";
+        }
+
+
         // Función para inicializar el cliente de Supabase y obtener el identificador de usuario
         function initializeSupabaseClient() {
             const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
-            // Clave de acceso anónimo proporcionada por el usuario
+            // !!!
+            // !!! IMPORTANTE: Pega tu clave 'anon public' de Supabase aquí.
+            // !!! Puedes encontrarla en tu proyecto de Supabase, en Settings > API.
+            // !!! ESTA CLAVE ES NECESARIA PARA QUE LA APLICACIÓN SE CONECTE A LA BASE DE DATOS.
+            // !!!
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
             
             try {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey, {
-                    db: { schema: 'public' }
-                });
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
-                showCustomAlert("Error de configuración: No se pudo conectar a la base de datos.", "error");
+                showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
                 return;
             }
 
-            const path = window.location.pathname;
-            let userIdentifierFromPath = null;
-
-            // Intentar encontrar /panel_
-            let match = path.match(/\/panel_([^/]+)/);
-            if (match) {
-                userIdentifierFromPath = match[1];
-            } else {
-                // Si no es /panel_, intentar encontrar /app_
-                match = path.match(/\/app_([^/]+)/);
-                if (match) {
-                    userIdentifierFromPath = match[1];
-                }
-            }
-            
-            userIdentifier = userIdentifierFromPath;
-
-            if (!userIdentifier) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const userFromQuery = urlParams.get('user');
-                if (userFromQuery) {
-                    userIdentifier = userFromQuery;
-                } else {
-                    console.warn("Identificador de usuario no encontrado en la URL. Usando un marcador de posición. Los datos podrían no aislarse correctamente.");
-                    userIdentifier = "default-user-id"; // Marcador para desarrollo
-                    showCustomAlert("Advertencia: Usuario no identificado en la URL. Los datos pueden no guardarse correctamente.", "warning");
-                }
-            }
-            console.log("Detected userIdentifier:", userIdentifier); // Debug: Registrar el ID detectado
+            userIdentifier = getUserIdentifierFromUrl();
             
             // Lógica para construir la URL de nutrición dinámicamente
             // Nueva base URL para los archivos JS de los usuarios
@@ -825,7 +840,7 @@
             document.querySelectorAll('#days-selection-list .quantity-control').forEach(controlDiv => {
                 const days = parseInt(controlDiv.dataset.quantity || '0', 10);
                 if (days > 0) {
-                    const menuKey = controlDiv.dataset.menu-key;
+                    const menuKey = controlDiv.dataset.menuKey;
                     Object.values(nutritionData[menuKey].plan).flat().forEach(foodItem => {
                         (foodItem.ingredients || []).forEach(ingredient => {
                             // FIX V3: Try multiple property names for quantity and category for robustness.
@@ -1469,13 +1484,8 @@
             const watchedVideosData = getWatchedStatus(); 
             const today = new Date(); 
             
-            if (!programVideos || programVideos.length === 0) {
-                 videoListContainer.innerHTML = '<p class="text-center text-gray-400">Aún no hay vídeos de contenido disponibles. ¡Vuelve pronto!</p>';
-                 contentTab.classList.remove('app-tab-notify');
-                 return;
-            }
-
-            const availableVideos = programVideos
+            // **MODIFICACIÓN**: Filtrar por la nueva propiedad `show` además de la fecha de lanzamiento.
+            const availableVideos = APP_CONFIG.videos
                 .filter(video => video.show && new Date(video.releaseDate + 'T00:00:00') <= today)
                 .map(video => { 
                     const isWatched = !!watchedVideosData[video.id]; 
@@ -1531,47 +1541,23 @@
                 contentTab.classList.remove('app-tab-notify');
             }
 
+            if (availableVideos.length === 0) { 
+                videoListContainer.innerHTML = '<p class="text-center text-gray-400">Aún no hay vídeos de contenido disponibles. ¡Vuelve pronto!</p>'; 
+                return; 
+            } 
+            
             videoListContainer.innerHTML = videosHtml; 
         }
 
         /**
-         * Inicializa la app de contenido, extrayendo datos de Supabase.
-         * @param {boolean} forceRefresh - Si es true, omite la caché y obtiene los datos de Supabase.
+         * Inicializa la app de contenido.
          */
-        async function initializeContentApp(forceRefresh = false) { 
-            if(isContentInitialized && !forceRefresh) return; 
-            
-            const videoListContainer = document.getElementById('videoListContainer');
-            videoListContainer.innerHTML = '<p class="text-center p-4"><div class="spinner mx-auto mb-4"></div>Cargando vídeos...</p>';
-            isContentInitialized = true; // Evitar llamadas múltiples
-            
+        function initializeContentApp() { 
+            if(isContentInitialized) return; 
             try { 
-                if (!supabase) {
-                    throw new Error("Cliente de Supabase no inicializado.");
-                }
-
-                // Buscar la configuración del usuario por client_id
-                const { data, error } = await supabase
-                    .from('user_configs')
-                    .select('videos_data')
-                    .eq('client_id', userIdentifier)
-                    .single();
-
-                if (error) {
-                    throw new Error(`Error al cargar datos de videos: ${error.message}`);
-                }
-
-                if (data && data.videos_data) {
-                    programVideos = data.videos_data;
-                } else {
-                    programVideos = [];
-                    showCustomAlert("No se encontraron vídeos para este usuario.", "warning");
-                }
-
                 renderVideos(); 
-                
+                isContentInitialized = true; 
             } catch (e) { 
-                console.error("Error initializing content app:", e); 
                 const container = document.getElementById('videoListContainer'); 
                 if (container) { 
                     container.innerHTML = '<p class="text-center text-red-500 font-bold p-4">Ha ocurrido un error al cargar los vídeos.</p>'; 
@@ -1625,7 +1611,7 @@
          * Comprueba si el día actual está activo según la configuración.
          * @param {number[]} activeDaysConfig - Un array de números que representan los días activos (0=Domingo, 1=Lunes, ..., 6=Sábado).
          * @param {Date} today - La fecha actual.
-   * @returns {boolean} True si el día actual está activo, false en caso contrario.
+         * @returns {boolean} True si el día actual está activo, false en caso contrario.
          */
         function isDayActive(activeDaysConfig, today) {
             const currentDay = today.getDay(); // 0 para Domingo, 1 para Lunes, ..., 6 para Sábado
