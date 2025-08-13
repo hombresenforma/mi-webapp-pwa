@@ -931,9 +931,10 @@
             // Set the href for the main menu button
             const mainMenuButton = document.getElementById('mainMenuButton');
             if (mainMenuButton && userIdentifier) {
-                mainMenuButton.href = `${APP_CONFIG.urls.mainPanelUrl}${userIdentifier}`;
+                // MODIFIED: Changed the link to point to index.html with the `usuario` parameter
+                mainMenuButton.href = `/index.html?usuario=${userIdentifier}`;
             } else if (mainMenuButton) {
-                mainMenuButton.href = `${APP_CONFIG.urls.mainPanelUrl}default-user`;
+                mainMenuButton.href = `/index.html`;
                 console.warn("User identifier not found for main menu button. Using default link.");
             }
 
@@ -957,6 +958,21 @@
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
                 showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
+                return;
+            }
+
+            // MODIFIED: Updated to check for 'usuario' parameter first
+            function obtenerParametroUrl(nombre) {
+                nombre = nombre.replace(/[\[\]]/g, '\\$&');
+                var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
+                    resultados = regex.exec(window.location.href);
+                if (!resultados) return null;
+                if (!resultados[2]) return '';
+                return decodeURIComponent(resultados[2].replace(/\+/g, ' '));
+            }
+            userIdentifier = obtenerParametroUrl('usuario');
+            if (userIdentifier) {
+                console.log('User ID for training:', userIdentifier);
                 return;
             }
 
@@ -1976,38 +1992,29 @@
             if (restDurationMatch) {
                 const restSeconds = parseInt(restDurationMatch[1], 10);
                 if (restSeconds > 0) {
-                    let nextExerciseForRest = null;
-                    if (setNumber < exerciseData.sets) {
-                        nextExerciseForRest = {
-                            name: exerciseData.name,
-                            reps: (Array.isArray(exerciseData.reps) ? (exerciseData.reps[setNumber] || exerciseData.reps[0]) : exerciseData.reps),
-                            kg: getLastLoggedDataForSet(exerciseData.name, setNumber + 1).kg || '--'
-                        };
-                    } else {
-                        const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                        const currentCardElement = document.getElementById(cardId);
-                        const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                        if (currentCardIndex !== -1) {
-                            let nextCard = null;
-                            for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                                if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                                    nextCard = allExerciseCards[i];
+                    const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
+                    const currentCardElement = document.getElementById(cardId);
+                    const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
+                    if (currentCardIndex !== -1) {
+                        let nextCard = null;
+                        for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
+                            if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
+                                nextCard = allExerciseCards[i];
+                                break;
+                            } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
+                                const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
+                                if (firstSubExercise) {
+                                    nextCard = firstSubExercise;
                                     break;
-                                } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                                    const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                                    if (firstSubExercise) {
-                                        nextCard = firstSubExercise;
-                                        break;
-                                    }
                                 }
                             }
-                            if (nextCard) {
-                                nextExerciseForRest = {
-                                    name: nextCard.dataset.currentName,
-                                    reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                    kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                                };
-                            }
+                        }
+                        if (nextCard) {
+                            nextExerciseForRest = {
+                                name: nextCard.dataset.currentName,
+                                reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
+                                kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                            };
                         }
                     }
                     startRestTimer(restSeconds, nextExerciseForRest);
