@@ -510,6 +510,11 @@
                 workoutExternalUrl: '/entrenamiento.html?usuario=', 
                 progressExternalUrl: '/registro.html?usuario=', 
             },
+            // Configuración de Supabase para obtener la configuración de progreso
+            supabaseConfig: {
+                url: 'https://izocmtacvdforxywfxgr.supabase.co',
+                anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU',
+            },
             showEquivalences: true, // NUEVO: Controla el acceso a la tabla de equivalencias
             videos: [
                 { id: 'vid_tutorialentreno', title: 'Tutorial: Entrenamiento', module: 'Primeros Pasos', url: 'https://youtu.be/dasgPFzmv3U', releaseDate: '2025-01-01', show: true },
@@ -526,10 +531,6 @@
             ],
             NUTRITION_VIEW_MODE: 'by_day', // Can be 'by_day' or 'by_meal'
             CACHE_DURATION_HOURS: 360, // How long nutrition data is cached in localStorage
-            progressButtonConfig: {
-                activeWeeks: 'even', // 'all', 'none', 'even', 'odd', or an array like [14, 20, 24]
-                activeDays: [0, 5, 6] // 0=Sunday, 1=Monday, ..., 6=Saturday
-            }
         };
         // =================================================================
         // =================== END OF CONFIGURATION ======================
@@ -596,13 +597,16 @@
         }
 
         // --- TAB NAVIGATION LOGIC ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const tabs = document.querySelectorAll('.app-tab');
             const tabContents = document.querySelectorAll('.tab-content');
             const workoutAppButton = document.getElementById('workoutAppButton');
             
-            // Initialize Supabase and userIdentifier first
+            // Initialize Supabase client and get user identifier
             initializeSupabaseClient();
+
+            // Fetch user config and then update UI
+            await updateProgressButtonState();
 
             // Set the href for the "Ir a Entrenamiento" button
             if (workoutAppButton && userIdentifier) {
@@ -698,16 +702,8 @@
 
         // Función para inicializar el cliente de Supabase y obtener el identificador de usuario
         function initializeSupabaseClient() {
-            const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
-            // !!!
-            // !!! IMPORTANTE: Pega tu clave 'anon public' de Supabase aquí.
-            // !!! Puedes encontrarla en tu proyecto de Supabase, en Settings > API.
-            // !!! ESTA CLAVE ES NECESARIA PARA QUE LA APLICACIÓN SE CONECTE A LA BASE DE DATOS.
-            // !!!
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
-            
             try {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                supabase = window.supabase.createClient(APP_CONFIG.supabaseConfig.url, APP_CONFIG.supabaseConfig.anonKey);
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
                 showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
@@ -1626,22 +1622,50 @@
         }
 
         /**
-         * Actualiza el estado visual (color verde) del botón "Progreso" basado en APP_CONFIG.
+         * Actualiza el estado visual (color verde) del botón "Progreso" basado en la configuración de Supabase.
          */
-        function updateProgressButtonState() {
+        async function updateProgressButtonState() {
             const progressTab = document.querySelector('.app-tab[data-tab="bodyRecordSection"]');
-            if (!progressTab) return;
+            if (!progressTab || !supabase || !userIdentifier) {
+                console.warn("Supabase client or user identifier not ready. Cannot update progress button state.");
+                return;
+            }
 
-            const today = new Date();
-            const config = APP_CONFIG.progressButtonConfig;
+            try {
+                const { data, error } = await supabase
+                    .from('user_configs')
+                    .select('config_data')
+                    .eq('client_id', userIdentifier)
+                    .single();
 
-            const weekIsActive = isWeekActive(config.activeWeeks, today);
-            const dayIsActive = isDayActive(config.activeDays, today);
+                if (error) {
+                    console.error("Error fetching user config from Supabase:", error.message);
+                    // Fallback to default if there's an error
+                    progressTab.classList.remove('app-tab-notify');
+                    return;
+                }
+                
+                const progressConfig = data.config_data?.buttons?.addBodyRecordButton;
 
-            if (weekIsActive && dayIsActive) {
-                progressTab.classList.add('app-tab-notify'); // Añadir clase verde
-            } else {
-                progressTab.classList.remove('app-tab-notify'); // Quitar clase verde
+                if (!progressConfig) {
+                    console.warn("Progress button config not found in Supabase data. Using default logic.");
+                    progressTab.classList.remove('app-tab-notify');
+                    return;
+                }
+                
+                const today = new Date();
+                const weekIsActive = isWeekActive(progressConfig.activeWeeks, today);
+                const dayIsActive = isDayActive(progressConfig.activeDays, today);
+
+                if (weekIsActive && dayIsActive) {
+                    progressTab.classList.add('app-tab-notify'); // Añadir clase verde
+                } else {
+                    progressTab.classList.remove('app-tab-notify'); // Quitar clase verde
+                }
+
+            } catch (e) {
+                console.error("Unexpected error in updateProgressButtonState:", e);
+                progressTab.classList.remove('app-tab-notify');
             }
         }
     </script>
