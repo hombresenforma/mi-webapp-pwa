@@ -778,7 +778,7 @@
             // 'odd'    - Show on odd-numbered weeks (1, 3, 5...).
             // 'none'   - Never show the prompt.
             // [30, 32] - Show only on specific week numbers (e.g., week 30 and 32).
-            activeWeeks: 'all' 
+            activeWeeks: 'none' // MODIFIED: Default to 'none' if no config is found
         };
         // =================================================================
         // =================== END OF CONFIGURATION ======================
@@ -818,6 +818,7 @@
         // --- Supabase Setup ---
         let supabase = null;
         let userIdentifier = null; // This will store the client_id from the URL
+        const SUPABASE_API_KEY = 'sbp_e7192eb59aef8ffc3042ca48e022360ea3f25a55';
 
         // --- UTILITY FUNCTIONS (SHARED) ---
         function openModal(modalElement) {
@@ -894,18 +895,16 @@
                         console.log('Audio context started successfully.');
                     }
                     
-                    // Create the synth instance if it doesn't exist
+                    // Create the synth instance if it's not already there
                     if (!toneSynth) {
                         toneSynth = new Tone.Synth().toDestination();
                         console.log('Tone.Synth created.');
                     }
 
-                    // Play a silent note to "prime" the synth. This is the crucial part for iOS.
-                    // We set the volume to -Infinity (silence), play a short note,
-                    // and then can restore the volume if needed (though default is fine).
+                    // Play a silent note to "prime" the synth.
                     toneSynth.volume.value = -Infinity;
                     toneSynth.triggerAttackRelease("C4", "32n", Tone.now());
-                    toneSynth.volume.value = 0; // Restore volume to default
+                    toneSynth.volume.value = 0;
                     
                     console.log('Audio synth primed successfully.');
                     showCustomAlert('Sonido activado.', 'info');
@@ -914,7 +913,7 @@
                     console.error('Could not initialize or prime audio:', e);
                     showCustomAlert('Error al activar el sonido.', 'error');
                 } finally {
-                    // Remove the event listeners after the first interaction to avoid running this again.
+                    // Remove the event listeners after the first interaction
                     document.body.removeEventListener('click', initAudio);
                     document.body.removeEventListener('touchstart', initAudio);
                 }
@@ -947,15 +946,10 @@
         // Function to initialize Supabase client and get user identifier
         function initializeSupabaseClient() {
             const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
-            // !!!
-            // !!! IMPORTANTE: Pega tu clave 'anon public' de Supabase aquí.
-            // !!! Puedes encontrarla en tu proyecto de Supabase, en Settings > API.
-            // !!! ESTA CLAVE ES NECESARIA PARA QUE LA APLICACIÓN SE CONECTE A LA BASE DE DATOS.
-            // !!!
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
             
             try {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                // MODIFIED: Use the provided Supabase API key
+                supabase = window.supabase.createClient(supabaseUrl, SUPABASE_API_KEY);
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
                 showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
@@ -2785,21 +2779,8 @@
                 }
                 const mainDataText = await mainResponse.text();
 
-                // MODIFIED: Extract client-specific configuration for activeWeeks
-                const datosClienteRegex = /const datosCliente = ({[\s\S]*?});/;
-                const datosClienteMatch = mainDataText.match(datosClienteRegex);
-                if (datosClienteMatch && datosClienteMatch[1]) {
-                    try {
-                        const clienteConfig = new Function(`return ${datosClienteMatch[1]}`)();
-                        if (clienteConfig.activeWeeks) {
-                            VIDEO_PROMPT_CONFIG.activeWeeks = clienteConfig.activeWeeks;
-                            console.log(`Client activeWeeks configured to: "${clienteConfig.activeWeeks}"`);
-                        }
-                    } catch (e) {
-                        console.error("Error parsing datosCliente from remote file:", e);
-                    }
-                }
-
+                // REMOVED: Old logic for extracting datosCliente from the JS file
+                
                 // Extract workout data
                 const workoutDataRegex = /const workoutData = ({[\s\S]*?});/;
                 const workoutDataMatch = mainDataText.match(workoutDataRegex);
@@ -2814,8 +2795,8 @@
                 
                 await loadWorkoutLogs();
                 setupDaySelectionTabs();
-                // Setup the video corrections button using the (potentially updated) config
-                setupVideoCorrectionsButton();
+                // MODIFIED: Call new function to get video config from Supabase
+                await fetchVideoConfigFromSupabase();
 
             } catch (error) {
                 console.error("Error initializing workout app:", error);
@@ -2826,6 +2807,43 @@
             }
         }
         
+        // NEW: Function to fetch video config from Supabase
+        async function fetchVideoConfigFromSupabase() {
+            if (!supabase || !userIdentifier) {
+                console.warn("Supabase client or user identifier not available. Cannot fetch video config.");
+                setupVideoCorrectionsButton(); // Set up with default 'none'
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('user_configs')
+                    .select('exercises_data')
+                    .eq('client_id', userIdentifier)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') { // PGRST116 means no row found, which is a valid case
+                    console.error("Error fetching video config from Supabase:", error);
+                    showCustomAlert("Error al cargar la configuración de correcciones de vídeo.", "error");
+                }
+                
+                if (data && data.exercises_data && data.exercises_data.activeWeeks) {
+                    VIDEO_PROMPT_CONFIG.activeWeeks = data.exercises_data.activeWeeks;
+                    console.log(`Video activeWeeks configured from Supabase to: "${VIDEO_PROMPT_CONFIG.activeWeeks}"`);
+                } else {
+                    console.log('No video config found in Supabase for this user. Using default \'none\'.');
+                    VIDEO_PROMPT_CONFIG.activeWeeks = 'none';
+                }
+
+            } catch (e) {
+                console.error("Unexpected error fetching video config:", e);
+                showCustomAlert("Error inesperado al cargar la configuración de vídeo.", "error");
+            }
+
+            // Always call the setup button function after attempting to fetch the config
+            setupVideoCorrectionsButton();
+        }
+
         // NEW: Function to configure the new video corrections button
         function setupVideoCorrectionsButton() {
             const videoCorrectionsButton = document.getElementById('videoCorrectionsButton');
