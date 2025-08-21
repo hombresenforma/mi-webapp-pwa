@@ -633,7 +633,7 @@
             }
 
             tabs.forEach(tab => {
-                tab.addEventListener('click', (event) => {
+                tab.addEventListener('click', async (event) => {
                     const targetContentId = tab.getAttribute('data-tab');
 
                     // MODIFICACIÓN: Cambiado para redirigir en la misma pestaña
@@ -657,7 +657,7 @@
                     document.getElementById(targetContentId).classList.add('active');
 
                     if (targetContentId === 'nutritionSection' && !isNutritionInitialized) { initializeNutritionApp(); }
-                    if (targetContentId === 'contentSection' && !isContentInitialized) { initializeContentApp(); }
+                    if (targetContentId === 'contentSection' && !isContentInitialized) { await initializeContentApp(); }
                 });
             });
 
@@ -665,9 +665,6 @@
             if (document.getElementById('nutritionSection').classList.contains('active')) {
                 initializeNutritionApp();
             }
-
-            // Actualizar el estado del botón de progreso al cargar
-            updateProgressButtonState();
         });
 
         /**
@@ -1470,16 +1467,21 @@
          * @param {boolean} isCurrentlyWatched - Si el vídeo ya está marcado como visto.
          */
         function handleWatchVideoClick(videoUrl, videoId, isCurrentlyWatched) { 
-            window.open(videoUrl, '_blank', 'noopener,noreferrer'); 
-            if (!isCurrentlyWatched) { 
-                markVideoAsWatchedAndRender(videoId); 
-            } 
+            if (videoUrl && videoUrl !== 'xxx' && videoUrl.startsWith('http')) {
+                window.open(videoUrl, '_blank', 'noopener,noreferrer'); 
+                if (!isCurrentlyWatched) { 
+                    markVideoAsWatchedAndRender(videoId); 
+                } 
+            } else {
+                showCustomAlert("El video no está disponible en este momento.", "warning");
+            }
         }
 
         /**
          * Renderiza la lista de vídeos de contenido.
+         * @param {Array<object>} videosToRender - El array de videos a renderizar.
          */
-        function renderVideos() { 
+        function renderVideos(videosToRender) { 
             const videoListContainer = document.getElementById('videoListContainer'); 
             const contentTab = document.querySelector('.app-tab[data-tab="contentSection"]'); // Obtener el botón de la pestaña de contenido
             if (!videoListContainer || !contentTab) { return; } 
@@ -1487,8 +1489,7 @@
             const watchedVideosData = getWatchedStatus(); 
             const today = new Date(); 
             
-            // **MODIFICACIÓN**: Filtrar por la nueva propiedad `show` además de la fecha de lanzamiento.
-            const availableVideos = APP_CONFIG.videos
+            const availableVideos = videosToRender
                 .filter(video => video.show && new Date(video.releaseDate + 'T00:00:00') <= today)
                 .map(video => { 
                     const isWatched = !!watchedVideosData[video.id]; 
@@ -1515,10 +1516,13 @@
                 videosHtml += `<h3 class="text-lg sm:text-xl font-semibold text-yellow-400 mt-6 mb-3 border-b border-gray-600 pb-2">${moduleName}</h3>`;
                 videosByModule[moduleName].sort((a, b) => new Date(b.releaseDate) - new Date(a.releaseDate)).forEach(video => {
                     const videoItemClasses = `video-item p-3 sm:p-4 rounded-lg shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0 sm:space-x-4 ${video.isNew ? 'is-new' : ''} ${video.watched ? 'is-watched' : ''}`; 
-                    const buttonText = video.watched ? 'Visto' : 'Ver Vídeo'; 
-                    const buttonIcon = video.watched ? '<i class="fas fa-check mr-1 sm:mr-2"></i>' : '<i class="fas fa-play mr-1 sm:mr-2"></i>'; 
-                    const buttonClasses = `action-button ${video.watched ? 'action-button-watched' : ''}`; 
-                    const clickHandler = `handleWatchVideoClick('${video.url}', '${video.id}', ${video.watched})`; 
+                    
+                    const isValidUrl = video.url && video.url !== 'xxx' && video.url.startsWith('http');
+                    const buttonText = isValidUrl ? (video.watched ? 'Visto' : 'Ver Vídeo') : 'No Disponible';
+                    const buttonIcon = isValidUrl ? (video.watched ? '<i class="fas fa-check mr-1 sm:mr-2"></i>' : '<i class="fas fa-play mr-1 sm:mr-2"></i>') : '<i class="fas fa-exclamation-triangle mr-1 sm:mr-2"></i>';
+                    const buttonClasses = `action-button ${video.watched ? 'action-button-watched' : ''} ${!isValidUrl ? 'button-disabled' : ''}`;
+                    const clickHandler = `handleWatchVideoClick('${video.url}', '${video.id}', ${video.watched})`;
+                    
                     videosHtml += ` 
                         <div class="${videoItemClasses}" data-video-id="${video.id}"> 
                             <div class="video-info flex-grow"> 
@@ -1527,7 +1531,7 @@
                                 ${video.isNew ? '<span class="new-badge">NUEVO</span>' : ''} 
                             </div> 
                             <div class="video-actions flex items-center self-end sm:self-center"> 
-                                <button onclick="${clickHandler}" class="${buttonClasses}"> 
+                                <button onclick="${clickHandler}" class="${buttonClasses}" ${!isValidUrl ? 'disabled' : ''}> 
                                     ${buttonIcon}${buttonText} 
                                 </button> 
                             </div> 
@@ -1555,17 +1559,41 @@
         /**
          * Inicializa la app de contenido.
          */
-        function initializeContentApp() { 
+        async function initializeContentApp() { 
             if(isContentInitialized) return; 
-            try { 
-                renderVideos(); 
-                isContentInitialized = true; 
-            } catch (e) { 
-                const container = document.getElementById('videoListContainer'); 
-                if (container) { 
-                    container.innerHTML = '<p class="text-center text-red-500 font-bold p-4">Ha ocurrido un error al cargar los vídeos.</p>'; 
-                } 
-            } 
+            
+            const videoListContainer = document.getElementById('videoListContainer');
+            if (!videoListContainer) return;
+
+            videoListContainer.innerHTML = '<p class="text-center text-gray-400">Cargando vídeos...</p>';
+
+            let videosToRender = APP_CONFIG.videos; // Fallback por defecto
+
+            if (supabase && userIdentifier) {
+                try {
+                    const { data, error } = await supabase
+                        .from('user_configs')
+                        .select('videos_data')
+                        .eq('client_id', userIdentifier)
+                        .single();
+                        
+                    if (data && data.videos_data) {
+                        videosToRender = data.videos_data;
+                        console.log("Videos data fetched from Supabase.");
+                    } else if (error) {
+                        console.error("Error fetching video config from Supabase:", error.message);
+                        showCustomAlert("Error al cargar la configuración de videos. Usando la configuración por defecto.", "error");
+                    }
+                } catch (e) {
+                    console.error("Unexpected error fetching video config from Supabase:", e);
+                    showCustomAlert("Error inesperado al cargar la configuración de videos. Usando la configuración por defecto.", "error");
+                }
+            } else {
+                console.warn("Supabase client or user identifier not ready. Using default videos.");
+            }
+
+            renderVideos(videosToRender);
+            isContentInitialized = true; 
         }
         
         // #############################################################
