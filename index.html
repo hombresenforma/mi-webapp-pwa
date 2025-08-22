@@ -76,8 +76,8 @@
             border-color: #facc15;
         }
         /* Estilo para pestañas con notificación activa (verde) */
-        /* REGLA CORREGIDA: se asegura de que el color verde se aplique correctamente, incluso si la pestaña está activa */
-        .app-tab.app-tab-notify {
+        /* REGLA CORREGIDA: Se ha aumentado la especificidad para asegurar que el color se aplique */
+        .app-tab.app-tab-notify, .app-tab.active.app-tab-notify {
             background-color: #22c55e; /* Color verde */
             color: #1f2937;
             border-color: #22c55e;
@@ -1687,9 +1687,10 @@
                 const dayIsActive = isDayActive(progressConfig.activeDays, today);
 
                 if (weekIsActive && dayIsActive) {
-                    progressTab.classList.add('app-tab-notify'); // Añadir clase verde
+                    // Ahora se aplica el color verde
+                    progressTab.classList.add('app-tab-notify'); 
                 } else {
-                    progressTab.classList.remove('app-tab-notify'); // Quitar clase verde
+                    progressTab.classList.remove('app-tab-notify'); 
                 }
 
             } catch (e) {
