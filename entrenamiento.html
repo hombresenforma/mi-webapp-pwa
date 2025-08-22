@@ -2212,7 +2212,34 @@
 
         function openWarmupModal() { document.getElementById('warmupSetsResult').innerHTML = ''; document.getElementById('workingSetWeightInput').value = ''; openModal(warmupModal); }
         
-        function calculateWarmupSets() { const workingWeight = parseFloat(document.getElementById('workingSetWeightInput').value); const resultDiv = document.getElementById('warmupSetsResult'); resultDiv.innerHTML = ''; if (isNaN(workingWeight) || workingWeight <= 0) { resultDiv.innerHTML = '<p class="text-red-400">Por favor, introduce un peso válido.</p>'; return; } const sets = [ { weight: workingWeight * 0.5, reps: '5', label: '50%' }, { weight: workingWeight * 0.7, reps: '3', label: '70%' }, { weight: workingWeight * 0.85, reps: '1-2', label: '85%' }, ]; const list = document.createElement('ul'); list.className = 'list-disc list-inside space-y-1'; sets.forEach(set => { const li = document.createElement('li'); li.innerHTML = `<span class="font-semibold text-yellow-400">${set.label}:</span> ${set.weight.toFixed(1)} Kg x ${set.reps} reps`; list.appendChild(li); }); resultDiv.appendChild(list); }
+        function calculateWarmupSets() { 
+            const workingWeight = parseFloat(document.getElementById('workingSetWeightInput').value); 
+            const resultDiv = document.getElementById('warmupSetsResult'); 
+            resultDiv.innerHTML = ''; 
+            
+            if (isNaN(workingWeight) || workingWeight <= 0) { 
+                resultDiv.innerHTML = '<p class="text-red-400">Por favor, introduce un peso válido.</p>'; 
+                return; 
+            } 
+            
+            // MODIFIED: Calculation now based on a target of 6 reps
+            const sets = [ 
+                { weight: workingWeight * 0.5, reps: '8', label: 'Serie 1' }, 
+                { weight: workingWeight * 0.7, reps: '6', label: 'Serie 2' }, 
+                { weight: workingWeight * 0.85, reps: '3', label: 'Serie 3' }, 
+            ]; 
+            
+            const list = document.createElement('ul'); 
+            list.className = 'list-disc list-inside space-y-1'; 
+            
+            sets.forEach(set => { 
+                const li = document.createElement('li'); 
+                li.innerHTML = `<span class="font-semibold text-yellow-400">${set.label}:</span> ${set.weight.toFixed(1)} Kg x ${set.reps} reps`; 
+                list.appendChild(li); 
+            }); 
+            
+            resultDiv.appendChild(list); 
+        }
         function prepareShareableCard() { const cardContent = document.getElementById('shareCard'); const dayData = workoutData[currentActiveDayKey]; const totalVolume = workoutSummaryTotalVolume.textContent; const totalTime = workoutSummaryTotalTime.textContent; cardContent.innerHTML = ` <h4>${dayData.name.toUpperCase()}</h4> <img src="https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821cea25072096f7d31d5c1.png" class="logo" alt="Logo"> <p><strong><i class="fas fa-clock mr-2"></i>Tiempo:</strong> ${totalTime}</p> <p><strong><i class="fas fa-weight-hanging mr-2"></i>Volumen:</strong> ${totalVolume}</p> <p class="text-center text-xs mt-4">¡Entrenamiento completado!</p> `; openModal(shareModal); }
         function downloadShareableImage() { const cardToCapture = document.getElementById('shareCard'); html2canvas(cardToCapture, { backgroundColor: null, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = 'resumen-entrenamiento.png'; link.href = canvas.toDataURL('image/png'); link.click(); }); }
         
@@ -3011,3 +3038,5 @@
     </script>
 </body>
 </html>
+
+
