@@ -366,10 +366,8 @@
         };
 
         const DEFAULT_BUTTON_AVAILABILITY_CONFIG = {
-            addBodyRecordButton: {
-                activeDays: [0, 5, 6],
-                activeWeeks: [32, 34, 38, 42, 46]
-            }
+            activeDays: [0, 5, 6],
+            activeWeeks: "even"
         };
 
         // Variables globales para la configuración del usuario
@@ -575,12 +573,19 @@
 
             if (data && data.config_data) {
                 console.log("Configuración de usuario cargada exitosamente.");
-                if (data.config_data.app) {
-                    appConfig = { ...DEFAULT_APP_CONFIG, ...data.config_data.app };
-                }
-                if (data.config_data.buttons) {
-                    buttonAvailabilityConfig = { ...DEFAULT_BUTTON_AVAILABILITY_CONFIG, ...data.config_data.buttons };
-                }
+                // Merge the loaded config with defaults.
+                // Now we check for top-level keys and fallback to the button-specific key if not found
+                appConfig = { 
+                    ...DEFAULT_APP_CONFIG, 
+                    ...data.config_data.app
+                };
+
+                const buttonConfig = data.config_data.buttons && data.config_data.buttons.addBodyRecordButton ? data.config_data.buttons.addBodyRecordButton : {};
+                buttonAvailabilityConfig.addBodyRecordButton = {
+                    activeDays: data.config_data.activeDays || buttonConfig.activeDays || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeDays,
+                    activeWeeks: data.config_data.activeWeeks || buttonConfig.activeWeeks || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeWeeks
+                };
+
             } else {
                 console.log("No se encontró una configuración específica para el usuario. Usando la configuración por defecto.");
             }
