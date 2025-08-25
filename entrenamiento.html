@@ -458,6 +458,45 @@
         .history-filter-select:hover {
             background-color: #5a6578;
         }
+        
+        /* NEW: Styles for the extras button and modal */
+        .extras-button {
+            background-color: #3b82f6; /* A nice blue */
+            color: #fff;
+            border: 1px solid #3b82f6;
+            font-weight: bold;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+        .extras-button:hover {
+            background-color: #2563eb;
+        }
+        .extras-option-button {
+            background-color: #4a5568;
+            color: #e5e7eb;
+            border: 1px solid #718096;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            text-align: left;
+            transition: background-color 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+        .extras-option-button:hover {
+            background-color: #5a6578;
+        }
+        .extras-option-button i {
+            width: 20px;
+            text-align: center;
+        }
 
     </style>
 </head>
@@ -490,6 +529,9 @@
                     </div>
                     <!-- MODIFIED: Changed to grid-cols-1 and added new button -->
                     <div class="grid grid-cols-1 gap-4 mt-4">
+                        <button id="addExtrasButton" class="extras-button">
+                            <i class="fas fa-plus-circle mr-2"></i>Añadir Extras
+                        </button>
                         <button id="viewWorkoutHistoryButton" class="main-action-button">
                             <i class="fas fa-history mr-2"></i>Histórico Entrenamientos
                         </button>
@@ -579,6 +621,24 @@
             <button onclick="closeModalElement(fullWorkoutLogModal)" class="mt-6 w-full bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">
                 Cerrar
             </button>
+        </div>
+    </div>
+
+    <!-- NEW: Extras Modal -->
+    <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-yellow-400">Añadir Actividad Extra</h3>
+                <button onclick="closeModalElement(extrasModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de extras">×</button>
+            </div>
+            <div id="extrasOptionsContainer" class="space-y-3">
+                <!-- Activity buttons will be populated by JS -->
+            </div>
+            <div id="otherActivityInput" class="hidden mt-4">
+                <label for="otherActivityName" class="block text-sm text-gray-300 mb-1">Nombre de la actividad:</label>
+                <input type="text" id="otherActivityName" placeholder="Escribe aquí..." class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md mb-3">
+                <button id="registerOtherActivityButton" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Registrar</button>
+            </div>
         </div>
     </div>
 
@@ -817,6 +877,9 @@
         // --- GLOBAL APP STATE & VARIABLES ---
         let individualExerciseLogs = []; // Stores individual exercise logs for history and pre-filling
         let workoutSessionSummaries = []; // Stores full workout session summaries
+        // NEW: Array for extra activities
+        let extraActivities = [];
+        let allHistoryItems = [];
         let currentActiveDayKey = null;
         let isWorkoutInProgress = false; 
         let workoutTimerInterval = null;
@@ -956,6 +1019,15 @@
             
             // Initialize the workout app logic
             initializeWorkoutApp();
+            
+            // NEW: Add event listener for the new extras button
+            const addExtrasButton = document.getElementById('addExtrasButton');
+            if(addExtrasButton) {
+                addExtrasButton.addEventListener('click', () => {
+                    setupExtrasModal();
+                    openModal(document.getElementById('extrasModal'));
+                });
+            }
 
             // Set the href for the main menu button
             const mainMenuButton = document.getElementById('mainMenuButton');
@@ -1091,6 +1163,11 @@
         const minimizedRestTimer = document.getElementById('minimizedRestTimer');
         const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
         const minimizedNextExercise = document.getElementById('minimizedNextExercise');
+        const extrasModal = document.getElementById('extrasModal');
+        const extrasOptionsContainer = document.getElementById('extrasOptionsContainer');
+        const otherActivityInput = document.getElementById('otherActivityInput');
+        const otherActivityNameInput = document.getElementById('otherActivityName');
+        const registerOtherActivityButton = document.getElementById('registerOtherActivityButton');
 
         // MODIFIED: Element selectors for the new work timer modal
         const workTimerModal = document.getElementById('workTimerModal'); 
@@ -1283,46 +1360,87 @@
             });
         }
         
-        // MODIFIED: renderWorkoutHistoryList to accept a filter
+        // MODIFIED: renderWorkoutHistoryList to accept a filter and render both workouts and extras
         function renderWorkoutHistoryList(filter) {
             mainHistoryResults.innerHTML = '';
             const now = new Date();
-            let filteredSessions = [];
-            
+            let filteredHistory = [];
+
+            // Combine and sort all history items
+            const allItems = [...workoutSessionSummaries, ...extraActivities];
+
             // Filter logic
             if (filter === '7') {
                 const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
-                filteredSessions = workoutSessionSummaries.filter(s => new Date(s.raw_date) > sevenDaysAgo);
+                filteredHistory = allItems.filter(s => new Date(s.raw_date) > sevenDaysAgo);
             } else if (filter === '15') {
                 const fifteenDaysAgo = new Date(now.setDate(now.getDate() - 15));
-                filteredSessions = workoutSessionSummaries.filter(s => new Date(s.raw_date) > fifteenDaysAgo);
+                filteredHistory = allItems.filter(s => new Date(s.raw_date) > fifteenDaysAgo);
             } else if (filter === '30') {
                 const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-                filteredSessions = workoutSessionSummaries.filter(s => new Date(s.raw_date) > thirtyDaysAgo);
+                filteredHistory = allItems.filter(s => new Date(s.raw_date) > thirtyDaysAgo);
             } else { // 'all'
-                filteredSessions = workoutSessionSummaries;
+                filteredHistory = allItems;
             }
 
-            const sortedSessions = Array.from(filteredSessions).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
+            const sortedHistory = Array.from(filteredHistory).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
             
-            if (sortedSessions.length === 0) {
-                mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos registrados para este periodo.</p>';
+            if (sortedHistory.length === 0) {
+                mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos ni actividades registradas para este periodo.</p>';
                 return;
             }
-            sortedSessions.forEach(session => {
+            
+            sortedHistory.forEach(session => {
                 const button = document.createElement('button');
                 button.className = 'main-history-item';
-                // MODIFIED: Display workout name and date
                 const workoutName = session.name_workout || 'Entrenamiento no nombrado';
+                let icon = '';
+                // Check if it's a workout session or an extra activity
+                if (session.exercise_name === "Workout Session Summary") {
+                    icon = '<i class="fas fa-dumbbell mr-2 text-yellow-300"></i>';
+                    button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
+                } else if (session.exercise_name === "Extra Activity") {
+                    icon = getExtrasIcon(workoutName);
+                    button.onclick = () => { showExtraActivityDetails(session); };
+                }
+
                 button.innerHTML = `
-                    <div class="flex flex-col items-start w-full">
-                        <span class="font-bold text-yellow-300">${workoutName}</span>
-                        <span class="text-sm text-gray-400 mt-1">${session.date} - ${session.time}</span>
+                    <div class="flex items-center w-full">
+                        ${icon}
+                        <div class="flex flex-col items-start w-full">
+                            <span class="font-bold text-yellow-300">${workoutName}</span>
+                            <span class="text-sm text-gray-400 mt-1">${session.date} - ${session.time}</span>
+                        </div>
                     </div>
                 `;
-                button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 mainHistoryResults.appendChild(button);
             });
+        }
+
+        // NEW: Function to get an icon for an extra activity
+        function getExtrasIcon(activityName) {
+            const normalizedName = activityName.toLowerCase();
+            if (normalizedName.includes('pádel')) return '<i class="fas fa-tennis-ball mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('natación')) return '<i class="fas fa-swimmer mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('kayak')) return '<i class="fas fa-water mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('correr')) return '<i class="fas fa-running mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('trecking')) return '<i class="fas fa-hiking mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('caminar')) return '<i class="fas fa-walking mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('fútbol')) return '<i class="fas fa-futbol mr-2 text-blue-300"></i>';
+            return '<i class="fas fa-ellipsis-h mr-2 text-blue-300"></i>';
+        }
+        
+        // NEW: Function to show details for an extra activity
+        function showExtraActivityDetails(activity) {
+            fullWorkoutLogContent.innerHTML = `
+                <div class="workout-log-entry">
+                    <h4 class="text-yellow-400">${activity.name_workout}</h4>
+                    <p class="text-gray-300 mt-2">Registrado como actividad extra el ${activity.date} a las ${activity.time}.</p>
+                    <p class="text-gray-400 mt-4">No hay más detalles disponibles para este tipo de registro.</p>
+                </div>
+            `;
+            fullWorkoutLogTitle.textContent = "Detalles de Actividad Extra";
+            openModal(fullWorkoutLogModal);
         }
         
         function renderRmEvolutionChart(labels, data) { 
@@ -2968,6 +3086,7 @@
                 console.warn("Supabase client or user identifier not available. Cannot load workout logs.");
                 individualExerciseLogs = [];
                 workoutSessionSummaries = [];
+                extraActivities = [];
                 return;
             }
             try {
@@ -2981,16 +3100,20 @@
                     showCustomAlert("No se pudo cargar el historial de entrenamientos.", "error");
                     individualExerciseLogs = [];
                     workoutSessionSummaries = [];
+                    extraActivities = [];
                     return;
                 }
-                individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary");
+                individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary" && log.exercise_name !== "Extra Activity");
                 workoutSessionSummaries = data.filter(log => log.exercise_name === "Workout Session Summary");
+                extraActivities = data.filter(log => log.exercise_name === "Extra Activity");
                 console.log("Individual Exercise Logs loaded:", individualExerciseLogs);
                 console.log("Workout Session Summaries loaded:", workoutSessionSummaries);
+                console.log("Extra Activities loaded:", extraActivities);
             } catch (e) {
                 console.error("Error inesperado al cargar el historial de entrenamientos.", "error");
                 individualExerciseLogs = [];
                 workoutSessionSummaries = [];
+                extraActivities = [];
             }
         }
 
@@ -3091,6 +3214,91 @@
             }); 
             previewHtml += `</ul><button onclick="startQuickMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`; 
             workoutPreviewContainer.innerHTML = previewHtml; 
+        }
+
+        // NEW: Function to set up the extras modal with activity options
+        function setupExtrasModal() {
+            const activities = [
+                { name: 'Pádel', icon: 'fas fa-tennis-ball' },
+                { name: 'Natación', icon: 'fas fa-swimmer' },
+                { name: 'Kayak', icon: 'fas fa-water' },
+                { name: 'Correr', icon: 'fas fa-running' },
+                { name: 'Trekking', icon: 'fas fa-hiking' },
+                { name: 'Caminar', icon: 'fas fa-walking' },
+                { name: 'Fútbol', icon: 'fas fa-futbol' },
+                { name: 'Otros', icon: 'fas fa-ellipsis-h' }
+            ];
+
+            extrasOptionsContainer.innerHTML = '';
+            otherActivityInput.style.display = 'none';
+
+            activities.forEach(activity => {
+                const button = document.createElement('button');
+                button.className = 'extras-option-button';
+                button.innerHTML = `<i class="${activity.icon}"></i> ${activity.name}`;
+                button.onclick = () => {
+                    if (activity.name === 'Otros') {
+                        otherActivityInput.style.display = 'block';
+                        otherActivityNameInput.focus();
+                    } else {
+                        registerExtraActivity(activity.name);
+                    }
+                };
+                extrasOptionsContainer.appendChild(button);
+            });
+            
+            // Set up listener for the "Registrar" button for custom activities
+            if (registerOtherActivityButton) {
+                registerOtherActivityButton.onclick = () => {
+                    const customName = otherActivityNameInput.value.trim();
+                    if (customName !== '') {
+                        registerExtraActivity('Otros', customName);
+                    } else {
+                        showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
+                    }
+                };
+            }
+        }
+
+        // NEW: Function to register the extra activity in Supabase
+        async function registerExtraActivity(activityName, customName = null) {
+            if (!supabase || !userIdentifier) {
+                showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
+                return;
+            }
+            
+            const nameToRegister = customName || activityName;
+
+            const logEntry = {
+                client_id: userIdentifier,
+                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                raw_date: new Date().toISOString(),
+                exercise_name: "Extra Activity", // Unique identifier for extra activities
+                name_workout: nameToRegister,
+                sets_performed: '[]', // Placeholder to maintain schema consistency
+                completion_state: "completed",
+                session_id: crypto.randomUUID()
+            };
+            
+            try {
+                const { error } = await supabase
+                    .from('workout_logs')
+                    .insert([logEntry]);
+                
+                if (error) {
+                    throw new Error(`Error inserting extra activity: ${error.message}`);
+                }
+                
+                showCustomAlert(`Actividad "${nameToRegister}" registrada con éxito.`, "info");
+                closeModalElement(extrasModal);
+                await loadWorkoutLogs(); // Reload logs to show the new entry in history
+                renderWorkoutHistoryList('all'); // Re-render the history list
+                otherActivityNameInput.value = ''; // Reset the input field
+            } catch (error) {
+                console.error("Error al registrar la actividad extra:", error);
+                showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
+            }
         }
 
     </script>
