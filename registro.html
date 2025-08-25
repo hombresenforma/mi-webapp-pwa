@@ -61,10 +61,10 @@
         }
         #photoComparatorModal .modal-content {
             width: 95%;
-            max-width: 800px; /* Increased max-width for side-by-side view */
+            max-width: 900px; /* Increased max-width for side-by-side view */
         }
         /* Specific modal widths for smaller modals */
-        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content {
+        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content, #photoNoticeModal .modal-content {
             width: 95%;
             max-width: 450px;
         }
@@ -93,8 +93,11 @@
         .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
         
         /* Photo Comparator and Chart Filter */
-        #photoComparatorModal .comparator-container { display: flex; flex-direction: column; gap: 1rem; }
-        @media (min-width: 768px) { #photoComparatorModal .comparator-container { flex-direction: row; } }
+        #photoComparatorModal .comparator-container { 
+            display: flex; 
+            flex-direction: row; /* Always side-by-side */
+            gap: 1rem; 
+        }
         #photoComparatorModal .photo-slot { flex: 1; text-align: center; min-width: 0; }
         #photoComparatorModal .comparator-info { color: #e5e7eb; min-height: 2.5rem; margin: 0.5rem 0; }
         #photoComparatorModal .comparator-info .date { font-weight: 600; color: #1f2937; background-color: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 4px; display: inline-block; }
@@ -103,7 +106,7 @@
         /* Zoom & Pan Styles for Comparator */
         .image-viewport {
             position: relative;
-            height: 60vh;
+            height: 50vh; /* Adjusted height for mobile side-by-side */
             width: 100%;
             overflow: hidden;
             cursor: grab;
@@ -125,9 +128,9 @@
             color: white;
             border: 1px solid #4b5563;
             border-radius: 50%;
-            width: 2.5rem;
-            height: 2.5rem;
-            font-size: 1.25rem;
+            width: 2rem; /* Smaller buttons for mobile */
+            height: 2rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.2s;
             display: flex;
@@ -140,9 +143,9 @@
             background-color: #374151;
             color: #facc15;
             border: 1px solid #facc15;
-            padding: 0.5rem 1rem;
+            padding: 0.25rem 0.5rem; /* Smaller padding */
             border-radius: 9999px;
-            font-size: 0.75rem;
+            font-size: 0.65rem; /* Smaller font */
             font-weight: 600;
             cursor: pointer;
             opacity: 0;
@@ -160,9 +163,9 @@
             color: white;
             border: 1px solid #4b5563;
             border-radius: 50%;
-            width: 2.5rem;
-            height: 2.5rem;
-            font-size: 1.5rem;
+            width: 2rem; /* Smaller buttons */
+            height: 2rem;
+            font-size: 1.25rem;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -250,6 +253,15 @@
             <h3 class="text-xl font-semibold text-yellow-400 mb-4">Función No Disponible</h3>
             <p class="text-gray-300 mb-6">Esta función solo está disponible en los días y semanas configurados.</p>
             <button onclick="closeModalElement(document.getElementById('weekdayNoticeModal'))" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Photo Notice Modal (NEW) -->
+    <div id="photoNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">¡Prepara tus Fotos!</h3>
+            <p class="text-gray-300 mb-6">Antes de continuar, asegúrate de haberte tomado las 3 fotos (frontal, de lado y de espaldas) para poder subirlas todas a la vez.</p>
+            <button id="continueToRecordButton" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido, continuar</button>
         </div>
     </div>
 
@@ -366,13 +378,15 @@
         };
 
         const DEFAULT_BUTTON_AVAILABILITY_CONFIG = {
-            activeDays: [0, 5, 6],
-            activeWeeks: "even"
+            addBodyRecordButton: {
+                activeDays: [0, 5, 6], // Default: Friday, Saturday, Sunday
+                activeWeeks: "even"   // Default: Only even weeks
+            }
         };
 
         // Variables globales para la configuración del usuario
-        let appConfig = DEFAULT_APP_CONFIG;
-        let buttonAvailabilityConfig = DEFAULT_BUTTON_AVAILABILITY_CONFIG;
+        let appConfig = { ...DEFAULT_APP_CONFIG };
+        let buttonAvailabilityConfig = { ...DEFAULT_BUTTON_AVAILABILITY_CONFIG };
 
         // =================================================================
         // =================== END OF CONFIGURATION ======================
@@ -394,13 +408,16 @@
         // --- UTILITY FUNCTIONS (SHARED) ---
         function openModal(modalElement) {
             if (!modalElement) return;
-            modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
-            modalElement.classList.add('opacity-100');
-            const content = modalElement.querySelector('.modal-content, .relative');
-            if (content) {
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            }
+            modalElement.classList.remove('opacity-0', 'pointer-events-none');
+            // A small delay to allow CSS to catch the class removal before adding the next one
+            setTimeout(() => {
+                modalElement.classList.add('opacity-100');
+                const content = modalElement.querySelector('.modal-content, .relative');
+                if (content) {
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }
+            }, 10);
         }
 
         function closeModalElement(modalElement) {
@@ -410,13 +427,8 @@
                 content.classList.remove('scale-100');
                 content.classList.add('scale-95');
             }
-            modalElement.classList.remove('opacity-100', 'pointer-events-auto');
+            modalElement.classList.remove('opacity-100');
             modalElement.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                if (!modalElement.classList.contains('opacity-100')) {
-                    modalElement.classList.add('hidden');
-                }
-            }, 300);
         }
         
         function openPhotoPreview(imageUrl) {
@@ -563,36 +575,28 @@
                 .eq('client_id', userId)
                 .single();
 
-            if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "no rows found"
+            if (error && error.code !== 'PGRST116') { // PGRST116 is for "no rows found"
                 console.error("Error fetching user config:", error);
                 showCustomAlert("Error al cargar la configuración del usuario.", "error");
             }
             
-            console.log("Fetch result - data:", data);
-            console.log("Fetch result - error:", error);
-
             if (data && data.config_data) {
-                console.log("Configuración de usuario cargada exitosamente.");
-                // Merge the loaded config with defaults.
-                // Now we check for top-level keys and fallback to the button-specific key if not found
-                appConfig = { 
-                    ...DEFAULT_APP_CONFIG, 
-                    ...data.config_data.app
-                };
-
-                const buttonConfig = data.config_data.buttons && data.config_data.buttons.addBodyRecordButton ? data.config_data.buttons.addBodyRecordButton : {};
-                buttonAvailabilityConfig.addBodyRecordButton = {
-                    activeDays: data.config_data.activeDays || buttonConfig.activeDays || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeDays,
-                    activeWeeks: data.config_data.activeWeeks || buttonConfig.activeWeeks || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeWeeks
-                };
+                console.log("User config loaded successfully:", data.config_data);
+                
+                if (data.config_data.app) {
+                    appConfig = { ...DEFAULT_APP_CONFIG, ...data.config_data.app };
+                }
+                
+                if (data.config_data.buttons) {
+                    buttonAvailabilityConfig = { ...DEFAULT_BUTTON_AVAILABILITY_CONFIG, ...data.config_data.buttons };
+                }
 
             } else {
-                console.log("No se encontró una configuración específica para el usuario. Usando la configuración por defecto.");
+                console.log("No specific user config found. Using defaults.");
             }
         }
 
         async function initializeBodyRecordApp() {
-            // Cargar la configuración del usuario desde Supabase antes de inicializar la app
             await fetchUserConfig();
 
             const mainMenuButton = document.getElementById('mainMenuButton');
@@ -603,12 +607,12 @@
             const photoPreviewsContainer = document.getElementById('photoPreviewsContainer');
             let addBodyRecordButton = document.getElementById('addBodyRecordButton');
             const bodyRecordModal = document.getElementById('bodyRecordModal');
+            const photoNoticeModal = document.getElementById('photoNoticeModal');
+            const continueToRecordButton = document.getElementById('continueToRecordButton');
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
 
-            // Actualizar el enlace del botón de menú principal
             if (mainMenuButton && userId) {
-                // Usamos la ruta y el parámetro 'usuario' proporcionados en la solicitud
                 mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userId}`;
             }
 
@@ -623,7 +627,6 @@
             console.log(`Current week is active? ${isWeekActive(addBodyRecordConfig, today)}`);
             console.log(`Is button active? ${isAddBodyRecordButtonActive}`);
 
-
             const showWeekdayNotice = () => openModal(document.getElementById('weekdayNoticeModal'));
 
             addBodyRecordButton = clearClickListeners(addBodyRecordButton);
@@ -633,8 +636,13 @@
                 addBodyRecordButton.addEventListener('click', (e) => { e.preventDefault(); showWeekdayNotice(); });
             } else {
                 addBodyRecordButton.classList.remove('button-disabled');
-                addBodyRecordButton.addEventListener('click', () => openModal(bodyRecordModal));
+                addBodyRecordButton.addEventListener('click', () => openModal(photoNoticeModal));
             }
+            
+            continueToRecordButton.addEventListener('click', () => {
+                closeModalElement(photoNoticeModal);
+                openModal(bodyRecordModal);
+            });
 
             comparePhotosButton.addEventListener('click', openPhotoComparator);
             
