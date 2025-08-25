@@ -123,7 +123,7 @@
         }
         
         /* NEW: Styles for extra workout modal */
-        #extraWorkoutModal .modal-content, #extraWorkoutFormModal .modal-content {
+        #extraWorkoutSelectModal .modal-content, #extraWorkoutRegisterModal .modal-content {
             width: 95%;
             max-width: 500px;
         }
@@ -1452,24 +1452,24 @@
                 button.className = 'main-history-item';
                 
                 // MODIFIED: Check if it's an extra workout and display info accordingly
+                const sessionData = session.sets_performed;
+                const sessionName = session.exercise_name.startsWith('Extra:') ? session.exercise_name.replace('Extra: ', '') : session.day_key;
+                
+                let sessionInfo = '';
                 if (session.exercise_name.startsWith('Extra:')) {
-                    const extraData = session.sets_performed[0];
-                    button.innerHTML = `
-                        <div class="flex justify-between items-center w-full">
-                            <span>${session.exercise_name.replace('Extra: ', '')} (${session.date})</span>
-                            <span class="text-yellow-300 text-sm">${extraData.time || 'N/A'}</span>
-                        </div>
-                        <div class="text-xs text-gray-400 text-left mt-1">${extraData.volume || ''}</div>
-                    `;
+                    const sets = sessionData[0];
+                    sessionInfo = sets.volume ? `${sets.time} | ${sets.volume}` : sets.time;
                 } else {
-                    button.innerHTML = `
-                        <div class="flex justify-between items-center w-full">
-                            <span>${session.date} - ${session.time}</span>
-                            <span class="text-yellow-300 text-sm">${session.total_time_session}</span>
-                        </div>
-                        <div class="text-xs text-gray-400 text-left mt-1">Volumen: ${session.total_volume_session} Kg</div>
-                    `;
+                    sessionInfo = `Volumen: ${session.total_volume_session} Kg`;
                 }
+
+                button.innerHTML = `
+                    <div class="flex justify-between items-center w-full">
+                        <span>${sessionName} (${session.date})</span>
+                        <span class="text-yellow-300 text-sm">${session.exercise_name.startsWith('Extra:') ? '' : session.total_time_session}</span>
+                    </div>
+                    <div class="text-xs text-gray-400 text-left mt-1">${sessionInfo}</div>
+                `;
                 
                 button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 mainHistoryResults.appendChild(button);
@@ -2891,7 +2891,7 @@
                     } else if (type === 'emom') { runNextEmomInterval(); } 
                     else if (type === 'circuit') { runNextCircuitInterval(); }
                     if (countdownCallback) countdownCallback();
-                } else if (countdownTimeLeft <= 3 && countdownTimeLeft > 0) {
+                } else if (countdownTimeLeft <= 3 && timeLeft > 0) {
                     playTimerSound("C4", "16n");
                 }
             }, 1000);
@@ -3296,7 +3296,12 @@
             fullWorkoutLogTitle.textContent = `Entrenamiento del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
             let exercisesInSession = [];
             try {
-                exercisesInSession = sessionSummaryEntry.sets_performed;
+                // MODIFIED: Properly handle parsing for both JSON and non-JSON data
+                if (typeof sessionSummaryEntry.sets_performed === 'string') {
+                    exercisesInSession = JSON.parse(sessionSummaryEntry.sets_performed);
+                } else if (Array.isArray(sessionSummaryEntry.sets_performed) || typeof sessionSummaryEntry.sets_performed === 'object') {
+                    exercisesInSession = sessionSummaryEntry.sets_performed;
+                }
             } catch (e) {
                 console.error("Error parsing exercises_performed for session summary:", e);
                 fullWorkoutLogContent.innerHTML = '<p class="text-red-400 text-center">Error al cargar los detalles del entrenamiento.</p>';
