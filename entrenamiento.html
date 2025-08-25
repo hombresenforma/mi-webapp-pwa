@@ -2892,7 +2892,7 @@
                     playTimerSound("A5", "8n");
                     if (type === 'work') {
                         if (currentTimedExerciseCardId !== null) {
-                            runWorkTimerForTimedExercise(parseDurationToSeconds(JSON.parse(document.getElementById(currentTimedExerciseCardId).dataset.originalExerciseData).reps));
+                            runWorkTimerForTimedExercise(parseDurationToSeconds(JSON.getElementById(currentTimedExerciseCardId).dataset.originalExerciseData).reps));
                         } else { runWorkTimer(); }
                     } else if (type === 'emom') { runNextEmomInterval(); } 
                     else if (type === 'circuit') { runNextCircuitInterval(); }
@@ -3259,7 +3259,7 @@
             }
         }
 
-        async function loadWorkoutLogs() {
+ async function loadWorkoutLogs() {
             if (!supabase || !userIdentifier) {
                 console.warn("Supabase client or user identifier not available. Cannot load workout logs.");
                 individualExerciseLogs = [];
@@ -3419,3 +3419,5 @@
     </script>
 </body>
 </html>
+
+
