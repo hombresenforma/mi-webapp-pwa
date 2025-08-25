@@ -1438,22 +1438,24 @@
             filteredSessions.forEach(session => {
                 const button = document.createElement('button');
                 button.className = 'main-history-item';
-                button.innerHTML = `
-                    <div class="flex justify-between items-center w-full">
-                        <span>${session.date} - ${session.time}</span>
-                        <span class="text-yellow-300 text-sm">${session.total_time_session}</span>
-                    </div>
-                    <div class="text-xs text-gray-400 text-left mt-1">Volumen: ${session.total_volume_session} Kg</div>
-                `;
+                
                 // MODIFIED: Check if it's an extra workout and display info accordingly
                 if (session.exercise_name.startsWith('Extra:')) {
-                    const extraData = JSON.parse(session.sets_performed)[0];
+                    const extraData = session.sets_performed[0];
                     button.innerHTML = `
                         <div class="flex justify-between items-center w-full">
                             <span>${session.exercise_name.replace('Extra: ', '')} (${session.date})</span>
-                            <span class="text-yellow-300 text-sm">${extraData.time}</span>
+                            <span class="text-yellow-300 text-sm">${extraData.time || 'N/A'}</span>
                         </div>
                         <div class="text-xs text-gray-400 text-left mt-1">${extraData.volume || ''}</div>
+                    `;
+                } else {
+                    button.innerHTML = `
+                        <div class="flex justify-between items-center w-full">
+                            <span>${session.date} - ${session.time}</span>
+                            <span class="text-yellow-300 text-sm">${session.total_time_session}</span>
+                        </div>
+                        <div class="text-xs text-gray-400 text-left mt-1">Volumen: ${session.total_volume_session} Kg</div>
                     `;
                 }
                 
@@ -2496,7 +2498,9 @@
                     if (error) {
                         throw new Error(`Error al subir la imagen: ${error.message}`);
                     }
-                    captureUrl = data.path;
+                    // Get the public URL of the uploaded image
+                    const { data: publicUrlData } = supabase.storage.from('captures').getPublicUrl(filePath);
+                    captureUrl = publicUrlData.publicUrl;
                 }
 
                 const extraLog = {
