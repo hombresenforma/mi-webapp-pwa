@@ -553,11 +553,6 @@
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        #extrasFormModal .modal-actions button {
-            padding: 0.75rem 1.5rem;
-            font-weight: bold;
-            border-radius: 0.5rem;
-        }
         #extrasFormModal .modal-actions .cancel-button {
             background-color: #4a5568;
             color: #e5e7eb;
@@ -582,6 +577,35 @@
             object-fit: contain;
             border: 1px solid #4a5568;
         }
+        /* NEW: Added flexbox to select and icon */
+        .select-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #4a5568;
+            border-radius: 0.375rem;
+            background-color: #2d3748;
+            color: #e5e7eb;
+            cursor: pointer;
+            position: relative;
+        }
+        .select-with-icon select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: transparent;
+            border: none;
+            padding: 0;
+            color: inherit;
+            font-size: inherit;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        .select-with-icon i {
+            color: #facc15;
+        }
+
 
     </style>
 </head>
@@ -608,8 +632,9 @@
                     <!-- MODIFIED: Flex container for the title and the new small button -->
                     <div class="flex justify-center items-center gap-2 mb-2 sm:mb-3">
                         <h2 class="text-md sm:text-lg font-semibold text-yellow-400 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
-                        <button id="addExtrasButton" class="extras-button" title="Añadir Actividad Extra">
-                            <i class="fas fa-plus-circle"></i>
+                        <!-- MODIFIED: Button text and icon -->
+                        <button id="addExtrasButton" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-colors">
+                            <i class="fas fa-plus mr-2"></i>+ Actividad Extra
                         </button>
                     </div>
                     
@@ -723,16 +748,23 @@
             <div id="extrasOptionsContainer" class="space-y-3">
                 <div class="form-group">
                     <label for="extraActivitySelect" class="block text-sm mb-1">Actividad:</label>
-                    <select id="extraActivitySelect" class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-2">
-                        <option value="Pádel" data-icon="fas fa-tennis-ball">Pádel</option>
-                        <option value="Natación" data-icon="fas fa-swimmer">Natación</option>
-                        <option value="Kayak" data-icon="fas fa-water">Kayak</option>
-                        <option value="Correr" data-icon="fas fa-running">Correr</option>
-                        <option value="Trekking" data-icon="fas fa-hiking">Trekking</option>
-                        <option value="Caminar" data-icon="fas fa-walking">Caminar</option>
-                        <option value="Fútbol" data-icon="fas fa-futbol">Fútbol</option>
-                        <option value="Otros">Otros...</option>
-                    </select>
+                    <div id="customSelectWrapper" class="relative">
+                        <div class="select-with-icon" onclick="toggleSelectDropdown()">
+                             <i id="extraActivityIcon" class="fas fa-tennis-ball text-blue-300"></i>
+                             <span id="extraActivityDisplay">Pádel</span>
+                             <i class="fas fa-chevron-down absolute right-4 text-gray-400"></i>
+                        </div>
+                        <select id="extraActivitySelect" class="absolute inset-0 w-full opacity-0">
+                            <option value="Pádel" data-icon="fas fa-tennis-ball">Pádel</option>
+                            <option value="Natación" data-icon="fas fa-swimmer">Natación</option>
+                            <option value="Kayak" data-icon="fas fa-water">Kayak</option>
+                            <option value="Correr" data-icon="fas fa-running">Correr</option>
+                            <option value="Trekking" data-icon="fas fa-hiking">Trekking</option>
+                            <option value="Caminar" data-icon="fas fa-walking">Caminar</option>
+                            <option value="Fútbol" data-icon="fas fa-futbol">Fútbol</option>
+                            <option value="Otros" data-icon="fas fa-ellipsis-h">Otros...</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="otherActivityInputGroup" class="form-group" style="display: none;">
@@ -741,8 +773,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm:ss):</label>
-                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30:00" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (opcional):</label>
+                    <input type="text" id="extraTimeInput" placeholder="Ej: 1h 30m" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
                 </div>
 
                 <div class="form-group">
@@ -761,8 +793,13 @@
             </div>
             
             <div class="modal-actions">
-                <button onclick="closeModalElement(extrasModal)" class="cancel-button">Cancelar</button>
-                <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
+                <!-- MODIFIED: Buttons with improved styling -->
+                <button onclick="closeModalElement(extrasModal)" class="bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">
+                    Cancelar
+                </button>
+                <button id="registerExtraActivityButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition">
+                    Registrar
+                </button>
             </div>
         </div>
     </div>
@@ -1293,6 +1330,8 @@
         // MODIFIED: Extras modal has been simplified to a single modal
         const extrasModal = document.getElementById('extrasModal');
         const extraActivitySelect = document.getElementById('extraActivitySelect');
+        const extraActivityIcon = document.getElementById('extraActivityIcon');
+        const extraActivityDisplay = document.getElementById('extraActivityDisplay');
         const otherActivityInputGroup = document.getElementById('otherActivityInputGroup');
         const otherActivityNameInput = document.getElementById('otherActivityName');
         const extraTimeInput = document.getElementById('extraTimeInput');
@@ -2838,8 +2877,8 @@
 
             if (modalTitleEl) modalTitleEl.textContent = 'PREPÁRATE';
             if (stateLabelEl) {
-                stateLabelEl.textContent = 'CUENTA ATRÁS';
-                stateLabelEl.className = 'state-label countdown';
+                stateLabel-textContent = 'CUENTA ATRÁS';
+                stateLabel.className = 'state-label countdown';
             }
             
             if (type === 'work' && currentTimedExerciseCardId) {
@@ -3317,7 +3356,7 @@
                             ${exerciseEntry.setsPerformed.map(set => { // Note: it's setsPerformed here
                                 const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
                                 const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
-                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
+                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${s.reps || 0} ${repsUnit}</span></li>`;
                             }).join('')}
                         </ul>
                     `;
@@ -3384,13 +3423,21 @@
             uploadedCaptureFile = null;
 
             // Handle "Otros" option visibility
-            extraActivitySelect.onchange = () => {
-                if (extraActivitySelect.value === 'Otros') {
+            extraActivitySelect.onchange = (event) => {
+                const selectedOption = event.target.options[event.target.selectedIndex];
+                const selectedIcon = selectedOption.dataset.icon;
+                const selectedText = selectedOption.textContent;
+
+                extraActivityIcon.className = `${selectedIcon} text-blue-300`;
+                extraActivityDisplay.textContent = selectedText;
+
+                if (event.target.value === 'Otros') {
                     otherActivityInputGroup.style.display = 'block';
                 } else {
                     otherActivityInputGroup.style.display = 'none';
                 }
             };
+            extraActivitySelect.dispatchEvent(new Event('change')); // Trigger once on load
 
             // Display selected file name
             extraCaptureInput.onchange = (event) => {
@@ -3482,6 +3529,11 @@
                 console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
             }
+        }
+        
+        function toggleSelectDropdown() {
+             // We don't need this function anymore since we are using a native select element
+             // The visual trick is done with CSS and event listeners on the `select` element itself
         }
 
     </script>
