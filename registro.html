@@ -93,8 +93,12 @@
         .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
         
         /* Photo Comparator and Chart Filter */
-        #photoComparatorModal .comparator-container { display: flex; flex-direction: column; gap: 1rem; }
-        @media (min-width: 768px) { #photoComparatorModal .comparator-container { flex-direction: row; } }
+        /* MODIFIED: Always horizontal */
+        #photoComparatorModal .comparator-container { 
+            display: flex; 
+            flex-direction: row; 
+            gap: 1rem; 
+        }
         #photoComparatorModal .photo-slot { flex: 1; text-align: center; min-width: 0; }
         #photoComparatorModal .comparator-info { color: #e5e7eb; min-height: 2.5rem; margin: 0.5rem 0; }
         #photoComparatorModal .comparator-info .date { font-weight: 600; color: #1f2937; background-color: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 4px; display: inline-block; }
@@ -199,6 +203,9 @@
             <div id="bodyRecordSection" class="tab-content active">
                 <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 text-center mb-6">REGISTROS CORPORALES</h2>
                 
+                <a href="#" id="sendExercisesButton" class="action-button mb-4 block text-center w-full font-semibold py-2.5 px-4 rounded-lg shadow-md">
+                    <i class="fas fa-paper-plane mr-2"></i>Enviar Ejercicios
+                </a>
                 <button id="addBodyRecordButton" class="action-button mb-4 block text-center w-full font-semibold py-2.5 px-4 rounded-lg shadow-md">
                     <i class="fas fa-plus mr-2"></i>Añadir Nuevo Registro
                 </button>
@@ -306,7 +313,6 @@
                     <div id="viewport-before" class="image-viewport">
                         <img id="photo-before" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de antes">
                     </div>
-                    <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-before" class="comparator-nav-btn prev">&lt;</button>
                         <div class="flex items-center gap-2">
@@ -325,7 +331,6 @@
                     <div id="viewport-after" class="image-viewport">
                         <img id="photo-after" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de después">
                     </div>
-                     <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-after" class="comparator-nav-btn prev">&lt;</button>
                         <div class="flex items-center gap-2">
@@ -345,10 +350,9 @@
         // =================================================================
         // =================== APP CONFIGURATION =========================
         // =================================================================
-        // Se define una configuración por defecto que se usará si no se encuentra
-        // una configuración específica para el usuario en la base de datos.
-        const DEFAULT_APP_CONFIG = {
+        const APP_CONFIG = {
             urls: {
+                workoutSubmission: 'https://api.leadconnectorhq.com/widget/form/X8QZdO4RAKvmxj4Nj1Fv',
                 bodyRecordSubmission: 'https://api.leadconnectorhq.com/widget/form/WoPjPtfVMXeLgG9Ju08t',
             },
             bodyMetrics: [
@@ -357,23 +361,24 @@
                 { id: 'cadera', label: 'Cadera', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: true, active: true },
                 { id: 'biceps', label: 'Bíceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
                 { id: 'cuadriceps', label: 'Cuádriceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false }
+                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: true },
+                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: true },
+                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: true },
+                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: true },
+                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: true }
             ]
         };
 
-        const DEFAULT_BUTTON_AVAILABILITY_CONFIG = {
-            activeDays: [0, 5, 6],
-            activeWeeks: "even"
+        const BUTTON_AVAILABILITY_CONFIG = {
+            sendExercisesButton: {
+                activeDays: [0, 5, 6], 
+                activeWeeks: 'none'
+            },
+            addBodyRecordButton: {
+                activeDays: [0, 5, 6],
+                activeWeeks: [32, 34, 38, 42, 46]
+            }
         };
-
-        // Variables globales para la configuración del usuario
-        let appConfig = DEFAULT_APP_CONFIG;
-        let buttonAvailabilityConfig = DEFAULT_BUTTON_AVAILABILITY_CONFIG;
-
         // =================================================================
         // =================== END OF CONFIGURATION ======================
         // =================================================================
@@ -381,7 +386,7 @@
 
         // --- GLOBAL APP STATE & VARIABLES ---
         let supabase = null;
-        let userId = null;
+        let userIdentifier = null;
         let bodyRecords = []; 
         let progressChartInstance = null; 
         let photoComparatorState = {
@@ -464,25 +469,12 @@
             document.getElementById('confirmCancelBtn').onclick = () => { confirmContainer.remove(); };
         }
 
-        /**
-         * Función para obtener un parámetro de la URL.
-         */
-        function obtenerParametroUrl(nombre) {
-            nombre = nombre.replace(/[\[\]]/g, '\\$&');
-            var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
-                resultados = regex.exec(window.location.href);
-            if (!resultados) return null;
-            if (!resultados[2]) return '';
-            return decodeURIComponent(resultados[2].replace(/\+/g, ' '));
-        }
-
         function initializeSupabaseClient() {
             const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU'; 
             
             try {
                 supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                console.log("Supabase client initialized successfully.");
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
                 showCustomAlert("Error de configuración: No se pudo conectar a la base de datos.", "error");
@@ -490,30 +482,31 @@
                 return;
             }
 
-            // Usar la nueva función para obtener el ID de usuario
-            userId = obtenerParametroUrl('usuario');
+            const path = window.location.pathname;
+            const match = path.match(/\/registro_([^/]+)/); 
+            userIdentifier = match ? match[1] : null;
 
-            if (!userId) {
+            if (!userIdentifier) {
                 const mainAppContainer = document.querySelector('.main-container');
                 if (mainAppContainer) {
                     mainAppContainer.innerHTML = `
                         <div class="text-center p-8 bg-red-900/50 rounded-lg shadow-lg">
                             <h2 class="text-2xl font-bold text-red-400 mb-4">Error de Acceso</h2>
                             <p class="text-gray-200">No se pudo identificar tu ID de Cliente desde la URL.</p>
-                            <p class="text-gray-200 mt-2">Asegúrate de que la URL tenga el formato correcto: <br><code>.../registro.html?usuario=TU_ID</code></p>
+                            <p class="text-gray-200 mt-2">Asegúrate de que la URL tenga el formato correcto: <br><code>www.aceleratumetabolismo.es/registro_TU_ID</code></p>
                             <p class="text-gray-200 mt-4">Por favor, contacta con soporte si el problema persiste.</p>
                         </div>`;
                 }
                 showCustomAlert("Error crítico: ID de Cliente no encontrado en la URL. Formato incorrecto.", "error");
                 return;
             }
-            console.log(`User ID obtained from URL: ${userId}`);
+            console.log(`User ID obtained from URL: ${userIdentifier}`);
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             initializeSupabaseClient();
-            if (userId) {
-                await initializeBodyRecordApp();
+            if (userIdentifier) {
+                initializeBodyRecordApp();
             }
         });
 
@@ -534,67 +527,22 @@
         function isWeekActive(config, today) {
             const weekConfig = config.activeWeeks;
             const weekNumber = getISOWeekNumber(today);
-            console.log(`Current ISO week number: ${weekNumber}`);
 
             if (Array.isArray(weekConfig)) {
                 return weekConfig.includes(weekNumber);
             }
-            // Add robust checks for string values
-            if (typeof weekConfig === 'string') {
-                if (weekConfig.toLowerCase() === 'all') return true;
-                if (weekConfig.toLowerCase() === 'none') return false;
-                if (weekConfig.toLowerCase() === 'even' && weekNumber % 2 === 0) return true;
-                if (weekConfig.toLowerCase() === 'odd' && weekNumber % 2 !== 0) return true;
-            }
-            // Fallback for any other unexpected value
+            if (weekConfig === 'all') return true;
+            if (weekConfig === 'none') return false;
+            const isEvenWeek = weekNumber % 2 === 0;
+            if (weekConfig === 'even' && isEvenWeek) return true;
+            if (weekConfig === 'odd' && !isEvenWeek) return true;
             return false;
         }
 
         // #############################################################
         // #                   BODY RECORD APP LOGIC                   #
         // #############################################################
-        async function fetchUserConfig() {
-            if (!supabase || !userId) return;
-
-            console.log(`Fetching config for user: ${userId}...`);
-            const { data, error } = await supabase
-                .from('user_configs')
-                .select('config_data')
-                .eq('client_id', userId)
-                .single();
-
-            if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "no rows found"
-                console.error("Error fetching user config:", error);
-                showCustomAlert("Error al cargar la configuración del usuario.", "error");
-            }
-            
-            console.log("Fetch result - data:", data);
-            console.log("Fetch result - error:", error);
-
-            if (data && data.config_data) {
-                console.log("Configuración de usuario cargada exitosamente.");
-                // Merge the loaded config with defaults.
-                // Now we check for top-level keys and fallback to the button-specific key if not found
-                appConfig = { 
-                    ...DEFAULT_APP_CONFIG, 
-                    ...data.config_data.app
-                };
-
-                const buttonConfig = data.config_data.buttons && data.config_data.buttons.addBodyRecordButton ? data.config_data.buttons.addBodyRecordButton : {};
-                buttonAvailabilityConfig.addBodyRecordButton = {
-                    activeDays: data.config_data.activeDays || buttonConfig.activeDays || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeDays,
-                    activeWeeks: data.config_data.activeWeeks || buttonConfig.activeWeeks || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeWeeks
-                };
-
-            } else {
-                console.log("No se encontró una configuración específica para el usuario. Usando la configuración por defecto.");
-            }
-        }
-
         async function initializeBodyRecordApp() {
-            // Cargar la configuración del usuario desde Supabase antes de inicializar la app
-            await fetchUserConfig();
-
             const mainMenuButton = document.getElementById('mainMenuButton');
             const recordForm = document.getElementById('newRecordForm');
             const recordsHistoryContainer = document.getElementById('recordsHistoryContainer');
@@ -602,38 +550,48 @@
             const recordPhotosInput = document.getElementById('recordPhotos');
             const photoPreviewsContainer = document.getElementById('photoPreviewsContainer');
             let addBodyRecordButton = document.getElementById('addBodyRecordButton');
+            let sendExercisesButton = document.getElementById('sendExercisesButton');
             const bodyRecordModal = document.getElementById('bodyRecordModal');
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
 
-            // Actualizar el enlace del botón de menú principal
-            if (mainMenuButton && userId) {
-                // Usamos la ruta y el parámetro 'usuario' proporcionados en la solicitud
-                mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userId}`;
+            if (userIdentifier) {
+                mainMenuButton.href = `https://www.aceleratumetabolismo.es/panel_${userIdentifier}`;
             }
 
             const today = new Date();
             const dayOfWeek = today.getDay(); 
 
-            const addBodyRecordConfig = buttonAvailabilityConfig.addBodyRecordButton;
+            const sendExercisesConfig = BUTTON_AVAILABILITY_CONFIG.sendExercisesButton;
+            const addBodyRecordConfig = BUTTON_AVAILABILITY_CONFIG.addBodyRecordButton;
+
+            const isSendExercisesButtonActive = sendExercisesConfig.activeDays.includes(dayOfWeek) && isWeekActive(sendExercisesConfig, today);
             const isAddBodyRecordButtonActive = addBodyRecordConfig.activeDays.includes(dayOfWeek) && isWeekActive(addBodyRecordConfig, today);
             
-            console.log(`Button 'Add Record' config: activeDays=${addBodyRecordConfig.activeDays}, activeWeeks=${addBodyRecordConfig.activeWeeks}`);
-            console.log(`Today is day ${dayOfWeek}. Is day active? ${addBodyRecordConfig.activeDays.includes(dayOfWeek)}`);
-            console.log(`Current week is active? ${isWeekActive(addBodyRecordConfig, today)}`);
-            console.log(`Is button active? ${isAddBodyRecordButtonActive}`);
-
-
             const showWeekdayNotice = () => openModal(document.getElementById('weekdayNoticeModal'));
 
+            sendExercisesButton = clearClickListeners(sendExercisesButton);
             addBodyRecordButton = clearClickListeners(addBodyRecordButton);
+
+            if (!isSendExercisesButtonActive) {
+                sendExercisesButton.classList.add('button-disabled');
+                sendExercisesButton.addEventListener('click', (e) => { e.preventDefault(); showWeekdayNotice(); });
+            } else {
+                sendExercisesButton.classList.remove('button-disabled');
+                sendExercisesButton.href = `${APP_CONFIG.urls.workoutSubmission}?contact_id=${userIdentifier}`;
+                sendExercisesButton.target = "_blank";
+            }
 
             if (!isAddBodyRecordButtonActive) {
                 addBodyRecordButton.classList.add('button-disabled');
                 addBodyRecordButton.addEventListener('click', (e) => { e.preventDefault(); showWeekdayNotice(); });
             } else {
                 addBodyRecordButton.classList.remove('button-disabled');
-                addBodyRecordButton.addEventListener('click', () => openModal(bodyRecordModal));
+                addBodyRecordButton.addEventListener('click', () => {
+                    // MODIFIED: Show notice on click
+                    showCustomAlert("¡Recuerda! Hazte las 3 fotos (frontal, espalda y perfil) para subirlas a la vez.", "info");
+                    openModal(bodyRecordModal);
+                });
             }
 
             comparePhotosButton.addEventListener('click', openPhotoComparator);
@@ -644,7 +602,7 @@
                 perimetrosContainer.innerHTML = '';
                 plieguesContainer.innerHTML = '';
 
-                appConfig.bodyMetrics.filter(m => m.active).forEach(metric => {
+                APP_CONFIG.bodyMetrics.filter(m => m.active).forEach(metric => {
                     const inputDiv = document.createElement('div');
                     inputDiv.innerHTML = `
                         <label for="record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}" class="block text-xs font-medium text-gray-300 mb-1">
@@ -664,7 +622,7 @@
 
             function renderChartMetricToggles() {
                 chartMetricTogglesContainer.innerHTML = '';
-                const chartableMetrics = appConfig.bodyMetrics.filter(m => m.active && m.chartable); 
+                const chartableMetrics = APP_CONFIG.bodyMetrics.filter(m => m.active && m.chartable); 
                 if (chartableMetrics.length === 0) {
                     chartMetricTogglesContainer.innerHTML = '<p class="text-center text-gray-400">No hay métricas activas para el gráfico.</p>';
                     return;
@@ -698,11 +656,11 @@
 
             async function loadBodyRecords() {
                 recordsHistoryContainer.innerHTML = '<p class="text-center text-gray-400">Cargando registros...</p>';
-                if (!supabase || !userId) {
+                if (!supabase || !userIdentifier) {
                     recordsHistoryContainer.innerHTML = '<p class="text-center text-red-400">Error: Supabase no inicializado o usuario no identificado.</p>';
                     return;
                 }
-                const { data, error } = await supabase.from('registros_corporales').select('*').eq('client_id', userId).order('fecha_registro', { ascending: false });
+                const { data, error } = await supabase.from('registros_corporales').select('*').eq('client_id', userIdentifier).order('fecha_registro', { ascending: false });
                 if (error) {
                     console.error("Error cargando registros desde Supabase:", error);
                     showCustomAlert("No se pudieron cargar los registros.", "error");
@@ -745,7 +703,7 @@
                         photosHtml += '</div></div>';
                     }
                     let metricsHtml = '';
-                    appConfig.bodyMetrics.forEach(metric => {
+                    APP_CONFIG.bodyMetrics.forEach(metric => {
                         const value = record[metric.id];
                         if (value !== null && typeof value !== 'undefined') {
                             metricsHtml += `<div><strong class="text-gray-300">${metric.label}:</strong> ${value} ${metric.unit}</div>`;
@@ -755,7 +713,7 @@
                         <div class="record-card-header flex justify-between items-center">
                             <div>
                                 <h3 class="text-md font-semibold text-yellow-300">${formatRecordDate(record.fecha_registro)}</h3>
-                                <p class="text-xs text-gray-400">ID: ${userId}</p>
+                                <p class="text-xs text-gray-400">ID: ${userIdentifier}</p>
                             </div>
                             <div class="flex items-center">
                                 <button onclick="window.deleteRecord('${record.id}', event)" class="danger-button text-xs py-1 px-2 rounded mr-2"><i class="fas fa-trash-alt"></i></button>
@@ -773,7 +731,7 @@
 
             recordForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const newTab = window.open(`${appConfig.urls.bodyRecordSubmission}?contact_id=${userId}`, '_blank');
+                const newTab = window.open(`${APP_CONFIG.urls.bodyRecordSubmission}?contact_id=${userIdentifier}`, '_blank');
                 if (!newTab) {
                     showCustomAlert("No se pudo abrir el formulario. Por favor, deshabilita el bloqueador de pop-ups para este sitio.", "warning");
                 }
@@ -786,7 +744,7 @@
                     const filesToUpload = Array.from(files).slice(0, 3);
                     const BUCKET_NAME = 'fotos';
                     for (const file of filesToUpload) {
-                        const filePath = `${userId}/${Date.now()}-${file.name}`;
+                        const filePath = `${userIdentifier}/${Date.now()}-${file.name}`;
                         const { error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(filePath, file);
                         if (uploadError) {
                             console.error(`Error uploading photo:`, uploadError);
@@ -799,9 +757,9 @@
                         uploadedPhotoUrls.push(data.publicUrl);
                     }
                 }
-                const newRecordData = { client_id: userId, fecha_registro: recordDateInput.value, photo_urls: uploadedPhotoUrls.length > 0 ? uploadedPhotoUrls : null };
+                const newRecordData = { client_id: userIdentifier, fecha_registro: recordDateInput.value, photo_urls: uploadedPhotoUrls.length > 0 ? uploadedPhotoUrls : null };
                 let hasAnyMetricValue = false;
-                appConfig.bodyMetrics.filter(m => m.active).forEach(metric => {
+                APP_CONFIG.bodyMetrics.filter(m => m.active).forEach(metric => {
                     const inputElement = document.getElementById(`record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}`);
                     if (inputElement && inputElement.value.trim() !== '') {
                         newRecordData[metric.id] = parseFloat(inputElement.value);
@@ -929,7 +887,7 @@
                 const datasets = [];
                 let selectedMetric = null;
 
-                appConfig.bodyMetrics.filter(m => m.active && m.chartable).forEach(metric => {
+                APP_CONFIG.bodyMetrics.filter(m => m.active && m.chartable).forEach(metric => {
                     const checkbox = document.getElementById(`check${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}`);
                     if (checkbox && checkbox.checked) selectedMetric = metric;
                 });
