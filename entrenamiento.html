@@ -16,8 +16,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- MODIFIED: Added Font Awesome 6.x for the specific padel icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Tone.js for audio feedback in timers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <!-- Chart.js for historical data visualization -->
@@ -121,51 +119,6 @@
             width: 95%;
             max-width: 450px;
         }
-        
-        /* NEW: Styles for extra workout modal */
-        #extraWorkoutSelectModal .modal-content, #extraWorkoutRegisterModal .modal-content {
-            width: 95%;
-            max-width: 500px;
-        }
-        .extra-workout-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-        .extra-workout-btn {
-            background-color: #4a5568;
-            color: #e5e7eb;
-            font-weight: 500;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            border: 2px solid #4a5568;
-            text-align: center;
-            transition: all 0.2s ease-in-out;
-        }
-        .extra-workout-btn:hover {
-            background-color: #6a717f;
-            border-color: #facc15;
-            color: #facc15;
-        }
-        .extra-workout-btn.active {
-            background-color: #facc15;
-            border-color: #facc15;
-            color: #1f2937;
-            font-weight: 700;
-        }
-        .extra-workout-btn i {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .extra-workout-btn span {
-            font-size: 0.875rem;
-        }
-        .extra-workout-input-group {
-            display: flex;
-            gap: 1rem;
-        }
-
 
         /* --- WORKOUT SPECIFIC STYLES --- */
         .day-selection-container { display: flex; flex-direction: column; gap: 1rem; }
@@ -485,30 +438,6 @@
             object-fit: cover;
             display: none; /* Hidden by default, shown by JS */
         }
-        
-        /* Styles for the history filter buttons */
-        .history-filter-button-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .history-filter-button {
-            flex-grow: 1;
-            background-color: #4A5568;
-            color: #facc15;
-            border: 1px solid #facc15;
-            font-weight: bold;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.5rem;
-            text-align: center;
-            transition: all 0.2s ease-in-out;
-            font-size: 0.85rem;
-        }
-        .history-filter-button.active, .history-filter-button:hover {
-            background-color: #facc15;
-            color: #1f2937;
-        }
 
     </style>
 </head>
@@ -532,14 +461,7 @@
             <!-- Workout Content -->
             <div id="workoutSection" class="tab-content active">
                 <section id="mainControlsSection" class="mb-4 sm:mb-6">
-                    <!-- MODIFIED: Added a flex container to align the title and the new button -->
-                    <div class="flex items-center justify-between mb-2 sm:mb-3">
-                        <h2 class="text-md sm:text-lg font-semibold text-yellow-400 text-center flex-grow">SELECCIONA TU ENTRENAMIENTO</h2>
-                        <button id="addExtraWorkoutButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded-lg shadow-md transition-colors text-sm whitespace-nowrap">
-                            <i class="fas fa-plus mr-1"></i>Añadir Extra
-                        </button>
-                    </div>
-
+                    <h2 class="text-md sm:text-lg font-semibold text-yellow-400 mb-2 sm:mb-3 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
                     <div class="day-selection-container">
                         <div id="daySelectionTabs" class="day-tab-bar"></div>
                         <div id="workoutPreviewContainer" class="workout-preview-container">
@@ -563,75 +485,15 @@
         </main>
     </div>
 
-    <!-- NEW: Modal for selecting extra activity -->
-    <div id="extraWorkoutSelectModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-yellow-400">Añadir Trabajo Extra</h3>
-                <button onclick="closeModalElement(extraWorkoutSelectModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal">×</button>
-            </div>
-            
-            <p class="text-gray-300 mb-4">Selecciona una actividad:</p>
-            <div id="extraActivityButtons" class="extra-workout-grid mb-6">
-                <!-- Buttons will be populated by JS -->
-            </div>
-
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="closeModalElement(extraWorkoutSelectModal)" class="bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">Cancelar</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- NEW: Modal for registering extra workout details -->
-    <div id="extraWorkoutRegisterModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-55 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="extraFormTitle" class="text-xl font-semibold text-yellow-400"></h3>
-                <button onclick="closeModalElement(extraWorkoutRegisterModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal">×</button>
-            </div>
-            
-            <form id="extraWorkoutForm" class="space-y-4">
-                <div id="extraNameInputGroup" class="flex-col" style="display: none;">
-                    <label for="extraName" class="text-sm font-medium text-gray-400">Nombre de la actividad</label>
-                    <input type="text" id="extraName" placeholder="Ej: Voleibol en la playa" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
-                </div>
-                <div class="flex flex-col">
-                    <label for="extraTime" class="text-sm font-medium text-gray-400">Tiempo dedicado (minutos)</label>
-                    <input type="number" id="extraTime" placeholder="Ej: 60" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
-                </div>
-                <div class="flex flex-col">
-                    <label for="extraVolume" class="text-sm font-medium text-gray-400">Volumen total (opcional)</label>
-                    <input type="text" id="extraVolume" placeholder="Ej: 10 km o 15,000 pasos" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md focus:ring-yellow-500 focus:border-yellow-500 transition-colors">
-                </div>
-                <div class="flex flex-col">
-                    <label for="extraCapture" class="text-sm font-medium text-gray-400">Adjunta captura de los datos registrados (opcional)</label>
-                    <input type="file" id="extraCapture" accept="image/*" class="w-full text-white text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-yellow-500 file:text-gray-900 hover:file:bg-yellow-600 cursor-pointer">
-                </div>
-            </form>
-
-            <div class="flex justify-end gap-3 mt-6">
-                <button id="cancelExtraButton" onclick="closeModalElement(extraWorkoutRegisterModal)" class="bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">Cancelar</button>
-                <button id="saveExtraButton" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2.5 px-4 rounded-lg shadow-md transition">Guardar</button>
-            </div>
-        </div>
-    </div>
+    <!-- MODALS (Workout Specific) -->
     
     <!-- Workout History Modal (for full workout sessions) -->
     <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold text-yellow-400">Historial de Entrenamientos</h3>
                 <button onclick="closeModalElement(mainHistoryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial">×</button>
             </div>
-            
-            <!-- NEW: History filter buttons -->
-            <div class="history-filter-button-group">
-                <button id="filter-all" class="history-filter-button active">Todo</button>
-                <button id="filter-7days" class="history-filter-button">Última semana</button>
-                <button id="filter-15days" class="history-filter-button">Últimos 15 días</button>
-                <button id="filter-30days" class="history-filter-button">Últimos 30 días</button>
-            </div>
-            
             <div id="mainHistoryResults" class="space-y-2 max-h-80 overflow-y-auto pr-2">
                  <p class="text-gray-400 text-center py-4">Aquí aparecerá tu historial de entrenamientos.</p>
             </div>
@@ -941,9 +803,6 @@
         let workoutData = null; // Will be loaded from URL
         let exerciseAlternatives = null; // Will be loaded from URL
         let wakeLock = null; // NEW: For Screen Wake Lock API
-        
-        // NEW: Global variables for extra workout tracking
-        let extraWorkoutActivity = null;
 
         // NEW: Global variables for time-based exercise sequence
         let currentTimedExerciseCardId = null;
@@ -1081,29 +940,8 @@
 
             // NEW: Add listener for page visibility to manage wake lock
             document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            // NEW: Event listener for the "Añadir Extra" button
-            const addExtraWorkoutButton = document.getElementById('addExtraWorkoutButton');
-            if (addExtraWorkoutButton) {
-                addExtraWorkoutButton.addEventListener('click', openExtraWorkoutSelectModal);
-            }
-        });
-        
-        // NEW: Array of extra activities for the modal
-        const extraActivities = [
-            { name: 'Padel', icon: 'fa-solid fa-tennis-paddle-ball fa-rotate-90' },
-            { name: 'Fútbol', icon: 'fas fa-futbol' },
-            { name: 'Correr', icon: 'fas fa-person-running' },
-            { name: 'Trekking', icon: 'fas fa-person-hiking' },
-            { name: 'Caminata', icon: 'fas fa-person-walking' },
-            { name: 'Kayak', icon: 'fas fa-water' },
-            { name: 'Natación', icon: 'fas fa-swimmer' },
-            { name: 'Ciclismo', icon: 'fas fa-biking' },
-            { name: 'Baloncesto', icon: 'fas fa-basketball-ball' },
-            { name: 'Tenis', icon: 'fas fa-tennis-ball' },
-            { name: 'Otro', icon: 'fas fa-plus' },
-        ];
 
+        });
 
         // Function to initialize Supabase client and get user identifier
         function initializeSupabaseClient() {
@@ -1251,6 +1089,7 @@
         const emomCurrentExerciseName = document.getElementById('emomCurrentExerciseName');
         const emomCurrentExerciseReps = document.getElementById('emomCurrentExerciseReps');
         const emomCurrentExerciseWeight = document.getElementById('emomCurrentExerciseWeight');
+        const emomCurrentExerciseDetails = document.getElementById('emomCurrentExerciseDetails');
         const emomIntervalTimerDisplay = document.getElementById('emomIntervalTimerDisplay'); 
         const workoutSummaryModal = document.getElementById('workoutSummaryModal');
         const workoutSummaryTotalTime = document.getElementById('workoutSummaryTotalTime');
@@ -1400,26 +1239,14 @@
         }
 
         if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderWorkoutHistoryList('all'); // NEW: Default to showing all workouts
+            renderWorkoutHistoryList();
             openModal(mainHistoryModal); 
         });
         if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
         if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
         if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
         
-        // NEW: Event listeners for history filters
-        document.getElementById('filter-all').addEventListener('click', () => filterHistory('all'));
-        document.getElementById('filter-7days').addEventListener('click', () => filterHistory('7days'));
-        document.getElementById('filter-15days').addEventListener('click', () => filterHistory('15days'));
-        document.getElementById('filter-30days').addEventListener('click', () => filterHistory('30days'));
-
-        function filterHistory(period) {
-            document.querySelectorAll('.history-filter-button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`filter-${period}`).classList.add('active');
-            renderWorkoutHistoryList(period);
-        }
-
-        function renderWorkoutHistoryList(filterPeriod) {
+        function renderWorkoutHistoryList() {
             mainHistoryResults.innerHTML = '';
             const sortedSessions = Array.from(workoutSessionSummaries).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
             
@@ -1427,51 +1254,16 @@
                 mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos registrados todavía.</p>';
                 return;
             }
-            
-            const today = new Date();
-            let filteredSessions = [];
-
-            if (filterPeriod === 'all') {
-                filteredSessions = sortedSessions;
-            } else {
-                const cutoffDate = new Date();
-                if (filterPeriod === '7days') cutoffDate.setDate(today.getDate() - 7);
-                else if (filterPeriod === '15days') cutoffDate.setDate(today.getDate() - 15);
-                else if (filterPeriod === '30days') cutoffDate.setDate(today.getDate() - 30);
-                
-                filteredSessions = sortedSessions.filter(session => new Date(session.raw_date) >= cutoffDate);
-            }
-
-            if (filteredSessions.length === 0) {
-                 mainHistoryResults.innerHTML = `<p class="text-gray-400 text-center py-4">No hay entrenamientos en el periodo seleccionado.</p>`;
-                 return;
-            }
-            
-            filteredSessions.forEach(session => {
+            sortedSessions.forEach(session => {
                 const button = document.createElement('button');
                 button.className = 'main-history-item';
-                
-                // MODIFIED: Use the new name_workout column
-                const sessionName = session.name_workout;
-                
-                let sessionInfo = '';
-                if (session.exercise_name.startsWith('Extra:')) {
-                    sessionInfo = `Tiempo: ${session.total_time_session || 'N/A'}`;
-                    if (session.total_volume_session) {
-                        sessionInfo += ` | Volumen: ${session.total_volume_session}`;
-                    }
-                } else {
-                    sessionInfo = `Volumen: ${session.total_volume_session} Kg`;
-                }
-
                 button.innerHTML = `
                     <div class="flex justify-between items-center w-full">
-                        <span>${sessionName} (${session.date})</span>
+                        <span>${session.date} - ${session.time}</span>
                         <span class="text-yellow-300 text-sm">${session.total_time_session}</span>
                     </div>
-                    <div class="text-xs text-gray-400 text-left mt-1">${sessionInfo}</div>
+                    <div class="text-xs text-gray-400 text-left mt-1">Volumen: ${session.total_volume_session} Kg</div>
                 `;
-                
                 button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 mainHistoryResults.appendChild(button);
             });
@@ -2062,7 +1854,7 @@
             card.querySelectorAll('.set-data-row').forEach(row => {
                 const setNumber = parseInt(row.dataset.setNumber, 10);
                 const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                const repsInput = row.querySelector('input[aria-label*="Repeticiones"]');
+                const repsInput = row.querySelector('input[aria-label*="Reps"]');
                 const kg = kgInput.value.trim();
                 const reps = repsInput.value.trim();
                 if (!isTimeBased(repsInput.placeholder) && (kg === '' || reps === '')) {
@@ -2281,6 +2073,7 @@
                     const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
                     const currentCardElement = document.getElementById(cardId);
                     const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
+                    let nextExerciseForRest = null;
                     if (currentCardIndex !== -1) {
                         let nextCard = null;
                         for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
@@ -2363,7 +2156,6 @@
                         date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                         time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         raw_date: new Date().toISOString(),
-                        name_workout: workoutData[currentActiveDayKey].name,
                         exercise_name: "Workout Session Summary",
                         sets_performed: JSON.stringify(currentWorkoutSummaryData),
                         completion_state: "completed",
@@ -2418,152 +2210,6 @@
             return totalSeconds;
         }
 
-        // NEW: Function to open the extra workout modal
-        function openExtraWorkoutSelectModal() {
-            const extraActivityButtonsContainer = document.getElementById('extraActivityButtons');
-            extraActivityButtonsContainer.innerHTML = '';
-            
-            // Populate the modal with activity buttons
-            extraActivities.forEach(activity => {
-                const button = document.createElement('button');
-                button.className = 'extra-workout-btn';
-                button.setAttribute('type', 'button');
-                button.dataset.activityName = activity.name;
-                button.innerHTML = `<i class="${activity.icon}"></i><span>${activity.name}</span>`;
-                button.onclick = () => {
-                    openExtraWorkoutRegisterModal(activity.name, activity.icon);
-                };
-                extraActivityButtonsContainer.appendChild(button);
-            });
-            
-            openModal(document.getElementById('extraWorkoutSelectModal'));
-        }
-
-        // NEW: Function to open the registration modal for extra workout
-        function openExtraWorkoutRegisterModal(activityName, activityIcon) {
-            closeModalElement(extraWorkoutSelectModal);
-
-            const formTitle = document.getElementById('extraFormTitle');
-            const extraNameInputGroup = document.getElementById('extraNameInputGroup');
-            
-            formTitle.innerHTML = `<i class="${activityIcon} mr-2"></i>${activityName}`;
-            
-            // Show/hide the 'other' input field
-            if (activityName === 'Otro') {
-                extraNameInputGroup.style.display = 'flex';
-                document.getElementById('extraName').value = '';
-            } else {
-                extraNameInputGroup.style.display = 'none';
-            }
-
-            // Reset form fields
-            document.getElementById('extraTime').value = '';
-            document.getElementById('extraVolume').value = '';
-            document.getElementById('extraCapture').value = null;
-
-            // Set the activity data
-            extraWorkoutActivity = activityName;
-            
-            const saveButton = document.getElementById('saveExtraButton');
-            saveButton.disabled = false;
-            saveButton.onclick = logExtraWorkout;
-
-            openModal(document.getElementById('extraWorkoutRegisterModal'));
-        }
-
-        // NEW: Function to log the extra workout to Supabase
-        async function logExtraWorkout() {
-            if (!extraWorkoutActivity) {
-                showCustomAlert("Por favor, selecciona una actividad.", "warning");
-                return;
-            }
-
-            const timeInput = document.getElementById('extraTime');
-            const volumeInput = document.getElementById('extraVolume');
-            const captureInput = document.getElementById('extraCapture');
-            const extraNameInput = document.getElementById('extraName');
-            
-            let extraName = extraWorkoutActivity;
-            if (extraWorkoutActivity === 'Otro') {
-                extraName = extraNameInput.value.trim();
-                if (extraName === '') {
-                    showCustomAlert("Por favor, especifica el nombre de la actividad extra.", "warning");
-                    return;
-                }
-            }
-            
-            const timeValue = timeInput.value.trim();
-            const volumeValue = volumeInput.value.trim();
-            const captureFile = captureInput.files[0];
-            let captureUrl = null;
-
-            if (timeValue === '' || isNaN(timeValue)) {
-                showCustomAlert("El tiempo dedicado es obligatorio y debe ser un número en minutos.", "warning");
-                return;
-            }
-
-            const saveButton = document.getElementById('saveExtraButton');
-            saveButton.innerHTML = 'Guardando...';
-            saveButton.disabled = true;
-
-            try {
-                // Upload image if it exists
-                if (captureFile) {
-                    const fileExtension = captureFile.name.split('.').pop();
-                    const filePath = `extra_captures/${userIdentifier}/${Date.now()}.${fileExtension}`;
-                    const { data, error } = await supabase.storage
-                        .from('captures')
-                        .upload(filePath, captureFile);
-
-                    if (error) {
-                        throw new Error(`Error al subir la imagen: ${error.message}`);
-                    }
-                    // Get the public URL of the uploaded image
-                    const { data: publicUrlData } = supabase.storage.from('captures').getPublicUrl(filePath);
-                    captureUrl = publicUrlData.publicUrl;
-                }
-
-                const extraLog = {
-                    client_id: userIdentifier,
-                    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                    time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                    raw_date: new Date().toISOString(),
-                    day_key: "Extra", // A unique key to identify extra workouts
-                    exercise_name: `Extra: ${extraName}`,
-                    sets_performed: [{
-                        serie: 1,
-                        time: `${timeValue} min`,
-                        volume: volumeValue,
-                    }],
-                    completion_state: "completed",
-                    capture_url: captureUrl ? [captureUrl] : null, // Store URL in the new column
-                    // NEW: Set the workout name for extra activities
-                    name_workout: extraName,
-                    total_time_session: `${timeValue} min`,
-                    total_volume_session: volumeValue
-                };
-
-                const { error: insertError } = await supabase
-                    .from('workout_logs')
-                    .insert([extraLog]);
-                
-                if (insertError) {
-                    throw new Error(insertError.message);
-                }
-
-                showCustomAlert("¡Actividad extra guardada con éxito!", "info");
-                await loadWorkoutLogs();
-                closeModalElement(extraWorkoutRegisterModal);
-
-            } catch (e) {
-                console.error("Error saving extra workout:", e);
-                showCustomAlert(`Error al guardar la actividad: ${e.message}`, "error");
-            } finally {
-                saveButton.innerHTML = 'Guardar';
-                saveButton.disabled = false;
-            }
-        }
-        
         function openWarmupModal() { document.getElementById('warmupSetsResult').innerHTML = ''; document.getElementById('workingSetWeightInput').value = ''; openModal(warmupModal); }
         
         function calculateWarmupSets() { 
@@ -2892,12 +2538,12 @@
                     playTimerSound("A5", "8n");
                     if (type === 'work') {
                         if (currentTimedExerciseCardId !== null) {
-                            runWorkTimerForTimedExercise(parseDurationToSeconds(JSON.getElementById(currentTimedExerciseCardId).dataset.originalExerciseData).reps));
+                            runWorkTimerForTimedExercise(parseDurationToSeconds(JSON.parse(document.getElementById(currentTimedExerciseCardId).dataset.originalExerciseData).reps));
                         } else { runWorkTimer(); }
                     } else if (type === 'emom') { runNextEmomInterval(); } 
                     else if (type === 'circuit') { runNextCircuitInterval(); }
                     if (countdownCallback) countdownCallback();
-                } else if (countdownTimeLeft <= 3 && timeLeft > 0) {
+                } else if (countdownTimeLeft <= 3 && countdownTimeLeft > 0) {
                     playTimerSound("C4", "16n");
                 }
             }, 1000);
@@ -3259,7 +2905,7 @@
             }
         }
 
- async function loadWorkoutLogs() {
+        async function loadWorkoutLogs() {
             if (!supabase || !userIdentifier) {
                 console.warn("Supabase client or user identifier not available. Cannot load workout logs.");
                 individualExerciseLogs = [];
@@ -3299,19 +2945,10 @@
                 openModal(fullWorkoutLogModal);
                 return;
             }
-            
-            // MODIFIED: Use the name_workout column for the title
-            const workoutName = sessionSummaryEntry.name_workout || sessionSummaryEntry.day_key;
-            fullWorkoutLogTitle.textContent = `${workoutName} del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
-
+            fullWorkoutLogTitle.textContent = `Entrenamiento del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
             let exercisesInSession = [];
             try {
-                // MODIFIED: Properly handle parsing for both JSON and non-JSON data
-                if (typeof sessionSummaryEntry.sets_performed === 'string') {
-                    exercisesInSession = JSON.parse(sessionSummaryEntry.sets_performed);
-                } else if (Array.isArray(sessionSummaryEntry.sets_performed) || typeof sessionSummaryEntry.sets_performed === 'object') {
-                    exercisesInSession = sessionSummaryEntry.sets_performed;
-                }
+                exercisesInSession = JSON.parse(sessionSummaryEntry.sets_performed); 
             } catch (e) {
                 console.error("Error parsing exercises_performed for session summary:", e);
                 fullWorkoutLogContent.innerHTML = '<p class="text-red-400 text-center">Error al cargar los detalles del entrenamiento.</p>';
@@ -3322,50 +2959,32 @@
                 fullWorkoutLogContent.innerHTML = '<p class="text-gray-400 text-center">No se registraron ejercicios en esta sesión.</p>';
             } else {
                 exercisesInSession.forEach(exerciseEntry => {
-                    const isExtraWorkout = exerciseEntry.day_key === 'Extra';
-                    const escapedExerciseName = exerciseEntry.exercise_name.replace(/'/g, "\\'").replace(/"/g, '\\"');
-                    const hasCapture = exerciseEntry.capture_url && exerciseEntry.capture_url.length > 0;
-                    const captureButton = hasCapture ? `<button onclick="window.open('${supabase.storage.from('captures').getPublicUrl(exerciseEntry.capture_url[0]).data.publicUrl}', '_blank')" class="full-log-history-button"><i class="fas fa-image"></i></button>` : '';
+                    let maxRmForExerciseInSession = 0;
+                    exerciseEntry.setsPerformed.forEach(set => {
+                        if (!isTimeBased(set.reps)) {
+                            const currentRm = calculateEpley1RM(set.kg, set.reps);
+                            if (currentRm > maxRmForExerciseInSession) {
+                                maxRmForExerciseInSession = currentRm;
+                            }
+                        }
+                    });
+                    const historicalMaxRmBeforeThisSession = getHistoricalMaxRmExcludingSession(exerciseEntry.exerciseName, sessionSummaryEntry.date, sessionSummaryEntry.time);
+                    const isNewPR = historicalMaxRmBeforeThisSession > 0 && maxRmForExerciseInSession > historicalMaxRmBeforeThisSession;
+                    const prIcon = isNewPR ? '<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal!"></i>' : '';
+                    const escapedExerciseName = exerciseEntry.exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
 
                     const exerciseHtml = document.createElement('div');
                     exerciseHtml.className = 'workout-log-entry';
-
-                    if (isExtraWorkout) {
-                         const sets = exerciseEntry.sets_performed[0];
-                         exerciseHtml.innerHTML = `
-                            <h4>${exerciseEntry.exercise_name.replace('Extra: ', '')}</h4>
-                            <ul>
-                                <li>Tiempo: ${sets.time || 'N/A'}</li>
-                                ${sets.volume ? `<li>Volumen: ${sets.volume}</li>` : ''}
-                            </ul>
-                            ${captureButton}
-                        `;
-                    } else {
-                        let maxRmForExerciseInSession = 0;
-                        exerciseEntry.sets_performed.forEach(set => {
-                            if (!isTimeBased(set.reps)) {
-                                const currentRm = calculateEpley1RM(set.kg, set.reps);
-                                if (currentRm > maxRmForExerciseInSession) {
-                                    maxRmForExerciseInSession = currentRm;
-                                }
-                            }
-                        });
-                        const historicalMaxRmBeforeThisSession = getHistoricalMaxRmExcludingSession(exerciseEntry.exercise_name, sessionSummaryEntry.date, sessionSummaryEntry.time);
-                        const isNewPR = historicalMaxRmBeforeThisSession > 0 && maxRmForExerciseInSession > historicalMaxRmBeforeThisSession;
-                        const prIcon = isNewPR ? '<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal!"></i>' : '';
-                        
-                        exerciseHtml.innerHTML = `
-                            <h4 onclick="viewExerciseHistoryFromLog('${escapedExerciseName}')" style="cursor: pointer;" title="Ver historial de este ejercicio">${exerciseEntry.exercise_name}${prIcon}</h4>
-                            <ul>
-                                ${exerciseEntry.sets_performed.map(set => { // Note: it's setsPerformed here
-                                    const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
-                                    const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
-                                    return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
-                                }).join('')}
-                            </ul>
-                            ${captureButton}
-                        `;
-                    }
+                    exerciseHtml.innerHTML = `
+                        <h4 onclick="viewExerciseHistoryFromLog('${escapedExerciseName}')" style="cursor: pointer;" title="Ver historial de este ejercicio">${exerciseEntry.exerciseName}${prIcon}</h4>
+                        <ul>
+                            ${exerciseEntry.setsPerformed.map(set => { // Note: it's setsPerformed here
+                                const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
+                                const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
+                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
+                            }).join('')}
+                        </ul>
+                    `;
                     fullWorkoutLogContent.appendChild(exerciseHtml);
                 });
             }
@@ -3419,5 +3038,3 @@
     </script>
 </body>
 </html>
-
-
