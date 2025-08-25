@@ -1451,14 +1451,15 @@
                 const button = document.createElement('button');
                 button.className = 'main-history-item';
                 
-                // MODIFIED: Check if it's an extra workout and display info accordingly
-                const sessionData = session.sets_performed;
-                const sessionName = session.exercise_name.startsWith('Extra:') ? session.exercise_name.replace('Extra: ', '') : session.day_key;
+                // MODIFIED: Use the new name_workout column
+                const sessionName = session.name_workout;
                 
                 let sessionInfo = '';
                 if (session.exercise_name.startsWith('Extra:')) {
-                    const sets = sessionData[0];
-                    sessionInfo = sets.volume ? `${sets.time} | ${sets.volume}` : sets.time;
+                    sessionInfo = `Tiempo: ${session.total_time_session || 'N/A'}`;
+                    if (session.total_volume_session) {
+                        sessionInfo += ` | Volumen: ${session.total_volume_session}`;
+                    }
                 } else {
                     sessionInfo = `Volumen: ${session.total_volume_session} Kg`;
                 }
@@ -1466,7 +1467,7 @@
                 button.innerHTML = `
                     <div class="flex justify-between items-center w-full">
                         <span>${sessionName} (${session.date})</span>
-                        <span class="text-yellow-300 text-sm">${session.exercise_name.startsWith('Extra:') ? '' : session.total_time_session}</span>
+                        <span class="text-yellow-300 text-sm">${session.total_time_session}</span>
                     </div>
                     <div class="text-xs text-gray-400 text-left mt-1">${sessionInfo}</div>
                 `;
@@ -2362,6 +2363,7 @@
                         date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                         time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         raw_date: new Date().toISOString(),
+                        name_workout: workoutData[currentActiveDayKey].name,
                         exercise_name: "Workout Session Summary",
                         sets_performed: JSON.stringify(currentWorkoutSummaryData),
                         completion_state: "completed",
@@ -2534,7 +2536,11 @@
                         volume: volumeValue,
                     }],
                     completion_state: "completed",
-                    capture_url: captureUrl ? [captureUrl] : null // Store URL in the new column
+                    capture_url: captureUrl ? [captureUrl] : null, // Store URL in the new column
+                    // NEW: Set the workout name for extra activities
+                    name_workout: extraName,
+                    total_time_session: `${timeValue} min`,
+                    total_volume_session: volumeValue
                 };
 
                 const { error: insertError } = await supabase
@@ -3293,7 +3299,11 @@
                 openModal(fullWorkoutLogModal);
                 return;
             }
-            fullWorkoutLogTitle.textContent = `Entrenamiento del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
+            
+            // MODIFIED: Use the name_workout column for the title
+            const workoutName = sessionSummaryEntry.name_workout || sessionSummaryEntry.day_key;
+            fullWorkoutLogTitle.textContent = `${workoutName} del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
+
             let exercisesInSession = [];
             try {
                 // MODIFIED: Properly handle parsing for both JSON and non-JSON data
