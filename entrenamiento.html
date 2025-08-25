@@ -115,7 +115,7 @@
             width: 95%;
             max-width: 700px; 
         }
-        #workoutSummaryModal .modal-content, #warmupModal .modal-content {
+        #workoutSummaryModal .modal-content, #warmupModal .modal-content, #extrasModal .modal-content {
             width: 95%;
             max-width: 450px;
         }
@@ -460,21 +460,21 @@
         }
         
         /* NEW: Styles for the extras button and modal */
+        /* MODIFIED: The button style has been changed to a small icon button */
         .extras-button {
-            background-color: #3b82f6; /* A nice blue */
-            color: #fff;
-            border: 1px solid #3b82f6;
-            font-weight: bold;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            width: 100%;
-            text-align: center;
-            transition: background-color 0.2s ease-in-out;
-            margin-top: 1rem;
-            font-size: 0.95rem;
+            background: none;
+            border: none;
+            color: #3b82f6; /* A nice blue */
+            padding: 0;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: color 0.2s ease-in-out;
         }
         .extras-button:hover {
-            background-color: #2563eb;
+            color: #2563eb;
         }
         .extras-option-button {
             background-color: #4a5568;
@@ -496,6 +496,91 @@
         .extras-option-button i {
             width: 20px;
             text-align: center;
+        }
+        /* NEW: Style for the extras form */
+        #extrasFormModal .modal-content {
+            background-color: #1f2937;
+            border: 2px solid #3b82f6;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            width: 95%;
+            max-width: 450px;
+        }
+        #extrasFormModal h3 {
+            color: #3b82f6;
+        }
+        #extrasFormModal .form-group {
+            margin-bottom: 1rem;
+        }
+        #extrasFormModal input,
+        #extrasFormModal select {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: #e5e7eb;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            width: 100%;
+        }
+        #extrasFormModal .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        /* Style for file input label */
+        #extrasFormModal .custom-file-input {
+            display: block;
+            width: 100%;
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            text-align: center;
+            color: #9ca3af;
+        }
+        #extrasFormModal .custom-file-input:hover {
+            background-color: #4a5568;
+        }
+        #extrasFormModal .file-name {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        #extrasFormModal .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        #extrasFormModal .modal-actions button {
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            border-radius: 0.5rem;
+        }
+        #extrasFormModal .modal-actions .cancel-button {
+            background-color: #4a5568;
+            color: #e5e7eb;
+        }
+        #extrasFormModal .modal-actions .submit-button {
+            background-color: #3b82f6;
+            color: #fff;
+        }
+        #extrasFormModal #otherActivityInputGroup {
+            display: none;
+        }
+        .history-entry .extra-activity-image-container {
+            display: block;
+            margin-top: 1rem;
+            text-align: center;
+            max-width: 100%;
+        }
+        .history-entry .extra-activity-image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            object-fit: contain;
+            border: 1px solid #4a5568;
         }
 
     </style>
@@ -520,7 +605,14 @@
             <!-- Workout Content -->
             <div id="workoutSection" class="tab-content active">
                 <section id="mainControlsSection" class="mb-4 sm:mb-6">
-                    <h2 class="text-md sm:text-lg font-semibold text-yellow-400 mb-2 sm:mb-3 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
+                    <!-- MODIFIED: Flex container for the title and the new small button -->
+                    <div class="flex justify-center items-center gap-2 mb-2 sm:mb-3">
+                        <h2 class="text-md sm:text-lg font-semibold text-yellow-400 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
+                        <button id="addExtrasButton" class="extras-button" title="Añadir Actividad Extra">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                    
                     <div class="day-selection-container">
                         <div id="daySelectionTabs" class="day-tab-bar"></div>
                         <div id="workoutPreviewContainer" class="workout-preview-container">
@@ -529,9 +621,6 @@
                     </div>
                     <!-- MODIFIED: Changed to grid-cols-1 and added new button -->
                     <div class="grid grid-cols-1 gap-4 mt-4">
-                        <button id="addExtrasButton" class="extras-button">
-                            <i class="fas fa-plus-circle mr-2"></i>Añadir Extras
-                        </button>
                         <button id="viewWorkoutHistoryButton" class="main-action-button">
                             <i class="fas fa-history mr-2"></i>Histórico Entrenamientos
                         </button>
@@ -628,16 +717,52 @@
     <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-yellow-400">Añadir Actividad Extra</h3>
+                <h3 class="text-xl font-semibold text-yellow-400">Seleccionar Actividad</h3>
                 <button onclick="closeModalElement(extrasModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de extras">×</button>
             </div>
             <div id="extrasOptionsContainer" class="space-y-3">
-                <!-- Activity buttons will be populated by JS -->
+                <div class="form-group">
+                    <label for="extraActivitySelect" class="block text-sm mb-1">Actividad:</label>
+                    <select id="extraActivitySelect" class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-2">
+                        <option value="Pádel" data-icon="fas fa-tennis-ball">Pádel</option>
+                        <option value="Natación" data-icon="fas fa-swimmer">Natación</option>
+                        <option value="Kayak" data-icon="fas fa-water">Kayak</option>
+                        <option value="Correr" data-icon="fas fa-running">Correr</option>
+                        <option value="Trekking" data-icon="fas fa-hiking">Trekking</option>
+                        <option value="Caminar" data-icon="fas fa-walking">Caminar</option>
+                        <option value="Fútbol" data-icon="fas fa-futbol">Fútbol</option>
+                        <option value="Otros">Otros...</option>
+                    </select>
+                </div>
+
+                <div id="otherActivityInputGroup" class="form-group" style="display: none;">
+                    <label for="otherActivityName" class="block text-sm mb-1">Nombre de la actividad:</label>
+                    <input type="text" id="otherActivityName" placeholder="Escribe aquí..." class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                </div>
+
+                <div class="form-group">
+                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm:ss):</label>
+                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30:00" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                </div>
+
+                <div class="form-group">
+                    <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (opcional):</label>
+                    <input type="text" id="extraVolumeInput" placeholder="Ej: 8.000 pasos" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                </div>
+
+                <div class="form-group">
+                    <label for="extraCaptureInput" class="block text-sm mb-1">Subir captura (opcional):</label>
+                    <input type="file" id="extraCaptureInput" accept="image/*" class="hidden">
+                    <label for="extraCaptureInput" class="custom-file-input">
+                        <i class="fas fa-upload mr-2"></i>Seleccionar Archivo
+                    </label>
+                    <span id="extraCaptureFileName" class="file-name">Ningún archivo seleccionado</span>
+                </div>
             </div>
-            <div id="otherActivityInput" class="hidden mt-4">
-                <label for="otherActivityName" class="block text-sm text-gray-300 mb-1">Nombre de la actividad:</label>
-                <input type="text" id="otherActivityName" placeholder="Escribe aquí..." class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md mb-3">
-                <button id="registerOtherActivityButton" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Registrar</button>
+            
+            <div class="modal-actions">
+                <button onclick="closeModalElement(extrasModal)" class="cancel-button">Cancelar</button>
+                <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
             </div>
         </div>
     </div>
@@ -905,7 +1030,9 @@
 
         // NEW: Flag for unsaved changes in fullLogModal (now for in-card view)
         let hasUnsavedFullLogChanges = false;
-
+        
+        // NEW: Global variable for storing the uploaded image file
+        let uploadedCaptureFile = null;
 
         // --- Supabase Setup ---
         let supabase = null;
@@ -1024,7 +1151,7 @@
             const addExtrasButton = document.getElementById('addExtrasButton');
             if(addExtrasButton) {
                 addExtrasButton.addEventListener('click', () => {
-                    setupExtrasModal();
+                    setupExtrasForm();
                     openModal(document.getElementById('extrasModal'));
                 });
             }
@@ -1163,11 +1290,17 @@
         const minimizedRestTimer = document.getElementById('minimizedRestTimer');
         const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
         const minimizedNextExercise = document.getElementById('minimizedNextExercise');
+        // MODIFIED: Extras modal has been simplified to a single modal
         const extrasModal = document.getElementById('extrasModal');
-        const extrasOptionsContainer = document.getElementById('extrasOptionsContainer');
-        const otherActivityInput = document.getElementById('otherActivityInput');
+        const extraActivitySelect = document.getElementById('extraActivitySelect');
+        const otherActivityInputGroup = document.getElementById('otherActivityInputGroup');
         const otherActivityNameInput = document.getElementById('otherActivityName');
-        const registerOtherActivityButton = document.getElementById('registerOtherActivityButton');
+        const extraTimeInput = document.getElementById('extraTimeInput');
+        const extraVolumeInput = document.getElementById('extraVolumeInput');
+        const extraCaptureInput = document.getElementById('extraCaptureInput');
+        const extraCaptureFileName = document.getElementById('extraCaptureFileName');
+        const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
+
 
         // MODIFIED: Element selectors for the new work timer modal
         const workTimerModal = document.getElementById('workTimerModal'); 
@@ -1401,6 +1534,7 @@
                     button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 } else if (session.exercise_name === "Extra Activity") {
                     icon = getExtrasIcon(workoutName);
+                    // Pass the whole session object to showExtraActivityDetails
                     button.onclick = () => { showExtraActivityDetails(session); };
                 }
 
@@ -1430,15 +1564,36 @@
             return '<i class="fas fa-ellipsis-h mr-2 text-blue-300"></i>';
         }
         
-        // NEW: Function to show details for an extra activity
+        // MODIFIED: showExtraActivityDetails to display optional data and image
         function showExtraActivityDetails(activity) {
-            fullWorkoutLogContent.innerHTML = `
+            let detailsHtml = `
                 <div class="workout-log-entry">
                     <h4 class="text-yellow-400">${activity.name_workout}</h4>
-                    <p class="text-gray-300 mt-2">Registrado como actividad extra el ${activity.date} a las ${activity.time}.</p>
-                    <p class="text-gray-400 mt-4">No hay más detalles disponibles para este tipo de registro.</p>
-                </div>
+                    <p class="text-gray-300 mt-2">Registrado el ${activity.date} a las ${activity.time}.</p>
             `;
+
+            // Check and display time
+            if (activity.total_time_session) {
+                detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-clock mr-2 text-yellow-400"></i>Tiempo: ${activity.total_time_session}</p>`;
+            }
+
+            // Check and display volume
+            if (activity.total_volume_session) {
+                detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-chart-bar mr-2 text-yellow-400"></i>Volumen: ${activity.total_volume_session}</p>`;
+            }
+
+            detailsHtml += `</div>`;
+            
+            // Check and display image
+            if (activity.capture_url) {
+                detailsHtml += `
+                    <div class="extra-activity-image-container">
+                        <img src="${activity.capture_url}" alt="Captura de ${activity.name_workout}">
+                    </div>
+                `;
+            }
+
+            fullWorkoutLogContent.innerHTML = detailsHtml;
             fullWorkoutLogTitle.textContent = "Detalles de Actividad Extra";
             openModal(fullWorkoutLogModal);
         }
@@ -3216,58 +3371,85 @@
             workoutPreviewContainer.innerHTML = previewHtml; 
         }
 
-        // NEW: Function to set up the extras modal with activity options
-        function setupExtrasModal() {
-            const activities = [
-                { name: 'Pádel', icon: 'fas fa-tennis-ball' },
-                { name: 'Natación', icon: 'fas fa-swimmer' },
-                { name: 'Kayak', icon: 'fas fa-water' },
-                { name: 'Correr', icon: 'fas fa-running' },
-                { name: 'Trekking', icon: 'fas fa-hiking' },
-                { name: 'Caminar', icon: 'fas fa-walking' },
-                { name: 'Fútbol', icon: 'fas fa-futbol' },
-                { name: 'Otros', icon: 'fas fa-ellipsis-h' }
-            ];
+        // NEW: Function to set up the extras form modal
+        function setupExtrasForm() {
+            // Reset form fields
+            extraActivitySelect.value = 'Pádel';
+            otherActivityInputGroup.style.display = 'none';
+            otherActivityNameInput.value = '';
+            extraTimeInput.value = '';
+            extraVolumeInput.value = '';
+            extraCaptureInput.value = '';
+            extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
+            uploadedCaptureFile = null;
 
-            extrasOptionsContainer.innerHTML = '';
-            otherActivityInput.style.display = 'none';
+            // Handle "Otros" option visibility
+            extraActivitySelect.onchange = () => {
+                if (extraActivitySelect.value === 'Otros') {
+                    otherActivityInputGroup.style.display = 'block';
+                } else {
+                    otherActivityInputGroup.style.display = 'none';
+                }
+            };
 
-            activities.forEach(activity => {
-                const button = document.createElement('button');
-                button.className = 'extras-option-button';
-                button.innerHTML = `<i class="${activity.icon}"></i> ${activity.name}`;
-                button.onclick = () => {
-                    if (activity.name === 'Otros') {
-                        otherActivityInput.style.display = 'block';
-                        otherActivityNameInput.focus();
-                    } else {
-                        registerExtraActivity(activity.name);
-                    }
-                };
-                extrasOptionsContainer.appendChild(button);
-            });
+            // Display selected file name
+            extraCaptureInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    extraCaptureFileName.textContent = file.name;
+                    uploadedCaptureFile = file;
+                } else {
+                    extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
+                    uploadedCaptureFile = null;
+                }
+            };
             
-            // Set up listener for the "Registrar" button for custom activities
-            if (registerOtherActivityButton) {
-                registerOtherActivityButton.onclick = () => {
-                    const customName = otherActivityNameInput.value.trim();
-                    if (customName !== '') {
-                        registerExtraActivity('Otros', customName);
-                    } else {
-                        showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
-                    }
-                };
-            }
+            // Set up the register button
+            registerExtraActivityButton.onclick = () => {
+                const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
+                if (activityName === '') {
+                    showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
+                    return;
+                }
+                registerExtraActivity(activityName, extraTimeInput.value.trim(), extraVolumeInput.value.trim(), uploadedCaptureFile);
+            };
         }
 
-        // NEW: Function to register the extra activity in Supabase
-        async function registerExtraActivity(activityName, customName = null) {
+        // NEW: Function to upload file and register the extra activity
+        async function registerExtraActivity(activityName, time, volume, captureFile) {
             if (!supabase || !userIdentifier) {
                 showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
                 return;
             }
             
-            const nameToRegister = customName || activityName;
+            closeModalElement(extrasModal);
+            showCustomAlert(`Registrando "${activityName}"...`, "info");
+            
+            let captureUrl = null;
+            if (captureFile) {
+                try {
+                    const filePath = `extra_captures/${userIdentifier}/${Date.now()}_${captureFile.name}`;
+                    const { data, error } = await supabase.storage
+                        .from('workout-captures')
+                        .upload(filePath, captureFile, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
+                    
+                    if (error) {
+                        throw new Error(`Error uploading image: ${error.message}`);
+                    }
+                    
+                    // Construct the public URL
+                    const publicUrl = supabase.storage
+                        .from('workout-captures')
+                        .getPublicUrl(filePath).data.publicUrl;
+                    captureUrl = publicUrl;
+                } catch (error) {
+                    console.error("Error al subir la imagen:", error);
+                    showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
+                }
+            }
 
             const logEntry = {
                 client_id: userIdentifier,
@@ -3275,10 +3457,13 @@
                 time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                 raw_date: new Date().toISOString(),
                 exercise_name: "Extra Activity", // Unique identifier for extra activities
-                name_workout: nameToRegister,
+                name_workout: activityName,
                 sets_performed: '[]', // Placeholder to maintain schema consistency
                 completion_state: "completed",
-                session_id: crypto.randomUUID()
+                session_id: crypto.randomUUID(),
+                total_time_session: time || null,
+                total_volume_session: volume || null,
+                capture_url: captureUrl
             };
             
             try {
@@ -3287,14 +3472,12 @@
                     .insert([logEntry]);
                 
                 if (error) {
-                    throw new Error(`Error inserting extra activity: ${error.message}`);
+                    throw new Error(`Error inserting extra activity log: ${error.message}`);
                 }
                 
-                showCustomAlert(`Actividad "${nameToRegister}" registrada con éxito.`, "info");
-                closeModalElement(extrasModal);
+                showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
                 await loadWorkoutLogs(); // Reload logs to show the new entry in history
                 renderWorkoutHistoryList('all'); // Re-render the history list
-                otherActivityNameInput.value = ''; // Reset the input field
             } catch (error) {
                 console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
