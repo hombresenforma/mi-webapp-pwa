@@ -93,7 +93,6 @@
         .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
         
         /* Photo Comparator and Chart Filter */
-        /* MODIFIED: Always horizontal */
         #photoComparatorModal .comparator-container { 
             display: flex; 
             flex-direction: row; 
@@ -482,9 +481,9 @@
                 return;
             }
 
-            const path = window.location.pathname;
-            const match = path.match(/\/registro_([^/]+)/); 
-            userIdentifier = match ? match[1] : null;
+            // MODIFIED: Read user ID from URL query parameter "?usuario="
+            const urlParams = new URLSearchParams(window.location.search);
+            userIdentifier = urlParams.get('usuario');
 
             if (!userIdentifier) {
                 const mainAppContainer = document.querySelector('.main-container');
@@ -493,11 +492,11 @@
                         <div class="text-center p-8 bg-red-900/50 rounded-lg shadow-lg">
                             <h2 class="text-2xl font-bold text-red-400 mb-4">Error de Acceso</h2>
                             <p class="text-gray-200">No se pudo identificar tu ID de Cliente desde la URL.</p>
-                            <p class="text-gray-200 mt-2">Asegúrate de que la URL tenga el formato correcto: <br><code>www.aceleratumetabolismo.es/registro_TU_ID</code></p>
+                            <p class="text-gray-200 mt-2">Asegúrate de que la URL contenga el parámetro correcto, por ejemplo: <br><code>.../registro.html?usuario=TU_ID</code></p>
                             <p class="text-gray-200 mt-4">Por favor, contacta con soporte si el problema persiste.</p>
                         </div>`;
                 }
-                showCustomAlert("Error crítico: ID de Cliente no encontrado en la URL. Formato incorrecto.", "error");
+                showCustomAlert("Error crítico: Parámetro 'usuario' no encontrado en la URL.", "error");
                 return;
             }
             console.log(`User ID obtained from URL: ${userIdentifier}`);
@@ -588,7 +587,6 @@
             } else {
                 addBodyRecordButton.classList.remove('button-disabled');
                 addBodyRecordButton.addEventListener('click', () => {
-                    // MODIFIED: Show notice on click
                     showCustomAlert("¡Recuerda! Hazte las 3 fotos (frontal, espalda y perfil) para subirlas a la vez.", "info");
                     openModal(bodyRecordModal);
                 });
