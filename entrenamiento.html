@@ -237,7 +237,6 @@
         #newRecordModal .close-button, #warmupModal .close-button { position: absolute; top: 0.5rem; right: 0.75rem; background: none; border: none; font-size: 1.5rem; color: #a0aec0; cursor: pointer; line-height: 1; }
         #newRecordModal .close-button:hover, #warmupModal .close-button:hover { color: white; }
         .settings-menu-button { display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; color: #e5e7eb; background-color: #4a5568; border-radius: 0.375rem; margin-bottom: 0.5rem; transition: background-color 0.2s ease-in-out; }
-        .settings-menu-button:hover { background-color: #5a6578; }
         .settings-menu-button i { margin-right: 0.75rem; width: 20px; text-align: center; }
         #shareCard { background: linear-gradient(135deg, #2d3748, #1a202c); color: white; padding: 2rem; border-radius: 1rem; border: 2px solid #facc15; width: 350px; }
         #shareCard h4 { color: #facc15; font-weight: bold; font-size: 1.5rem; text-align: center; }
@@ -553,11 +552,6 @@
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        #extrasFormModal .modal-actions button {
-            padding: 0.75rem 1.5rem;
-            font-weight: bold;
-            border-radius: 0.5rem;
-        }
         #extrasFormModal .modal-actions .cancel-button {
             background-color: #4a5568;
             color: #e5e7eb;
@@ -582,6 +576,31 @@
             object-fit: contain;
             border: 1px solid #4a5568;
         }
+        
+        /* NEW: Styles for the new register and cancel buttons in extras modal */
+        #registerExtraActivityButton {
+            background-color: #22c55e; /* Green color for positive action */
+            color: #fff;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #registerExtraActivityButton:hover {
+            background-color: #16a34a;
+        }
+        #cancelExtraActivityButton {
+            background-color: #ef4444; /* Red color for negative action */
+            color: #fff;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #cancelExtraActivityButton:hover {
+            background-color: #dc2626;
+        }
+
 
     </style>
 </head>
@@ -725,6 +744,7 @@
                     <label for="extraActivitySelect" class="block text-sm mb-1">Actividad:</label>
                     <select id="extraActivitySelect" class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-2">
                         <option value="Pádel" data-icon="fas fa-tennis-ball">Pádel</option>
+                        <option value="Bici" data-icon="fas fa-bicycle">Bici</option>
                         <option value="Natación" data-icon="fas fa-swimmer">Natación</option>
                         <option value="Kayak" data-icon="fas fa-water">Kayak</option>
                         <option value="Correr" data-icon="fas fa-running">Correr</option>
@@ -746,8 +766,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (opcional):</label>
-                    <input type="text" id="extraVolumeInput" placeholder="Ej: 8.000 pasos" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                    <!-- MODIFIED: Placeholder and label text for clarity -->
+                    <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
+                    <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
                 </div>
 
                 <div class="form-group">
@@ -761,7 +782,7 @@
             </div>
             
             <div class="modal-actions">
-                <button onclick="closeModalElement(extrasModal)" class="cancel-button">Cancelar</button>
+                <button id="cancelExtraActivityButton" class="cancel-button">Cancelar</button>
                 <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
             </div>
         </div>
@@ -1081,7 +1102,7 @@
 
             if (type === 'error') { bgColor = 'bg-red-500 border-red-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; } 
             else if (type === 'warning') { bgColor = 'bg-yellow-500 border-yellow-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`; } 
-            else if (type === 'info') { bgColor = 'bg-sky-500 border-sky-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1zm0-3a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1z"></path></svg>`; }
+            else if (type === 'info') { bgColor = 'bg-sky-500 border-sky-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 0118 0zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1zm0-3a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1z"></path></svg>`; }
             
             alertContainer.classList.add(...bgColor.split(' '));
             alertContainer.innerHTML = `<div class="flex items-center">${iconSVG}<span class="text-sm">${message}</span><button onclick="this.closest('#${alertContainerId}').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white hover:text-gray-200 rounded-lg p-1.5 inline-flex h-8 w-8 items-center justify-center"><span class="sr-only">Cerrar</span><svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>`;
@@ -1153,6 +1174,14 @@
                 addExtrasButton.addEventListener('click', () => {
                     setupExtrasForm();
                     openModal(document.getElementById('extrasModal'));
+                });
+            }
+            
+            // NEW: Added event listener for the new Cancel button
+            const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
+            if(cancelExtraActivityButton) {
+                cancelExtraActivityButton.addEventListener('click', () => {
+                    closeModalElement(document.getElementById('extrasModal'));
                 });
             }
 
@@ -1300,6 +1329,7 @@
         const extraCaptureInput = document.getElementById('extraCaptureInput');
         const extraCaptureFileName = document.getElementById('extraCaptureFileName');
         const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
+        const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
 
 
         // MODIFIED: Element selectors for the new work timer modal
@@ -1528,6 +1558,9 @@
                 button.className = 'main-history-item';
                 const workoutName = session.name_workout || 'Entrenamiento no nombrado';
                 let icon = '';
+                // NEW: Get the duration string
+                let durationHtml = session.total_time_session ? ` <span class="text-sm text-gray-400 ml-2"><i class="fas fa-clock mr-1"></i>${session.total_time_session}</span>` : '';
+                
                 // Check if it's a workout session or an extra activity
                 if (session.exercise_name === "Workout Session Summary") {
                     icon = '<i class="fas fa-dumbbell mr-2 text-yellow-300"></i>';
@@ -1542,7 +1575,7 @@
                     <div class="flex items-center w-full">
                         ${icon}
                         <div class="flex flex-col items-start w-full">
-                            <span class="font-bold text-yellow-300">${workoutName}</span>
+                            <span class="font-bold text-yellow-300">${workoutName} ${durationHtml}</span>
                             <span class="text-sm text-gray-400 mt-1">${session.date} - ${session.time}</span>
                         </div>
                     </div>
@@ -1555,6 +1588,7 @@
         function getExtrasIcon(activityName) {
             const normalizedName = activityName.toLowerCase();
             if (normalizedName.includes('pádel')) return '<i class="fas fa-tennis-ball mr-2 text-blue-300"></i>';
+            if (normalizedName.includes('bici')) return '<i class="fas fa-bicycle mr-2 text-blue-300"></i>';
             if (normalizedName.includes('natación')) return '<i class="fas fa-swimmer mr-2 text-blue-300"></i>';
             if (normalizedName.includes('kayak')) return '<i class="fas fa-water mr-2 text-blue-300"></i>';
             if (normalizedName.includes('correr')) return '<i class="fas fa-running mr-2 text-blue-300"></i>';
