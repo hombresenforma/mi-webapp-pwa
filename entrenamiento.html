@@ -577,7 +577,7 @@
             border: 1px solid #4a5568;
         }
         
-        /* NEW: Styles for the new register and cancel buttons in extras modal */
+        /* MODIFIED: Styles for the new register and cancel buttons in extras modal */
         #registerExtraActivityButton {
             background-color: #22c55e; /* Green color for positive action */
             color: #fff;
@@ -585,6 +585,7 @@
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             transition: background-color 0.2s ease-in-out;
+            border: 2px solid transparent;
         }
         #registerExtraActivityButton:hover {
             background-color: #16a34a;
@@ -596,11 +597,21 @@
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
             transition: background-color 0.2s ease-in-out;
+            border: 2px solid transparent;
         }
         #cancelExtraActivityButton:hover {
             background-color: #dc2626;
         }
 
+        /* NEW: Styles for the upload file label */
+        #extrasFormModal .custom-file-input {
+            border: 1px solid #4a5568;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        #extrasFormModal .custom-file-input:hover {
+            background-color: #4a5568;
+            border-color: #facc15;
+        }
 
     </style>
 </head>
@@ -762,13 +773,14 @@
 
                 <div class="form-group">
                     <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm:ss):</label>
-                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30:00" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                    <!-- MODIFIED: Added oninput to only allow numbers and colons -->
+                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30:00" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, '');">
                 </div>
 
                 <div class="form-group">
-                    <!-- MODIFIED: Placeholder and label text for clarity -->
+                    <!-- MODIFIED: Placeholder and label text for clarity, and added oninput to only allow numbers -->
                     <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
-                    <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
+                    <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
 
                 <div class="form-group">
@@ -782,6 +794,7 @@
             </div>
             
             <div class="modal-actions">
+                <!-- MODIFIED: Added distinct button styles -->
                 <button id="cancelExtraActivityButton" class="cancel-button">Cancelar</button>
                 <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
             </div>
@@ -2437,29 +2450,25 @@
                     const currentCardElement = document.getElementById(cardId);
                     const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
                     let nextExerciseForRest = null;
-                    if (currentCardIndex !== -1) {
-                        let nextCard = null;
-                        for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                            if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                                nextCard = allExerciseCards[i];
+                    for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
+                        if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
+                            nextCard = allExerciseCards[i];
+                            break;
+                        } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
+                            const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
+                            if (firstSubExercise) {
+                                nextCard = firstSubExercise;
                                 break;
-                            } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                                const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                                if (firstSubExercise) {
-                                    nextCard = firstSubExercise;
-                                    break;
-                                }
                             }
                         }
-                        if (nextCard) {
-                            nextExerciseForRest = {
-                                name: nextCard.dataset.currentName,
-                                reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                            };
-                        }
                     }
-                    startRestTimer(restSeconds, nextExerciseForRest);
+                    if (nextCard) {
+                        nextExerciseForRest = {
+                            name: nextCard.dataset.currentName,
+                            reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
+                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                        };
+                    }
                 }
             }
             updateAllExerciseCardInputStates();
