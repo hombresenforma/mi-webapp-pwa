@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- MODIFICADO: Añadido maximum-scale=1.0, user-scalable=no para bloquear el zoom -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progreso - Programa Hombres en Forma</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,10 +29,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start; /* Align content to top, but allow centering for main-container */
-            padding: 1rem; /* Reduced padding for mobile */
+            padding: 2rem 1rem; /* Add some padding */
         }
-        @media (min-width: 640px) { body { padding: 2rem 1rem; } }
-
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #4A5568; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
@@ -48,10 +45,10 @@
             background-color: rgba(31, 41, 55, 0.85); /* Darker background for the main content */
             backdrop-filter: blur(5px);
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        @media (min-width: 640px) { .main-container { max-width: 42rem; padding: 1.5rem; } } /* sm:max-w-lg */
+        @media (min-width: 640px) { .main-container { max-width: 42rem; } } /* sm:max-w-lg */
         @media (min-width: 768px) { .main-container { max-width: 48rem; } } /* md:max-w-2xl */
 
         /* Modal Styles */
@@ -60,15 +57,14 @@
         }
         .modal-content { 
             transition: transform 0.25s ease; 
-            max-height: 95vh; 
+            max-height: 90vh; 
         }
         #photoComparatorModal .modal-content {
-            width: 98%; /* More width for small screens */
-            max-width: 900px; 
-            padding: 0.75rem; /* Reduced padding */
+            width: 95%;
+            max-width: 800px; /* Increased max-width for side-by-side view */
         }
         /* Specific modal widths for smaller modals */
-        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content, #photoNoticeModal .modal-content {
+        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content {
             width: 95%;
             max-width: 450px;
         }
@@ -97,21 +93,17 @@
         .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
         
         /* Photo Comparator and Chart Filter */
-        #photoComparatorModal .comparator-container { 
-            display: flex; 
-            flex-direction: row; /* Always side-by-side */
-            gap: 0.5rem; /* Reduced gap */
-        }
+        #photoComparatorModal .comparator-container { display: flex; flex-direction: column; gap: 1rem; }
+        @media (min-width: 768px) { #photoComparatorModal .comparator-container { flex-direction: row; } }
         #photoComparatorModal .photo-slot { flex: 1; text-align: center; min-width: 0; }
-        #photoComparatorModal .comparator-info { color: #e5e7eb; min-height: 2.5rem; margin: 0.5rem 0; font-size: 0.8rem; }
-        #photoComparatorModal .comparator-info .date { padding: 2px 4px; }
-        #photoComparatorModal .comparator-info .weight { font-size: 0.75rem; }
+        #photoComparatorModal .comparator-info { color: #e5e7eb; min-height: 2.5rem; margin: 0.5rem 0; }
+        #photoComparatorModal .comparator-info .date { font-weight: 600; color: #1f2937; background-color: rgba(255, 255, 255, 0.9); padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        #photoComparatorModal .comparator-info .weight { display: block; margin-top: 4px; font-size: 0.875rem; }
         
         /* Zoom & Pan Styles for Comparator */
         .image-viewport {
             position: relative;
-            /* MODIFICADO: Altura reducida para mejor ajuste en móvil */
-            height: 40vh; 
+            height: 60vh;
             width: 100%;
             overflow: hidden;
             cursor: grab;
@@ -133,9 +125,9 @@
             color: white;
             border: 1px solid #4b5563;
             border-radius: 50%;
-            width: 2rem; /* Smaller buttons for mobile */
-            height: 2rem;
-            font-size: 1rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.25rem;
             cursor: pointer;
             transition: background-color 0.2s;
             display: flex;
@@ -148,9 +140,9 @@
             background-color: #374151;
             color: #facc15;
             border: 1px solid #facc15;
-            padding: 0.25rem 0.5rem; /* Smaller padding */
+            padding: 0.5rem 1rem;
             border-radius: 9999px;
-            font-size: 0.65rem; /* Smaller font */
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             opacity: 0;
@@ -168,9 +160,9 @@
             color: white;
             border: 1px solid #4b5563;
             border-radius: 50%;
-            width: 2rem; /* Smaller buttons */
-            height: 2rem;
-            font-size: 1.25rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.5rem;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -189,7 +181,7 @@
         .file-input-styled::file-selector-button:hover { background-color: #eab308; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start text-gray-200">
+<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
 
     <div class="main-container mb-8">
         <header class="bg-gray-800/90 backdrop-blur-md shadow-xl rounded-t-xl p-4 sm:p-6 mb-0 border-b-2 border-yellow-500 text-center">
@@ -261,15 +253,6 @@
         </div>
     </div>
 
-    <!-- Photo Notice Modal (NEW) -->
-    <div id="photoNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
-            <h3 class="text-xl font-semibold text-yellow-400 mb-4">¡Prepara tus Fotos!</h3>
-            <p class="text-gray-300 mb-6">Antes de continuar, asegúrate de haberte tomado las 3 fotos (frontal, de lado y de espaldas) para poder subirlas todas a la vez.</p>
-            <button id="continueToRecordButton" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido, continuar</button>
-        </div>
-    </div>
-
     <!-- Body Record Modal -->
     <div id="bodyRecordModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-lg transform scale-95 overflow-y-auto">
@@ -308,17 +291,17 @@
     </div>
 
     <!-- Photo Comparator Modal -->
-    <div id="photoComparatorModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 z-50 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl w-full transform scale-95 overflow-y-auto">
-            <div class="flex justify-between items-center mb-2 p-2">
-                <h3 class="text-lg font-semibold text-yellow-400">Comparador</h3>
+    <div id="photoComparatorModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-yellow-400">Comparador de Fotos</h3>
                 <button onclick="closeModalElement(document.getElementById('photoComparatorModal'))" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal">×</button>
             </div>
             <div class="comparator-container">
                 <!-- "Before" Slot -->
                 <div class="photo-slot">
-                    <label for="select-before" class="block text-xs font-medium text-gray-300 mb-1">Antes:</label>
-                    <select id="select-before" class="input-field text-xs p-1"></select>
+                    <label for="select-before" class="block text-sm font-medium text-gray-300 mb-1">Antes:</label>
+                    <select id="select-before" class="input-field"></select>
                     <div id="info-before" class="comparator-info"></div>
                     <div id="viewport-before" class="image-viewport">
                         <img id="photo-before" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de antes">
@@ -326,9 +309,9 @@
                     <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-before" class="comparator-nav-btn prev">&lt;</button>
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-2">
                             <button class="zoom-btn zoom-out-btn">-</button>
-                            <button class="reset-zoom-btn">Reset</button>
+                            <button class="reset-zoom-btn">Restablecer</button>
                             <button class="zoom-btn zoom-in-btn">+</button>
                         </div>
                         <button id="next-before" class="comparator-nav-btn next">&gt;</button>
@@ -336,8 +319,8 @@
                 </div>
                 <!-- "After" Slot -->
                 <div class="photo-slot">
-                    <label for="select-after" class="block text-xs font-medium text-gray-300 mb-1">Después:</label>
-                    <select id="select-after" class="input-field text-xs p-1"></select>
+                    <label for="select-after" class="block text-sm font-medium text-gray-300 mb-1">Después:</label>
+                    <select id="select-after" class="input-field"></select>
                     <div id="info-after" class="comparator-info"></div>
                     <div id="viewport-after" class="image-viewport">
                         <img id="photo-after" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de después">
@@ -345,9 +328,9 @@
                      <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-after" class="comparator-nav-btn prev">&lt;</button>
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center gap-2">
                             <button class="zoom-btn zoom-out-btn">-</button>
-                            <button class="reset-zoom-btn">Reset</button>
+                            <button class="reset-zoom-btn">Restablecer</button>
                             <button class="zoom-btn zoom-in-btn">+</button>
                         </div>
                         <button id="next-after" class="comparator-nav-btn next">&gt;</button>
@@ -383,15 +366,13 @@
         };
 
         const DEFAULT_BUTTON_AVAILABILITY_CONFIG = {
-            addBodyRecordButton: {
-                activeDays: [0, 5, 6], // Default: Friday, Saturday, Sunday
-                activeWeeks: "even"   // Default: Only even weeks
-            }
+            activeDays: [0, 5, 6],
+            activeWeeks: "even"
         };
 
         // Variables globales para la configuración del usuario
-        let appConfig = { ...DEFAULT_APP_CONFIG };
-        let buttonAvailabilityConfig = { ...DEFAULT_BUTTON_AVAILABILITY_CONFIG };
+        let appConfig = DEFAULT_APP_CONFIG;
+        let buttonAvailabilityConfig = DEFAULT_BUTTON_AVAILABILITY_CONFIG;
 
         // =================================================================
         // =================== END OF CONFIGURATION ======================
@@ -413,16 +394,13 @@
         // --- UTILITY FUNCTIONS (SHARED) ---
         function openModal(modalElement) {
             if (!modalElement) return;
-            modalElement.classList.remove('opacity-0', 'pointer-events-none');
-            // A small delay to allow CSS to catch the class removal before adding the next one
-            setTimeout(() => {
-                modalElement.classList.add('opacity-100');
-                const content = modalElement.querySelector('.modal-content, .relative');
-                if (content) {
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                }
-            }, 10);
+            modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+            modalElement.classList.add('opacity-100');
+            const content = modalElement.querySelector('.modal-content, .relative');
+            if (content) {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }
         }
 
         function closeModalElement(modalElement) {
@@ -432,8 +410,13 @@
                 content.classList.remove('scale-100');
                 content.classList.add('scale-95');
             }
-            modalElement.classList.remove('opacity-100');
+            modalElement.classList.remove('opacity-100', 'pointer-events-auto');
             modalElement.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                if (!modalElement.classList.contains('opacity-100')) {
+                    modalElement.classList.add('hidden');
+                }
+            }, 300);
         }
         
         function openPhotoPreview(imageUrl) {
@@ -580,28 +563,36 @@
                 .eq('client_id', userId)
                 .single();
 
-            if (error && error.code !== 'PGRST116') { // PGRST116 is for "no rows found"
+            if (error && error.code !== 'PGRST116') { // PGRST116 is the code for "no rows found"
                 console.error("Error fetching user config:", error);
                 showCustomAlert("Error al cargar la configuración del usuario.", "error");
             }
             
+            console.log("Fetch result - data:", data);
+            console.log("Fetch result - error:", error);
+
             if (data && data.config_data) {
-                console.log("User config loaded successfully:", data.config_data);
-                
-                if (data.config_data.app) {
-                    appConfig = { ...DEFAULT_APP_CONFIG, ...data.config_data.app };
-                }
-                
-                if (data.config_data.buttons) {
-                    buttonAvailabilityConfig = { ...DEFAULT_BUTTON_AVAILABILITY_CONFIG, ...data.config_data.buttons };
-                }
+                console.log("Configuración de usuario cargada exitosamente.");
+                // Merge the loaded config with defaults.
+                // Now we check for top-level keys and fallback to the button-specific key if not found
+                appConfig = { 
+                    ...DEFAULT_APP_CONFIG, 
+                    ...data.config_data.app
+                };
+
+                const buttonConfig = data.config_data.buttons && data.config_data.buttons.addBodyRecordButton ? data.config_data.buttons.addBodyRecordButton : {};
+                buttonAvailabilityConfig.addBodyRecordButton = {
+                    activeDays: data.config_data.activeDays || buttonConfig.activeDays || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeDays,
+                    activeWeeks: data.config_data.activeWeeks || buttonConfig.activeWeeks || DEFAULT_BUTTON_AVAILABILITY_CONFIG.activeWeeks
+                };
 
             } else {
-                console.log("No specific user config found. Using defaults.");
+                console.log("No se encontró una configuración específica para el usuario. Usando la configuración por defecto.");
             }
         }
 
         async function initializeBodyRecordApp() {
+            // Cargar la configuración del usuario desde Supabase antes de inicializar la app
             await fetchUserConfig();
 
             const mainMenuButton = document.getElementById('mainMenuButton');
@@ -612,12 +603,12 @@
             const photoPreviewsContainer = document.getElementById('photoPreviewsContainer');
             let addBodyRecordButton = document.getElementById('addBodyRecordButton');
             const bodyRecordModal = document.getElementById('bodyRecordModal');
-            const photoNoticeModal = document.getElementById('photoNoticeModal');
-            const continueToRecordButton = document.getElementById('continueToRecordButton');
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
 
+            // Actualizar el enlace del botón de menú principal
             if (mainMenuButton && userId) {
+                // Usamos la ruta y el parámetro 'usuario' proporcionados en la solicitud
                 mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userId}`;
             }
 
@@ -632,6 +623,7 @@
             console.log(`Current week is active? ${isWeekActive(addBodyRecordConfig, today)}`);
             console.log(`Is button active? ${isAddBodyRecordButtonActive}`);
 
+
             const showWeekdayNotice = () => openModal(document.getElementById('weekdayNoticeModal'));
 
             addBodyRecordButton = clearClickListeners(addBodyRecordButton);
@@ -641,13 +633,8 @@
                 addBodyRecordButton.addEventListener('click', (e) => { e.preventDefault(); showWeekdayNotice(); });
             } else {
                 addBodyRecordButton.classList.remove('button-disabled');
-                addBodyRecordButton.addEventListener('click', () => openModal(photoNoticeModal));
+                addBodyRecordButton.addEventListener('click', () => openModal(bodyRecordModal));
             }
-            
-            continueToRecordButton.addEventListener('click', () => {
-                closeModalElement(photoNoticeModal);
-                openModal(bodyRecordModal);
-            });
 
             comparePhotosButton.addEventListener('click', openPhotoComparator);
             
