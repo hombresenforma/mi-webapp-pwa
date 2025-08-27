@@ -772,13 +772,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm:ss):</label>
-                    <!-- MODIFIED: Added oninput to only allow numbers and colons -->
-                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30:00" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, '');">
+                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
+                    <!-- MODIFIED: Placeholder and oninput for hh:mm format validation -->
+                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
                 </div>
 
                 <div class="form-group">
-                    <!-- MODIFIED: Placeholder and label text for clarity, and added oninput to only allow numbers -->
+                    <!-- MODIFIED: Placeholder and oninput for number-only validation -->
                     <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
                     <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
@@ -805,7 +805,8 @@
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h3 id="quickModeWorkoutModalTitle" class="text-xl sm:text-2xl font-bold text-yellow-500 text-left"></h3>
-                <span id="workoutDuration" class="text-lg font-mono text-white">00:00:00</span>
+                <!-- MODIFIED: Removed seconds from the display time -->
+                <span id="workoutDuration" class="text-lg font-mono text-white">00:00</span>
             </div>
             <div id="quickModeExerciseList" class="space-y-4 sm:space-y-6"></div>
             <div class="flex gap-4 mt-8">
@@ -951,7 +952,8 @@
                 <h3 class="text-xl font-semibold text-yellow-400">Resumen del Entrenamiento</h3>
                 <button onclick="closeModalElement(workoutSummaryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar resumen">×</button>
             </div>
-            <p class="text-gray-300 text-lg mb-2">Tiempo Total: <span id="workoutSummaryTotalTime" class="font-bold text-white">00:00:00</span></p>
+            <!-- MODIFIED: Removed seconds from the display time -->
+            <p class="text-gray-300 text-lg mb-2">Tiempo Total: <span id="workoutSummaryTotalTime" class="font-bold text-white">00:00</span></p>
             <p class="text-gray-300 text-lg mb-4">Volumen Total: <span id="workoutSummaryTotalVolume" class="font-bold text-white">0 Kg</span></p>
             
             <div id="workoutSummaryExerciseList" class="max-h-60 overflow-y-auto pr-2 mb-6 space-y-3"></div>
@@ -1801,7 +1803,16 @@
                 requestWakeLock(); // NEW: Request lock when starting workout
             } 
         }
-        function updateWorkoutDuration() { if (!isWorkoutInProgress || !workoutStartTime) return; const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000); const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60), s = elapsed % 60; const timeString = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; const durationEl = document.getElementById('workoutDuration'); if (durationEl) durationEl.textContent = timeString; }
+        // MODIFIED: Update workout duration to HH:MM format
+        function updateWorkoutDuration() { 
+            if (!isWorkoutInProgress || !workoutStartTime) return; 
+            const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000); 
+            const h = Math.floor(elapsed / 3600);
+            const m = Math.floor((elapsed % 3600) / 60);
+            const timeString = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            const durationEl = document.getElementById('workoutDuration'); 
+            if (durationEl) durationEl.textContent = timeString; 
+        }
         
         function getHistoricalMaxRm(exerciseName) {
             let maxRm = 0;
@@ -2088,8 +2099,8 @@
             const card = document.getElementById(cardId);
             if (!card) return;
             const toggleButton = document.getElementById(`toggleViewBtn-${cardId}`);
-            const quickViewBody = document.getElementById(`quickViewBody-${cardId}`);
-            const fullLogViewBody = document.getElementById(`fullLogViewBody-${cardId}`);
+            const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
+            const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
             if (card.dataset.viewMode === 'quick') {
                 quickViewBody.style.display = 'none';
                 fullLogViewBody.style.display = 'block';
@@ -2449,7 +2460,7 @@
                     const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
                     const currentCardElement = document.getElementById(cardId);
                     const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextExerciseForRest = null;
+                    let nextCard = null;
                     for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
                         if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
                             nextCard = allExerciseCards[i];
@@ -2476,8 +2487,9 @@
 
         function openWorkoutSummaryModal() {
             const elapsed = workoutStartTime > 0 ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
-            const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60), s = elapsed % 60;
-            workoutSummaryTotalTime.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60);
+            // MODIFIED: Format to HH:MM
+            workoutSummaryTotalTime.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             let totalVolume = 0;
             currentWorkoutSummaryData.forEach(entry => {
                 entry.setsPerformed.forEach(set => {
@@ -2570,16 +2582,29 @@
 
         function closeWorkoutSummaryModal(registered = false) { closeModalElement(workoutSummaryModal); if (registered) { currentWorkoutSummaryData = []; closeModalElement(quickModeWorkoutModal); } }
         
+        // MODIFIED: Updated parsing logic to handle hh:mm format
         function parseDurationToSeconds(durationInput) {
             if (durationInput === null || typeof durationInput === 'undefined' || durationInput === '') { return 0; }
             const durationString = String(durationInput).trim().toLowerCase();
             let totalSeconds = 0;
-            const minutesMatch = durationString.match(/(\d+)\s*(min|minute|minutes|m)/);
-            const secondsMatch = durationString.match(/(\d+)\s*(s|sec|second|seconds)/);
-            const justNumberMatch = durationString.match(/^(\d+)$/);
-            if (minutesMatch) { totalSeconds += parseInt(minutesMatch[1], 10) * 60; }
-            if (secondsMatch) { totalSeconds += parseInt(secondsMatch[1], 10); } 
-            else if (justNumberMatch && !minutesMatch && !secondsMatch) { totalSeconds += parseInt(justNumberMatch[1], 10); }
+            
+            const hmsMatch = durationString.match(/^(\d+):(\d+):(\d+)$/);
+            if(hmsMatch) {
+                totalSeconds = parseInt(hmsMatch[1], 10) * 3600 + parseInt(hmsMatch[2], 10) * 60 + parseInt(hmsMatch[3], 10);
+            } else {
+                 const hmMatch = durationString.match(/^(\d+):(\d+)$/);
+                 if(hmMatch) {
+                    totalSeconds = parseInt(hmMatch[1], 10) * 3600 + parseInt(hmMatch[2], 10) * 60;
+                 } else {
+                    // Fallback for simple numbers or original format
+                    const minutesMatch = durationString.match(/(\d+)\s*(min|minute|minutes|m)/);
+                    const secondsMatch = durationString.match(/(\d+)\s*(s|sec|second|seconds)/);
+                    const justNumberMatch = durationString.match(/^(\d+)$/);
+                    if (minutesMatch) { totalSeconds += parseInt(minutesMatch[1], 10) * 60; }
+                    if (secondsMatch) { totalSeconds += parseInt(secondsMatch[1], 10); } 
+                    else if (justNumberMatch && !minutesMatch && !secondsMatch) { totalSeconds += parseInt(justNumberMatch[1], 10); }
+                 }
+            }
             if (isNaN(totalSeconds) || totalSeconds === 0) { return 0; }
             return totalSeconds;
         }
@@ -2647,9 +2672,11 @@
             let timeLeftInInterval = emomWorkIntervalSeconds;
             emomStateLabel.textContent = 'TRABAJO';
             emomStateLabel.className = 'state-label work';
+            // MODIFIED: Format to HH:MM:SS
             emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
             emomIntervalTimer = setInterval(() => {
                 timeLeftInInterval--;
+                // MODIFIED: Format to HH:MM:SS
                 emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
                 if (timeLeftInInterval <= 3 && timeLeftInInterval > 0) {
                     playTimerSound("C4", "16n");
@@ -2764,6 +2791,7 @@
             if (currentCircuitTimeLeft > 0) {
                 circuitTimerInterval = setInterval(() => {
                     currentCircuitTimeLeft--;
+                    // MODIFIED: Format to HH:MM:SS
                     circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
                     if (currentCircuitTimeLeft <= 3 && currentCircuitTimeLeft > 0) {
                         playTimerSound("C4", "16n");
@@ -2782,6 +2810,7 @@
 
         function updateCircuitModalDisplay() {
             circuitOverallProgress.textContent = `Ronda ${currentCircuitRound} de ${circuitDetailsGlobal.totalRounds}`;
+            // MODIFIED: Format to HH:MM:SS
             circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
             let exerciseForDisplay = null;
             switch (currentCircuitPhase) {
@@ -2839,10 +2868,22 @@
             runNextCircuitInterval(); // The main function now handles all state transitions correctly
         }
 
+        // MODIFIED: Updated formatTime to HH:MM:SS
         function formatTime(totalSeconds) {
-            const minutes = Math.floor(totalSeconds / 60);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
+            if (hours > 0) {
+                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        // NEW: Format time to HH:MM only
+        function formatTimeHHMM(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
         }
 
         let countdownTimerInterval = null;
@@ -3493,6 +3534,10 @@
                     showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
                 }
             }
+            
+            // MODIFIED: total_time_session is formatted to HH:MM before sending
+            const [hoursStr = '0', minutesStr = '0'] = time.split(':');
+            const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
 
             const logEntry = {
                 client_id: userIdentifier,
@@ -3504,7 +3549,7 @@
                 sets_performed: '[]', // Placeholder to maintain schema consistency
                 completion_state: "completed",
                 session_id: crypto.randomUUID(),
-                total_time_session: time || null,
+                total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
                 total_volume_session: volume || null,
                 capture_url: captureUrl
             };
