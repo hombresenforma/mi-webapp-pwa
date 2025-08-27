@@ -1,71 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- MODIFIED: Updated manifest and icon paths to include the repository name -->
     <link rel="manifest" href="/mi-webapp-pwa/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="/mi-webapp-pwa/icons/icon-192x192.png">
     <meta charset="UTF-8">
-    <!-- MODIFIED: Added user-scalable=no to prevent zoom on double-tap -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Entrenamiento - Programa Hombres en Forma</title>
-    <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Tone.js for audio feedback in timers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Chart.js for historical data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas for sharing feature -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Supabase Client for database interaction -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Orbitron font for timers -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
     
     <style>
-        /* General Body and Scrollbar Styles */
         body {
             font-family: 'Inter', sans-serif;
             background-image: url('https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821c6f4dbcf316861282241.png');
-            background-color: #1A263A; /* Fallback color */
+            background-color: #1A263A;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             overflow-x: hidden; 
             color: #e5e7eb;
-            /* MODIFIED: Added touch-action to prevent zoom on double-tap on mobile devices */
             touch-action: manipulation;
         }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #4A5568; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #eab308; }
-
-        /* Main App Container */
         .main-container {
             width: 100%;
-            max-width: 36rem; /* Equivalent to max-w-md */
+            max-width: 36rem;
             margin-left: auto;
             margin-right: auto;
         }
-        @media (min-width: 640px) { .main-container { max-width: 42rem; } } /* sm:max-w-lg */
-        @media (min-width: 768px) { .main-container { max-width: 48rem; } } /* md:max-w-2xl */
-
-        /* Tab Navigation (kept for consistency, though only one tab is active here) */
+        @media (min-width: 640px) { .main-container { max-width: 42rem; } }
+        @media (min-width: 768px) { .main-container { max-width: 48rem; } }
         .app-tabs {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2x2 Grid for mobile */
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
         .app-tab {
             position: relative;
-            padding: 0.75rem 0.5rem; /* Adjusted padding for smaller screens */
+            padding: 0.75rem 0.5rem;
             font-weight: 600;
             color: #d1d5db;
             background-color: rgba(31, 41, 55, 0.8);
@@ -74,7 +58,7 @@
             cursor: pointer;
             text-align: center;
             transition: all 0.2s ease-in-out;
-            font-size: 0.875rem; /* Slightly smaller font for mobile */
+            font-size: 0.875rem;
         }
         .app-tab:hover {
             background-color: rgba(55, 65, 81, 0.9);
@@ -85,25 +69,21 @@
             color: #1f2937;
             border-color: #facc15;
         }
-        /* NEW: Style for active notification tabs */
         .app-tab.app-tab-notify {
-            background-color: #22c55e; /* Green color */
+            background-color: #22c55e;
             color: #1f2937;
             border-color: #22c55e;
         }
         .app-tab.app-tab-notify:hover {
-            background-color: #16a34a; /* Darker green on hover */
+            background-color: #16a34a;
             border-color: #16a34a;
         }
-
         .tab-content {
             display: none;
         }
         .tab-content.active {
             display: block;
         }
-
-        /* Modal Styles */
         .modal, .modal-base { 
             transition: opacity 0.25s ease; 
         }
@@ -111,7 +91,7 @@
             transition: transform 0.25s ease; 
             max-height: 90vh; 
         }
-        #quickModeWorkoutModal .modal-content, #detailedHistoryModal .modal-content, #mainHistoryModal .modal-content, #fullWorkoutLogModal .modal-content { /* Added fullWorkoutLogModal */
+        #quickModeWorkoutModal .modal-content, #detailedHistoryModal .modal-content, #mainHistoryModal .modal-content, #fullWorkoutLogModal .modal-content {
             width: 95%;
             max-width: 700px; 
         }
@@ -119,8 +99,6 @@
             width: 95%;
             max-width: 450px;
         }
-
-        /* --- WORKOUT SPECIFIC STYLES --- */
         .day-selection-container { display: flex; flex-direction: column; gap: 1rem; }
         .day-tab-bar { display: flex; flex-direction: column; gap: 0.5rem; }
         .day-tab { padding: 0.75rem 1rem; color: #d1d5db; font-weight: 500; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; text-align: center; background-color: rgba(31, 41, 55, 0.8); border: 1px solid #4b5563; }
@@ -150,65 +128,57 @@
         .quick-mode-exercise-item.completed-good { border-left-color: #22c55e; background-color: rgba(34, 197, 94, 0.2); }
         .quick-mode-exercise-item.completed-bad { border-left-color: #ef4444; background-color: rgba(239, 68, 68, 0.2); }
         .quick-mode-superset-container .quick-mode-exercise-item { border-left: none; padding-left: 0.5rem; margin-left: -0.5rem; }
-        
-        /* MODIFIED: quick-mode-exercise-header for new layout */
         .quick-mode-exercise-header { 
             display: flex; 
-            flex-direction: column; /* Stack elements vertically */
-            gap: 0.75rem; /* Space between image/info block and buttons */
-            margin-bottom: 0.75rem; /* Space below header */
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
         }
-        /* Container for image and main text/settings */
         .quick-mode-exercise-header .flex-top-row {
             display: flex;
-            align-items: center; /* Align items to the center */
-            gap: 0.75rem; /* Space between image and text/settings */
+            align-items: center;
+            gap: 0.75rem;
             width: 100%;
         }
-        /* Container for text and settings */
         .quick-mode-exercise-header .info-and-settings {
             flex-grow: 1;
-            min-width: 0; /* Allow content to shrink */
+            min-width: 0;
             display: flex;
-            flex-direction: column; /* Stack info and settings vertically if needed, but flex-wrap will keep them horizontal */
+            flex-direction: column;
         }
-        /* Flex for name/increase indicator and settings button */
         .quick-mode-exercise-header .info-line-with-settings {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* Align name/settings to top */
+            align-items: flex-start;
             width: 100%;
-            gap: 0.5rem; /* Space between info and settings button */
+            gap: 0.5rem;
         }
-
         .quick-mode-exercise-header .info { flex-grow: 1; min-width: 0; }
         .quick-mode-exercise-header .info .title-line { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
         .quick-mode-exercise-header .info strong { color: #fde047; font-weight: 600; font-size: 1rem; line-height: 1.3; }
         .quick-mode-exercise-header .info span { color: #d1d5db; font-size: 0.75rem; display: block; }
-
-        /* MODIFIED: Buttons are now below inputs, centered */
         .quick-mode-header-buttons {
             display: flex;
-            justify-content: center; /* Align to the center */
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            justify-content: center;
+            flex-wrap: wrap;
             width: 100%;
-            gap: 0.75rem; /* Increased gap slightly */
-            margin-top: 0.75rem; /* Add space above the buttons */
+            gap: 0.75rem;
+            margin-top: 0.75rem;
         }
         .quick-mode-header-buttons .quick-action-btn {
             background: rgba(31, 41, 55, 0.6);
             border: 1px solid #4b5563;
             color: #facc15;
             cursor: pointer;
-            width: 2.75rem; /* Slightly wider */
-            height: 2.75rem; /* Slightly taller */
-            font-size: 1.1rem; /* Bigger icon */
+            width: 2.75rem;
+            height: 2.75rem;
+            font-size: 1.1rem;
             border-radius: 0.375rem;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
+            flex-shrink: 0;
         }
         .quick-mode-header-buttons .quick-action-btn:hover:not(:disabled) {
             color: #eab308; background-color: #4b5563;
@@ -217,8 +187,6 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-
-
         .increase-weight-btn { background: #facc15; border-color: #facc15; width: 2rem; height: 2rem; font-size: 0.9rem; border-radius: 0.375rem; display: inline-flex; align-items: center; justify-content: center; }
         .quick-mode-exercise-body { display: grid; grid-template-columns: 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
         .quick-mode-input { width: 100%; background-color: #1f2937; border: 1px solid #4b5563; color: white; border-radius: 0.375rem; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
@@ -256,11 +224,8 @@
         .timer-card-info .state-label.countdown { color: #facc15; }
         .timer-card-info .exercise-name { font-size: 1rem; font-weight: 500; color: #e5e7eb; text-align: center; }
         .timer-card-info .exercise-details { font-size: 0.8rem; color: #9ca3af; }
-        /* Adjusted to make buttons fill space */
         .timer-card-actions { display: flex; gap: 1rem; width: 100%; }
         .timer-card-actions button { flex-grow: 1; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease; }
-        
-        /* Styles for the new full workout log modal */
         .workout-log-entry {
             background-color: rgba(55, 65, 81, 0.8);
             border-left: 4px solid #facc15;
@@ -290,10 +255,9 @@
             padding: 0.2rem 0;
         }
         .workout-log-entry .pr-icon {
-            color: #facc15; /* Yellow for trophy */
+            color: #facc15;
             font-size: 1.2em;
         }
-        /* Style for the new history button inside fullLogModal */
         .full-log-history-button {
             background: none;
             border: none;
@@ -307,12 +271,9 @@
         .full-log-history-button:hover {
             color: #eab308;
         }
-
         .button-disabled { opacity: 0.5; cursor: not-allowed !important; }
         .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #FACC15; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* NEW: Minimized Timer Styles */
         #minimizedRestTimer {
             background-color: rgba(31, 41, 55, 0.9);
             border: 2px solid #facc15;
@@ -326,18 +287,16 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all 0.2s ease-in-out;
-            min-width: 120px; /* Ensure it's not too small */
+            min-width: 120px;
             max-width: 150px;
-            flex-direction: column; /* Keep flex-direction for content alignment */
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0.25rem;
-            /* Default to hidden */
             display: none;
         }
-        /* Class to make minimized timer visible */
         #minimizedRestTimer.is-active {
-            display: flex; /* Only show when active */
+            display: flex;
         }
         #minimizedRestTimer:hover {
             background-color: rgba(55, 65, 81, 0.95);
@@ -352,8 +311,6 @@
             color: #d1d5db;
             line-height: 1.2;
         }
-
-        /* Style for the new minimize button */
         .minimize-button {
             background-color: #4A5568;
             color: #facc15;
@@ -365,21 +322,18 @@
             text-align: center;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
             font-size: 0.9rem;
-            margin-top: 1rem; /* Space below timer display */
+            margin-top: 1rem;
         }
         .minimize-button:hover {
             background-color: #facc15;
             color: #1f2937;
         }
-
-        /* Styles for quick and full log view bodies */
         .quick-view-body {
             display: grid;
             grid-template-columns: 1fr 1fr 50px;
             gap: 0.5rem;
             align-items: center;
         }
-
         .full-log-view-body {
             border-top: 2px solid #4b5563;
             padding-top: 1rem;
@@ -390,13 +344,13 @@
             align-items: center;
             justify-content: flex-start;
             margin-bottom: 0.5rem;
-            gap: 0.5rem; /* Reduced gap */
+            gap: 0.5rem;
         }
         .full-log-view-body .set-data-row > span {
             flex-basis: auto;
-            margin-right: 0.25rem; /* Reduced margin */
+            margin-right: 0.25rem;
             white-space: nowrap;
-            font-size: 0.85rem; /* Slightly smaller font */
+            font-size: 0.85rem;
         }
         .full-log-view-body .set-data-row .set-input {
             display: flex;
@@ -404,41 +358,34 @@
             flex-grow: 1;
         }
         .full-log-view-body .set-input input {
-            padding: 0.4rem; /* Smaller padding */
-            font-size: 0.85rem; /* Smaller font */
+            padding: 0.4rem;
+            font-size: 0.85rem;
         }
         .full-log-view-body .actions-footer {
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        /* MODIFIED: Removed flex-grow to allow w-full to work correctly */
         .full-log-view-body .actions-footer button {
             padding: 0.6rem 0.8rem;
             font-size: 0.85rem;
         }
-
-        /* NEW: Style for exercise notes */
         .quick-mode-exercise-item .notes {
-            color: #d1d5db; /* Same color as series/objetivo */
-            font-size: 0.75rem; /* Same size as series/objetivo */
+            color: #d1d5db;
+            font-size: 0.75rem;
             display: block;
-            margin-top: 0.5rem; /* Space below inputs */
+            margin-top: 0.5rem;
             padding-top: 0.5rem;
-            border-top: 1px solid #4b5563; /* Separator line */
+            border-top: 1px solid #4b5563;
         }
-        
-        /* NEW: Style for timer exercise images */
         .timer-exercise-image {
             max-height: 120px;
             width: auto;
             max-width: 90%;
             border-radius: 0.5rem;
             object-fit: cover;
-            display: none; /* Hidden by default, shown by JS */
+            display: none;
         }
-        
-        /* NEW: Styles for history filter dropdown */
         .history-filter-container {
             display: flex;
             justify-content: flex-end;
@@ -457,13 +404,10 @@
         .history-filter-select:hover {
             background-color: #5a6578;
         }
-        
-        /* NEW: Styles for the extras button and modal */
-        /* MODIFIED: The button style has been changed to a small icon button */
         .extras-button {
             background: none;
             border: none;
-            color: #3b82f6; /* A nice blue */
+            color: #3b82f6;
             padding: 0;
             margin: 0;
             display: inline-flex;
@@ -496,7 +440,6 @@
             width: 20px;
             text-align: center;
         }
-        /* NEW: Style for the extras form */
         #extrasFormModal .modal-content {
             background-color: #1f2937;
             border: 2px solid #3b82f6;
@@ -525,7 +468,6 @@
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
-        /* Style for file input label */
         #extrasFormModal .custom-file-input {
             display: block;
             width: 100%;
@@ -576,10 +518,8 @@
             object-fit: contain;
             border: 1px solid #4a5568;
         }
-        
-        /* MODIFIED: Styles for the new register and cancel buttons in extras modal */
         #registerExtraActivityButton {
-            background-color: #22c55e; /* Green color for positive action */
+            background-color: #22c55e;
             color: #fff;
             font-weight: bold;
             padding: 0.75rem 1.5rem;
@@ -591,7 +531,7 @@
             background-color: #16a34a;
         }
         #cancelExtraActivityButton {
-            background-color: #ef4444; /* Red color for negative action */
+            background-color: #ef4444;
             color: #fff;
             font-weight: bold;
             padding: 0.75rem 1.5rem;
@@ -602,8 +542,6 @@
         #cancelExtraActivityButton:hover {
             background-color: #dc2626;
         }
-
-        /* NEW: Styles for the upload file label */
         #extrasFormModal .custom-file-input {
             border: 1px solid #4a5568;
             transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
@@ -612,7 +550,94 @@
             background-color: #4a5568;
             border-color: #facc15;
         }
-
+        #calendarView {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            color: #facc15;
+            font-size: 0.8rem;
+        }
+        .calendar-day {
+            background-color: rgba(55, 65, 81, 0.5);
+            border: 1px solid #4b5563;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .calendar-day-date {
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #fde047;
+            margin-bottom: 0.25rem;
+        }
+        .calendar-workout-item {
+            background-color: rgba(250, 204, 21, 0.1);
+            color: #fde047;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .calendar-workout-item:hover {
+            background-color: rgba(250, 204, 21, 0.3);
+        }
+        .calendar-extra-item {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .calendar-extra-item:hover {
+            background-color: rgba(59, 130, 246, 0.3);
+        }
+        .calendar-day-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 0.8rem;
+            padding: 0.5rem 0;
+        }
+        .view-switcher {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .view-switcher-btn {
+            background-color: #4a5568;
+            color: #e5e7eb;
+            border: 1px solid #718096;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .view-switcher-btn.active {
+            background-color: #facc15;
+            color: #1f2937;
+        }
+        .view-switcher-btn:hover:not(.active) {
+            background-color: #5a6578;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
@@ -625,17 +650,14 @@
         </header>
 
         <main class="bg-gray-800/85 backdrop-blur-md shadow-xl rounded-b-xl p-3 sm:p-4 md:p-6">
-            <!-- Main Menu Button -->
             <div class="mb-4">
                 <a id="mainMenuButton" href="#" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors">
                     <i class="fas fa-home mr-2"></i>Menú Principal
                 </a>
             </div>
 
-            <!-- Workout Content -->
             <div id="workoutSection" class="tab-content active">
                 <section id="mainControlsSection" class="mb-4 sm:mb-6">
-                    <!-- MODIFIED: Flex container for the title and the new small button -->
                     <div class="flex justify-center items-center gap-2 mb-2 sm:mb-3">
                         <h2 class="text-md sm:text-lg font-semibold text-yellow-400 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
                         <button id="addExtrasButton" class="extras-button" title="Añadir Actividad Extra">
@@ -649,7 +671,6 @@
                             <p class="text-gray-400 text-center">Selecciona un día para ver la vista previa.</p>
                         </div>
                     </div>
-                    <!-- MODIFIED: Changed to grid-cols-1 and added new button -->
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <button id="viewWorkoutHistoryButton" class="main-action-button">
                             <i class="fas fa-history mr-2"></i>Histórico Entrenamientos
@@ -666,35 +687,51 @@
         </main>
     </div>
 
-    <!-- MODALS (Workout Specific) -->
-    
-    <!-- Workout History Modal (for full workout sessions) -->
     <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold text-yellow-400">Historial de Entrenamientos</h3>
                 <button onclick="closeModalElement(mainHistoryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial">×</button>
             </div>
-            <!-- NEW: Filter dropdown -->
-            <div class="history-filter-container">
-                <select id="historyFilterSelect" class="history-filter-select">
-                    <option value="all">Todos</option>
-                    <option value="7">Últimos 7 días</option>
-                    <option value="15">Últimos 15 días</option>
-                    <option value="30">Últimos 30 días</option>
-                </select>
+
+            <div class="flex justify-between items-center mb-4">
+                <div id="view-switcher-container" class="view-switcher">
+                    <button class="view-switcher-btn active" onclick="displayHistoryView('calendar')">Calendario</button>
+                    <button class="view-switcher-btn" onclick="displayHistoryView('list')">Lista</button>
+                </div>
+                <div class="history-filter-container">
+                    <select id="historyFilterSelect" class="history-filter-select">
+                        <option value="all">Todos</option>
+                        <option value="7">Últimos 7 días</option>
+                        <option value="15">Últimos 15 días</option>
+                        <option value="30">Últimos 30 días</option>
+                    </select>
+                </div>
             </div>
+
             <div id="mainHistoryResults" class="space-y-2 max-h-80 overflow-y-auto pr-2">
                  <p class="text-gray-400 text-center py-4">Aquí aparecerá tu historial de entrenamientos.</p>
+            </div>
+            
+            <div id="calendarView" class="max-h-80 overflow-y-auto pr-2" style="display: none;">
+                <div id="calendar-week-labels" class="grid grid-cols-7 gap-1 mb-2">
+                    <span class="calendar-day-header">Lun</span>
+                    <span class="calendar-day-header">Mar</span>
+                    <span class="calendar-day-header">Mié</span>
+                    <span class="calendar-day-header">Jue</span>
+                    <span class="calendar-day-header">Vie</span>
+                    <span class="calendar-day-header">Sáb</span>
+                    <span class="calendar-day-header">Dom</span>
+                </div>
+                <div id="calendar-week-days" class="grid grid-cols-7 gap-1">
+                    <p class="text-gray-400 text-center col-span-7">Cargando calendario...</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Detailed Exercise History Modal (for individual exercise history) -->
-    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[55] opacity-0 pointer-events-none">
+    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[60] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
-            
-            <!-- View 1: List View -->
             <div id="exerciseHistoryListView">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg sm:text-xl font-semibold text-yellow-400">Historial de Ejercicios</h3>
@@ -705,18 +742,15 @@
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                 </div>
                 <div id="exerciseHistoryList" class="max-h-96 overflow-y-auto pr-2 space-y-2">
-                    <!-- JS will populate this list -->
                 </div>
             </div>
 
-            <!-- View 2: Detail View (Initially hidden) -->
             <div id="exerciseHistoryDetailView" style="display: none;">
                  <div class="flex justify-between items-center mb-4">
                     <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
                     <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-right truncate"></h3>
                 </div>
                 <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
-                    <!-- Historical 1RM will be injected here -->
                 </div>
                 <div class="mb-6">
                     <canvas id="rmEvolutionChart"></canvas>
@@ -727,7 +761,6 @@
         </div>
     </div>
 
-    <!-- Full Workout Log Modal -->
     <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[56] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -735,7 +768,6 @@
                 <button onclick="closeModalElement(fullWorkoutLogModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de entrenamiento completo">×</button>
             </div>
             <div id="fullWorkoutLogContent" class="max-h-[70vh] overflow-y-auto pr-2 text-sm text-gray-300 space-y-4">
-                <!-- Workout details will be loaded here -->
             </div>
             <button onclick="closeModalElement(fullWorkoutLogModal)" class="mt-6 w-full bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">
                 Cerrar
@@ -743,7 +775,6 @@
         </div>
     </div>
 
-    <!-- NEW: Extras Modal -->
     <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
             <div class="flex justify-between items-center mb-6">
@@ -773,12 +804,10 @@
 
                 <div class="form-group">
                     <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
-                    <!-- MODIFIED: Placeholder and oninput for hh:mm format validation -->
                     <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
                 </div>
 
                 <div class="form-group">
-                    <!-- MODIFIED: Placeholder and oninput for number-only validation -->
                     <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
                     <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
@@ -794,7 +823,6 @@
             </div>
             
             <div class="modal-actions">
-                <!-- MODIFIED: Added distinct button styles -->
                 <button id="cancelExtraActivityButton" class="cancel-button">Cancelar</button>
                 <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
             </div>
@@ -805,7 +833,6 @@
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h3 id="quickModeWorkoutModalTitle" class="text-xl sm:text-2xl font-bold text-yellow-500 text-left"></h3>
-                <!-- MODIFIED: Removed seconds from the display time -->
                 <span id="workoutDuration" class="text-lg font-mono text-white">00:00</span>
             </div>
             <div id="quickModeExerciseList" class="space-y-4 sm:space-y-6"></div>
@@ -834,7 +861,7 @@
              <div class="timer-card">
                 <div class="timer-card-header">
                     <h3 id="restTimerTitle">TIEMPO DE DESCANSO</h3>
-                    <p id="restOverallProgress"></p> <!-- Not used for rest, but keeping structure -->
+                    <p id="restOverallProgress"></p>
                 </div>
                 <div class="timer-card-body">
                     <div id="restTimerDisplay" class="timer-card-main-time">00:00</div>
@@ -843,7 +870,6 @@
                         <p id="restExerciseName" class="exercise-name">Siguiente: </p>
                         <p id="restExerciseDetails" class="exercise-details">Objetivo: </p>
                     </div>
-                    <!-- NEW: Minimize Button -->
                     <button onclick="toggleRestTimerMinimize()" class="minimize-button">MINIMIZAR</button>
                 </div>
                 <div class="timer-card-actions">
@@ -855,13 +881,11 @@
         </div>
     </div>
 
-    <!-- NEW: Minimized Rest Timer Display -->
     <div id="minimizedRestTimer" class="fixed top-4 left-4 z-[100] hidden" onclick="toggleRestTimerMinimize()">
         <span id="minimizedTimerDisplay" class="min-time">00:00</span>
         <span id="minimizedNextExercise" class="min-next-exercise"></span>
     </div>
 
-    <!-- MODIFIED: Work Timer Modal HTML -->
     <div id="workTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[71] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
@@ -952,7 +976,6 @@
                 <h3 class="text-xl font-semibold text-yellow-400">Resumen del Entrenamiento</h3>
                 <button onclick="closeModalElement(workoutSummaryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar resumen">×</button>
             </div>
-            <!-- MODIFIED: Removed seconds from the display time -->
             <p class="text-gray-300 text-lg mb-2">Tiempo Total: <span id="workoutSummaryTotalTime" class="font-bold text-white">00:00</span></p>
             <p class="text-gray-300 text-lg mb-4">Volumen Total: <span id="workoutSummaryTotalVolume" class="font-bold text-white">0 Kg</span></p>
             
@@ -985,7 +1008,6 @@
     <div id="shareModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[98] opacity-0 pointer-events-none">
         <div class="modal-content">
             <div id="shareCard">
-                <!-- Content will be injected by JS -->
             </div>
             <div class="flex justify-center gap-4 mt-4">
                 <button onclick="downloadShareableImage()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded-lg">Descargar</button>
@@ -993,10 +1015,7 @@
             </div>
         </div>
     </div>
-
-    <!-- REMOVED: Video Submission Prompt Modal -->
     
-    <!-- Weekday Notice Modal -->
     <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
             <h3 class="text-xl font-semibold text-yellow-400 mb-4">Función No Disponible</h3>
@@ -1006,39 +1025,19 @@
     </div>
 
     <script>
-        // =================================================================
-        // =================== APP CONFIGURATION =========================
-        // =================================================================
         const APP_CONFIG = {
             urls: {
-                // MODIFIED: The workoutData URL is now generated dynamically based on the user identifier in the URL.
                 workoutSubmission: 'https://aceleratumetabolismo.es/registro-entrenos',
-                progressExternalUrl: 'https://aceleratumetabolismo.es/registro_', 
-                mainPanelUrl: 'https://www.aceleratumetabolismo.es/panel_', // Base URL for the main panel
+                progressExternalUrl: 'https://aceleratumetabolismo.es/registro_',
+                mainPanelUrl: 'https://www.aceleratumetabolismo.es/panel_',
                 videoUploadUrl: 'https://forms.gle/FSmmciaUWurD4A2g6'
             },
         };
-
-        // MODIFIED: This is now a 'let' and will be updated dynamically from the client's JS file.
-        // The default is 'all' (always active), which will be used if no specific config is found in the remote file.
         let VIDEO_PROMPT_CONFIG = {
-            // Options:
-            // 'all'    - Show every week.
-            // 'even'   - Show on even-numbered weeks (2, 4, 6...).
-            // 'odd'    - Show on odd-numbered weeks (1, 3, 5...).
-            // 'none'   - Never show the prompt.
-            // [30, 32] - Show only on specific week numbers (e.g., week 30 and 32).
-            activeWeeks: 'none' // MODIFIED: Default to 'none' if no config is found
+            activeWeeks: 'none'
         };
-        // =================================================================
-        // =================== END OF CONFIGURATION ======================
-        // =================================================================
-
-
-        // --- GLOBAL APP STATE & VARIABLES ---
-        let individualExerciseLogs = []; // Stores individual exercise logs for history and pre-filling
-        let workoutSessionSummaries = []; // Stores full workout session summaries
-        // NEW: Array for extra activities
+        let individualExerciseLogs = [];
+        let workoutSessionSummaries = [];
         let extraActivities = [];
         let allHistoryItems = [];
         let currentActiveDayKey = null;
@@ -1050,257 +1049,23 @@
         let emomIntervalTimer = null, currentEmomIntervalNumber = 0, currentEmomExerciseIndex = 0, emomExercisesArray = [], totalEmomIntervals = 0, emomWorkIntervalSeconds = 60, currentEmomMainOrder = null; 
         let circuitTimerInterval = null, currentCircuitPhase = 'idle', currentCircuitRound = 0, currentCircuitExerciseIndexInRound = 0, currentCircuitTimeLeft = 0, circuitExercisesArray = [], circuitDetailsGlobal = null, currentCircuitMainOrder = null;
         let toneSynth = null;
-        let currentWorkoutSummaryData = []; // Data for the current workout session before registration
-        let currentSessionId = null; // Unique ID for the current workout session being performed
-        let rmChartInstance = null; // Corrected: Declared with let here
-        let workoutData = null; // Will be loaded from URL
-        let exerciseAlternatives = null; // Will be loaded from URL
-        let wakeLock = null; // NEW: For Screen Wake Lock API
-
-        // NEW: Global variables for time-based exercise sequence
+        let currentWorkoutSummaryData = [];
+        let currentSessionId = null;
+        let rmChartInstance = null;
+        let workoutData = null;
+        let exerciseAlternatives = null;
+        let wakeLock = null;
         let currentTimedExerciseCardId = null;
         let currentTimedExerciseSetNumber = 0;
         let totalSetsForCurrentTimedExercise = 0;
-        let currentRestDurationForTimedExercise = 0; // Rest duration for the current timed exercise
-        let timedExerciseSetsLogged = []; // To store sets logged automatically by the timer
-
-        // NEW: Flag for unsaved changes in fullLogModal (now for in-card view)
+        let currentRestDurationForTimedExercise = 0;
+        let timedExerciseSetsLogged = [];
         let hasUnsavedFullLogChanges = false;
-        
-        // NEW: Global variable for storing the uploaded image file
         let uploadedCaptureFile = null;
-
-        // --- Supabase Setup ---
         let supabase = null;
-        let userIdentifier = null; // This will store the client_id from the URL
+        let userIdentifier = null;
         const SUPABASE_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU';
 
-        // --- UTILITY FUNCTIONS (SHARED) ---
-        function openModal(modalElement) {
-            if (!modalElement) return;
-            modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
-            modalElement.classList.add('opacity-100');
-            const content = modalElement.querySelector('.modal-content, .relative'); // Added .relative for photo modal
-            if (content) {
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            }
-        }
-
-        function closeModalElement(modalElement) {
-            if (!modalElement) return;
-            const content = modalElement.querySelector('.modal-content, .relative'); // Added .relative for photo modal
-            if (content) {
-                content.classList.remove('scale-100');
-                content.classList.add('scale-95');
-            }
-            modalElement.classList.remove('opacity-100', 'pointer-events-auto');
-            modalElement.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                if (!modalElement.classList.contains('opacity-100')) {
-                    modalElement.classList.add('hidden');
-                }
-            }, 300);
-        }
-
-        function showCustomAlert(message, type = 'info') {
-            const alertContainerId = 'customAlert';
-            const existingAlert = document.getElementById(alertContainerId);
-            if (existingAlert) existingAlert.remove();
-
-            const alertContainer = document.createElement('div');
-            alertContainer.id = alertContainerId;
-            alertContainer.className = `fixed top-5 right-5 z-[100] p-4 rounded-md shadow-lg text-white max-w-sm transition-opacity duration-300 ease-out opacity-0`;
-            
-            let bgColor = 'bg-blue-500 border-blue-700';
-            let iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
-            if (type === 'error') { bgColor = 'bg-red-500 border-red-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; } 
-            else if (type === 'warning') { bgColor = 'bg-yellow-500 border-yellow-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`; } 
-            else if (type === 'info') { bgColor = 'bg-sky-500 border-sky-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 0118 0zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1zm0-3a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1z"></path></svg>`; }
-            
-            alertContainer.classList.add(...bgColor.split(' '));
-            alertContainer.innerHTML = `<div class="flex items-center">${iconSVG}<span class="text-sm">${message}</span><button onclick="this.closest('#${alertContainerId}').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white hover:text-gray-200 rounded-lg p-1.5 inline-flex h-8 w-8 items-center justify-center"><span class="sr-only">Cerrar</span><svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>`;
-            document.body.appendChild(alertContainer);
-            setTimeout(() => { alertContainer.classList.remove('opacity-0'); alertContainer.classList.add('opacity-100'); }, 10);
-            setTimeout(() => { alertContainer.classList.remove('opacity-100'); alertContainer.classList.add('opacity-0'); setTimeout(() => {alertContainer.remove();}, 7000); }, 7000);
-        }
-
-        function showCustomConfirm(message, callback) {
-            const confirmContainerId = 'customConfirmModal';
-            if (document.getElementById(confirmContainerId)) return;
-            const confirmContainer = document.createElement('div');
-            confirmContainer.id = confirmContainerId;
-            confirmContainer.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-75 p-4 transition-opacity duration-300 ease-out opacity-0';
-            confirmContainer.innerHTML = `<div class="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm w-full transform transition-all duration-300 ease-out scale-95"><p class="text-gray-200 text-lg mb-6">${message}</p><div class="flex justify-end space-x-3"><button id="confirmCancelBtn" class="nav-button py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-600">Cancelar</button><button id="confirmOkBtn" class="danger-button py-2 px-4 rounded-md text-sm font-medium">Confirmar</button></div></div>`;
-            document.body.appendChild(confirmContainer);
-            setTimeout(() => { confirmContainer.classList.remove('opacity-0'); confirmContainer.classList.add('opacity-100'); confirmContainer.querySelector('div > div').classList.remove('scale-95'); confirmContainer.querySelector('div > div').classList.add('scale-100'); }, 10);
-            document.getElementById('confirmOkBtn').onclick = () => { callback(); confirmContainer.remove(); };
-            document.getElementById('confirmCancelBtn').onclick = () => { confirmContainer.remove(); };
-        }
-
-        // --- APP INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // MODIFIED: More robust audio initialization for mobile devices (especially iOS).
-            // The audio context must be started by a direct user gesture.
-            const initAudio = async () => {
-                try {
-                    if (Tone.context.state !== 'running') {
-                        await Tone.start();
-                        console.log('Audio context started successfully.');
-                    }
-                    
-                    // Create the synth instance if it's not already there
-                    if (!toneSynth) {
-                        toneSynth = new Tone.Synth().toDestination();
-                        console.log('Tone.Synth created.');
-                    }
-
-                    // Play a silent note to "prime" the synth.
-                    toneSynth.volume.value = -Infinity;
-                    toneSynth.triggerAttackRelease("C4", "32n", Tone.now());
-                    toneSynth.volume.value = 0;
-                    
-                    console.log('Audio synth primed successfully.');
-                    showCustomAlert('Sonido activado.', 'info');
-
-                } catch (e) {
-                    console.error('Could not initialize or prime audio:', e);
-                    showCustomAlert('Error al activar el sonido.', 'error');
-                } finally {
-                    // Remove the event listeners after the first interaction
-                    document.body.removeEventListener('click', initAudio);
-                    document.body.removeEventListener('touchstart', initAudio);
-                }
-            };
-            // Add listeners that will trigger the audio initialization on the first user tap/click.
-            document.body.addEventListener('click', initAudio, { once: true });
-            document.body.addEventListener('touchstart', initAudio, { once: true });
-
-            // Initialize Supabase and userIdentifier first
-            initializeSupabaseClient();
-            
-            // Initialize the workout app logic
-            initializeWorkoutApp();
-            
-            // NEW: Add event listener for the new extras button
-            const addExtrasButton = document.getElementById('addExtrasButton');
-            if(addExtrasButton) {
-                addExtrasButton.addEventListener('click', () => {
-                    setupExtrasForm();
-                    openModal(document.getElementById('extrasModal'));
-                });
-            }
-            
-            // NEW: Added event listener for the new Cancel button
-            const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
-            if(cancelExtraActivityButton) {
-                cancelExtraActivityButton.addEventListener('click', () => {
-                    closeModalElement(document.getElementById('extrasModal'));
-                });
-            }
-
-            // Set the href for the main menu button
-            const mainMenuButton = document.getElementById('mainMenuButton');
-            if (mainMenuButton && userIdentifier) {
-                // MODIFIED: Changed the link to point to index.html with the `usuario` parameter
-                mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userIdentifier}`;
-            } else if (mainMenuButton) {
-                mainMenuButton.href = `/mi-webapp-pwa/index.html`;
-                console.warn("User identifier not found for main menu button. Using default link.");
-            }
-
-            // NEW: Add listener for page visibility to manage wake lock
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        });
-
-        // Function to initialize Supabase client and get user identifier
-        function initializeSupabaseClient() {
-            const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
-            
-            try {
-                // MODIFIED: Use the provided Supabase API key
-                supabase = window.supabase.createClient(supabaseUrl, SUPABASE_API_KEY);
-            } catch (e) {
-                console.error("Error inicializando Supabase:", e);
-                showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
-                return;
-            }
-
-            // MODIFIED: Updated to check for 'usuario' parameter first
-            function obtenerParametroUrl(nombre) {
-                nombre = nombre.replace(/[\[\]]/g, '\\$&');
-                var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
-                    resultados = regex.exec(window.location.href);
-                if (!resultados) return null;
-                if (!resultados[2]) return '';
-                return decodeURIComponent(resultados[2].replace(/\+/g, ' '));
-            }
-            userIdentifier = obtenerParametroUrl('usuario');
-            if (userIdentifier) {
-                console.log('User ID for training:', userIdentifier);
-                return;
-            }
-
-            const path = window.location.pathname;
-            const match = path.match(/\/app_([^/]+)/);
-            userIdentifier = match ? match[1] : null;
-
-            if (!userIdentifier) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const userFromQuery = urlParams.get('user');
-                if (userFromQuery) {
-                    userIdentifier = userFromQuery;
-                } else {
-                    console.warn("User identifier not found in URL. Using a default/placeholder. Data might not be isolated correctly.");
-                    userIdentifier = "default-user-id"; // Placeholder for development
-                    showCustomAlert("Advertencia: Usuario no identificado en la URL. Los datos pueden no guardarse correctamente.", "warning");
-                }
-            }
-        }
-
-        // #############################################################
-        // #                 SCREEN WAKE LOCK LOGIC                    #
-        // #############################################################
-        
-        // NEW: Function to request a screen wake lock
-        const requestWakeLock = async () => {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Screen Wake Lock was released');
-                    });
-                    console.log('Screen Wake Lock is active');
-                    showCustomAlert('La pantalla se mantendrá encendida.', 'info');
-                } catch (err) {
-                    console.error(`${err.name}, ${err.message}`);
-                }
-            } else {
-                console.warn('Wake Lock API not supported.');
-            }
-        };
-
-        // NEW: Function to release the screen wake lock
-        const releaseWakeLock = async () => {
-            if (wakeLock !== null) {
-                await wakeLock.release();
-                wakeLock = null;
-            }
-        };
-
-        // NEW: Handle visibility changes to re-acquire the lock if needed
-        const handleVisibilityChange = async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible' && isWorkoutInProgress) {
-                await requestWakeLock();
-            }
-        };
-
-
-        // #############################################################
-        // #                    WORKOUT APP LOGIC                      #
-        // #############################################################
         const daySelectionTabsContainer = document.getElementById('daySelectionTabs'); 
         const workoutPreviewContainer = document.getElementById('workoutPreviewContainer'); 
         const viewWorkoutHistoryButton = document.getElementById('viewWorkoutHistoryButton');
@@ -1334,7 +1099,6 @@
         const minimizedRestTimer = document.getElementById('minimizedRestTimer');
         const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
         const minimizedNextExercise = document.getElementById('minimizedNextExercise');
-        // MODIFIED: Extras modal has been simplified to a single modal
         const extrasModal = document.getElementById('extrasModal');
         const extraActivitySelect = document.getElementById('extraActivitySelect');
         const otherActivityInputGroup = document.getElementById('otherActivityInputGroup');
@@ -1345,9 +1109,6 @@
         const extraCaptureFileName = document.getElementById('extraCaptureFileName');
         const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
         const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
-
-
-        // MODIFIED: Element selectors for the new work timer modal
         const workTimerModal = document.getElementById('workTimerModal'); 
         const workTimerTitle = document.getElementById('workTimerTitle');
         const workOverallProgress = document.getElementById('workOverallProgress');
@@ -1356,7 +1117,6 @@
         const workExerciseName = document.getElementById('workExerciseName');
         const workExerciseDetails = document.getElementById('workExerciseDetails');
         const workCurrentImage = document.getElementById('workCurrentImage');
-        
         const circuitTimerModal = document.getElementById('circuitTimerModal'); 
         const circuitOverallProgress = document.getElementById('circuitOverallProgress'); 
         const circuitStateLabel = document.getElementById('circuitStateLabel'); 
@@ -1385,17 +1145,11 @@
         const warmupModal = document.getElementById('warmupModal');
         const shareModal = document.getElementById('shareModal');
         
-        // NEW: Helper function to get the ISO week number of the year.
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            // Set to nearest Thursday: current date + 4 - current day number
-            // Make Sunday's day number 7
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            // Get first day of year
             var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            // Calculate full weeks to nearest Thursday
             var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            // Return array of week number and year
             return weekNo;
         }
 
@@ -1523,31 +1277,97 @@
         }
 
         if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderWorkoutHistoryList('all'); // Call with default filter 'all'
+            displayHistoryView('calendar');
             openModal(mainHistoryModal); 
         });
         if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
         if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
         if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
         
-        // NEW: History filter element
         const historyFilterSelect = document.getElementById('historyFilterSelect');
         if (historyFilterSelect) {
             historyFilterSelect.addEventListener('change', (event) => {
-                renderWorkoutHistoryList(event.target.value);
+                const value = event.target.value;
+                displayHistoryView('list', value);
             });
         }
         
-        // MODIFIED: renderWorkoutHistoryList to accept a filter and render both workouts and extras
+        function displayHistoryView(viewType, filter = 'all') {
+            const calendarViewEl = document.getElementById('calendarView');
+            const listViewEl = document.getElementById('mainHistoryResults');
+            const listFilterEl = document.querySelector('.history-filter-container');
+            const viewSwitcherBtns = document.querySelectorAll('.view-switcher-btn');
+            
+            viewSwitcherBtns.forEach(btn => btn.classList.remove('active'));
+
+            if (viewType === 'calendar') {
+                calendarViewEl.style.display = 'grid';
+                listViewEl.style.display = 'none';
+                listFilterEl.style.display = 'none';
+                document.querySelector('.view-switcher-btn:first-child').classList.add('active');
+                renderCalendarView();
+            } else {
+                calendarViewEl.style.display = 'none';
+                listViewEl.style.display = 'block';
+                listFilterEl.style.display = 'flex';
+                document.querySelector('.view-switcher-btn:last-child').classList.add('active');
+                renderWorkoutHistoryList(filter);
+            }
+        }
+        
+        function renderCalendarView() {
+            const calendarDaysContainer = document.getElementById('calendar-week-days');
+            calendarDaysContainer.innerHTML = '';
+            
+            const now = new Date();
+            const today = now.getDay();
+            const diff = now.getDate() - today + (today === 0 ? -6 : 1);
+            const startOfWeek = new Date(now.setDate(diff));
+            
+            const daysOfWeek = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+            for (let i = 0; i < 7; i++) {
+                const dayDate = new Date(startOfWeek);
+                dayDate.setDate(startOfWeek.getDate() + i);
+                const dayDateStr = dayDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+                const dayItem = document.createElement('div');
+                dayItem.className = 'calendar-day';
+                dayItem.innerHTML = `<div class="calendar-day-date">${dayDateStr}</div>`;
+                
+                const filteredItems = [...workoutSessionSummaries, ...extraActivities].filter(item => {
+                    const itemDate = new Date(item.raw_date);
+                    return itemDate.getDate() === dayDate.getDate() && itemDate.getMonth() === dayDate.getMonth() && itemDate.getFullYear() === dayDate.getFullYear();
+                });
+                
+                if (filteredItems.length > 0) {
+                    filteredItems.forEach(item => {
+                        const itemClass = item.exercise_name === "Workout Session Summary" ? 'calendar-workout-item' : 'calendar-extra-item';
+                        const itemName = item.name_workout || "Entrenamiento";
+                        const itemEl = document.createElement('div');
+                        itemEl.className = itemClass;
+                        itemEl.textContent = itemName;
+                        if (item.exercise_name === "Workout Session Summary") {
+                            itemEl.onclick = () => openFullWorkoutLogModal(item.session_id);
+                        } else {
+                            itemEl.onclick = () => showExtraActivityDetails(item);
+                        }
+                        dayItem.appendChild(itemEl);
+                    });
+                } else {
+                    dayItem.innerHTML += `<div class="calendar-day-empty">Sin actividad</div>`;
+                }
+                
+                calendarDaysContainer.appendChild(dayItem);
+            }
+        }
+        
         function renderWorkoutHistoryList(filter) {
             mainHistoryResults.innerHTML = '';
             const now = new Date();
             let filteredHistory = [];
 
-            // Combine and sort all history items
             const allItems = [...workoutSessionSummaries, ...extraActivities];
 
-            // Filter logic
             if (filter === '7') {
                 const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
                 filteredHistory = allItems.filter(s => new Date(s.raw_date) > sevenDaysAgo);
@@ -1557,7 +1377,7 @@
             } else if (filter === '30') {
                 const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
                 filteredHistory = allItems.filter(s => new Date(s.raw_date) > thirtyDaysAgo);
-            } else { // 'all'
+            } else {
                 filteredHistory = allItems;
             }
 
@@ -1573,16 +1393,13 @@
                 button.className = 'main-history-item';
                 const workoutName = session.name_workout || 'Entrenamiento no nombrado';
                 let icon = '';
-                // NEW: Get the duration string
                 let durationHtml = session.total_time_session ? ` <span class="text-sm text-gray-400 ml-2"><i class="fas fa-clock mr-1"></i>${session.total_time_session}</span>` : '';
                 
-                // Check if it's a workout session or an extra activity
                 if (session.exercise_name === "Workout Session Summary") {
                     icon = '<i class="fas fa-dumbbell mr-2 text-yellow-300"></i>';
                     button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 } else if (session.exercise_name === "Extra Activity") {
                     icon = getExtrasIcon(workoutName);
-                    // Pass the whole session object to showExtraActivityDetails
                     button.onclick = () => { showExtraActivityDetails(session); };
                 }
 
@@ -1599,7 +1416,6 @@
             });
         }
 
-        // NEW: Function to get an icon for an extra activity
         function getExtrasIcon(activityName) {
             const normalizedName = activityName.toLowerCase();
             if (normalizedName.includes('pádel')) return '<i class="fas fa-tennis-ball mr-2 text-blue-300"></i>';
@@ -1613,7 +1429,6 @@
             return '<i class="fas fa-ellipsis-h mr-2 text-blue-300"></i>';
         }
         
-        // MODIFIED: showExtraActivityDetails to display optional data and image
         function showExtraActivityDetails(activity) {
             let detailsHtml = `
                 <div class="workout-log-entry">
@@ -1621,19 +1436,16 @@
                     <p class="text-gray-300 mt-2">Registrado el ${activity.date} a las ${activity.time}.</p>
             `;
 
-            // Check and display time
             if (activity.total_time_session) {
                 detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-clock mr-2 text-yellow-400"></i>Tiempo: ${activity.total_time_session}</p>`;
             }
 
-            // Check and display volume
             if (activity.total_volume_session) {
                 detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-chart-bar mr-2 text-yellow-400"></i>Volumen: ${activity.total_volume_session}</p>`;
             }
 
             detailsHtml += `</div>`;
             
-            // Check and display image
             if (activity.capture_url) {
                 detailsHtml += `
                     <div class="extra-activity-image-container">
@@ -1674,7 +1486,6 @@
             }); 
         }
         
-        // MODIFIED: Timer sound logic
         function playTimerSound(note, duration) {
             if (toneSynth && Tone.context.state === 'running') {
                 try {
@@ -1777,7 +1588,6 @@
                 const button = document.createElement('button');
                 button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
                 button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
-                // MODIFIED: Pass imageUrl along with other alternative data
                 button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
                 swapExerciseModalContent.appendChild(button);
             });
@@ -1787,23 +1597,21 @@
             openModal(swapExerciseModal);
         }
         function performExerciseSwap(cardId, newExerciseData) { const card = document.getElementById(cardId); if (!card) return; const parent = card.parentNode; const isSubItem = card.dataset.subOrder !== ''; let specialData = null; if (isSubItem) { const supersetContainer = card.closest('.quick-mode-superset-container'); if(supersetContainer){ const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } } } const primordialData = JSON.parse(card.dataset.primordialExerciseData || '{}'); const exerciseToCreate = { ...newExerciseData, primordialExerciseData: primordialData }; const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); if (parent) { parent.replaceChild(newCard, card); } updateAllExerciseCardInputStates(); }
-        function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); /* NEW: Release lock on close */ closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
+        function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
         
-        // MODIFIED: toggleWorkoutState to include Wake Lock
         function toggleWorkoutState() { 
             if (isWorkoutInProgress) { 
                 openWorkoutSummaryModal(); 
-                releaseWakeLock(); // NEW: Release lock when finishing workout
+                releaseWakeLock();
             } else { 
                 isWorkoutInProgress = true; 
                 workoutStartTime = Date.now(); 
                 workoutTimerInterval = setInterval(updateWorkoutDuration, 1000); 
                 currentSessionId = crypto.randomUUID();
                 updateAllExerciseCardInputStates(); 
-                requestWakeLock(); // NEW: Request lock when starting workout
+                requestWakeLock();
             } 
         }
-        // MODIFIED: Update workout duration to HH:MM format
         function updateWorkoutDuration() { 
             if (!isWorkoutInProgress || !workoutStartTime) return; 
             const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000); 
@@ -2176,7 +1984,6 @@
                     </div>
                 `;
             }
-            // MODIFIED: Removed the "Completar Series" button and made "Registrar Series" full-width
             fullLogViewBody.innerHTML = `
                 <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
                     ${setsHtml}
@@ -2376,30 +2183,26 @@
                     const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
                     const currentCardElement = document.getElementById(cardId);
                     const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextExerciseForRest = null;
-                    if (currentCardIndex !== -1) {
-                        let nextCard = null;
-                        for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                            if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                                nextCard = allExerciseCards[i];
+                    let nextCard = null;
+                    for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
+                        if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
+                            nextCard = allExerciseCards[i];
+                            break;
+                        } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
+                            const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
+                            if (firstSubExercise) {
+                                nextCard = firstSubExercise;
                                 break;
-                            } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                                const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                                if (firstSubExercise) {
-                                    nextCard = firstSubExercise;
-                                    break;
-                                }
                             }
                         }
-                        if (nextCard) {
-                            nextExerciseForRest = {
-                                name: nextCard.dataset.currentName,
-                                reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                            };
-                        }
                     }
-                    startRestTimer(restSeconds, nextExerciseForRest);
+                    if (nextCard) {
+                        nextExerciseForRest = {
+                            name: nextCard.dataset.currentName,
+                            reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
+                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                        };
+                    }
                 }
             }
             updateAllExerciseCardInputStates();
@@ -2488,7 +2291,6 @@
         function openWorkoutSummaryModal() {
             const elapsed = workoutStartTime > 0 ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
             const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60);
-            // MODIFIED: Format to HH:MM
             workoutSummaryTotalTime.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             let totalVolume = 0;
             currentWorkoutSummaryData.forEach(entry => {
@@ -2514,7 +2316,7 @@
             registerWorkoutButton.onclick = async () => {
                 registerWorkoutButton.innerHTML = 'Procesando...';
                 registerWorkoutButton.disabled = true;
-                releaseWakeLock(); // NEW: Release lock on registration
+                releaseWakeLock();
                 try {
                     const individualLogsToInsert = currentWorkoutSummaryData.map(entry => ({
                         client_id: userIdentifier,
@@ -2541,7 +2343,6 @@
                         time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         raw_date: new Date().toISOString(),
                         exercise_name: "Workout Session Summary",
-                        // MODIFIED: Add workout name to the summary log
                         name_workout: workoutData[currentActiveDayKey].name,
                         sets_performed: JSON.stringify(currentWorkoutSummaryData),
                         completion_state: "completed",
@@ -2560,7 +2361,6 @@
                     isWorkoutInProgress = false;
                     registerWorkoutButton.innerHTML = '¡Registrado!';
                     
-                    // MODIFIED: Removed video prompt logic, now just closes modals
                     setTimeout(() => {
                         closeModalElement(workoutSummaryModal);
                         closeModalElement(quickModeWorkoutModal);
@@ -2571,7 +2371,6 @@
                     }, 1500);
 
                 } catch (error) {
-                    console.error("Unexpected error during workout registration:", error);
                     showCustomAlert(`Ha ocurrido un error inesperado al registrar el entrenamiento: ${error.message}`, "error");
                     registerWorkoutButton.innerHTML = 'Error';
                     setTimeout(() => { registerWorkoutButton.innerHTML = 'Registrar'; registerWorkoutButton.disabled = false; }, 2000);
@@ -2582,7 +2381,6 @@
 
         function closeWorkoutSummaryModal(registered = false) { closeModalElement(workoutSummaryModal); if (registered) { currentWorkoutSummaryData = []; closeModalElement(quickModeWorkoutModal); } }
         
-        // MODIFIED: Updated parsing logic to handle hh:mm format
         function parseDurationToSeconds(durationInput) {
             if (durationInput === null || typeof durationInput === 'undefined' || durationInput === '') { return 0; }
             const durationString = String(durationInput).trim().toLowerCase();
@@ -2596,7 +2394,6 @@
                  if(hmMatch) {
                     totalSeconds = parseInt(hmMatch[1], 10) * 3600 + parseInt(hmMatch[2], 10) * 60;
                  } else {
-                    // Fallback for simple numbers or original format
                     const minutesMatch = durationString.match(/(\d+)\s*(min|minute|minutes|m)/);
                     const secondsMatch = durationString.match(/(\d+)\s*(s|sec|second|seconds)/);
                     const justNumberMatch = durationString.match(/^(\d+)$/);
@@ -2621,7 +2418,6 @@
                 return; 
             } 
             
-            // MODIFIED: Calculation now based on a target of 6 reps
             const sets = [ 
                 { weight: workingWeight * 0.5, reps: '8', label: 'Serie 1' }, 
                 { weight: workingWeight * 0.7, reps: '6', label: 'Serie 2' }, 
@@ -2672,11 +2468,9 @@
             let timeLeftInInterval = emomWorkIntervalSeconds;
             emomStateLabel.textContent = 'TRABAJO';
             emomStateLabel.className = 'state-label work';
-            // MODIFIED: Format to HH:MM:SS
             emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
             emomIntervalTimer = setInterval(() => {
                 timeLeftInInterval--;
-                // MODIFIED: Format to HH:MM:SS
                 emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
                 if (timeLeftInInterval <= 3 && timeLeftInInterval > 0) {
                     playTimerSound("C4", "16n");
@@ -2718,7 +2512,6 @@
             runNextEmomInterval();
         }
 
-        // MODIFIED: Circuit timer logic
         function startCircuit(dayKey, mainOrder) {
             const circuitBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.circuitDetails);
             if (!circuitBlock || !circuitBlock.circuitDetails || !circuitBlock.items) {
@@ -2730,7 +2523,7 @@
             if (isNaN(circuitDetailsGlobal.totalRounds) || circuitDetailsGlobal.totalRounds <= 0) {
                 showCustomAlert("Configuración de Circuito inválida.", "error"); return;
             }
-            currentCircuitRound = 1; // Start at round 1
+            currentCircuitRound = 1;
             currentCircuitExerciseIndexInRound = 0;
             currentCircuitPhase = 'countdown'; 
             currentCircuitTimeLeft = 5;
@@ -2740,14 +2533,11 @@
 
         function runNextCircuitInterval() {
             clearInterval(circuitTimerInterval);
-
-            // Determine next phase
             if (currentCircuitPhase === 'countdown') {
                 currentCircuitPhase = 'working';
             } else if (currentCircuitPhase === 'working') {
                 currentCircuitExerciseIndexInRound++;
                 if (currentCircuitExerciseIndexInRound >= circuitExercisesArray.length) {
-                    // End of a round
                     if (currentCircuitRound < circuitDetailsGlobal.totalRounds) {
                         currentCircuitPhase = 'resting_round';
                     } else {
@@ -2755,7 +2545,6 @@
                         return;
                     }
                 } else {
-                    // Rest between exercises
                     currentCircuitPhase = 'resting_exercise';
                 }
             } else if (currentCircuitPhase === 'resting_exercise') {
@@ -2766,14 +2555,13 @@
                 currentCircuitPhase = 'working';
             }
             
-            // Set time for the new phase
             switch(currentCircuitPhase) {
                 case 'working':
                     const currentExercise = circuitExercisesArray[currentCircuitExerciseIndexInRound];
                     currentCircuitTimeLeft = parseDurationToSeconds(currentExercise.reps);
                     if (currentCircuitTimeLeft === 0 && isTimeBased(currentExercise.reps)) {
                          showCustomAlert(`Ejercicio ${currentExercise.name} no tiene duración definida. Saltando.`, "warning");
-                         runNextCircuitInterval(); // Skip to next interval
+                         runNextCircuitInterval();
                          return;
                     }
                     break;
@@ -2787,11 +2575,9 @@
 
             updateCircuitModalDisplay();
 
-            // Start the timer if the phase has a duration
             if (currentCircuitTimeLeft > 0) {
                 circuitTimerInterval = setInterval(() => {
                     currentCircuitTimeLeft--;
-                    // MODIFIED: Format to HH:MM:SS
                     circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
                     if (currentCircuitTimeLeft <= 3 && currentCircuitTimeLeft > 0) {
                         playTimerSound("C4", "16n");
@@ -2803,14 +2589,12 @@
                     }
                 }, 1000);
             } else {
-                // If there's no duration (e.g., rep-based exercise), move to the next interval immediately
                 runNextCircuitInterval();
             }
         }
 
         function updateCircuitModalDisplay() {
             circuitOverallProgress.textContent = `Ronda ${currentCircuitRound} de ${circuitDetailsGlobal.totalRounds}`;
-            // MODIFIED: Format to HH:MM:SS
             circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
             let exerciseForDisplay = null;
             switch (currentCircuitPhase) {
@@ -2865,10 +2649,9 @@
         function skipCircuitInterval() {
             clearInterval(circuitTimerInterval);
             playTimerSound("A4", "8n");
-            runNextCircuitInterval(); // The main function now handles all state transitions correctly
+            runNextCircuitInterval();
         }
 
-        // MODIFIED: Updated formatTime to HH:MM:SS
         function formatTime(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -2879,7 +2662,6 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
         
-        // NEW: Format time to HH:MM only
         function formatTimeHHMM(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -2891,7 +2673,6 @@
         let countdownCallback = null;
         let countdownType = '';
 
-        // MODIFIED: startCountdownTimer to handle the new work timer UI
         function startCountdownTimer(type, duration = 5, callback = null) {
             countdownType = type;
             countdownTimeLeft = duration;
@@ -3040,7 +2821,6 @@
             startCountdownTimer('work', 5);
         }
 
-        // MODIFIED: runWorkTimerForTimedExercise to populate the new UI
         function runWorkTimerForTimedExercise(durationSeconds) {
             clearInterval(workTimerInterval);
             const card = document.getElementById(currentTimedExerciseCardId);
@@ -3179,7 +2959,6 @@
         function finalizeTimedExerciseSequence() {
             const card = document.getElementById(currentTimedExerciseCardId);
             if (!card) {
-                console.error("Timed exercise card not found during finalization.");
                 return;
             }
             const exerciseName = card.dataset.currentName;
@@ -3208,28 +2987,20 @@
             timedExerciseSetsLogged = [];
         }
 
-        // MODIFIED: This function now dynamically builds the URL for the workout data and reads client config.
         async function initializeWorkoutApp() {
             try {
-                // Dynamically construct the workout data URL from the user identifier in the page URL.
                 const workoutDataUrl = `https://raw.githubusercontent.com/hombresenforma/ivan-data/main/${userIdentifier || 'default-user'}.js`;
-                console.log(`Fetching workout data from: ${workoutDataUrl}`);
-
                 const mainResponse = await fetch(workoutDataUrl);
                 if (!mainResponse.ok) {
                     throw new Error(`Network response for workout data was not ok: ${mainResponse.statusText} (URL: ${workoutDataUrl})`);
                 }
                 const mainDataText = await mainResponse.text();
 
-                // REMOVED: Old logic for extracting datosCliente from the JS file
-                
-                // Extract workout data
                 const workoutDataRegex = /const workoutData = ({[\s\S]*?});/;
                 const workoutDataMatch = mainDataText.match(workoutDataRegex);
                 if (!workoutDataMatch) throw new Error("Could not find 'workoutData' object in the main source file.");
                 workoutData = new Function(`return ${workoutDataMatch[1]}`)();
 
-                // Extract exercise alternatives
                 const alternativesRegex = /const exerciseAlternatives = ({[\s\S]*?});/;
                 const alternativesMatch = mainDataText.match(alternativesRegex);
                 if (!alternativesMatch) throw new Error("Could not find 'exerciseAlternatives' object in the main source file.");
@@ -3237,11 +3008,9 @@
                 
                 await loadWorkoutLogs();
                 setupDaySelectionTabs();
-                // MODIFIED: Call new function to get video config from Supabase
                 await fetchVideoConfigFromSupabase();
 
             } catch (error) {
-                console.error("Error initializing workout app:", error);
                 const previewContainer = document.getElementById('workoutPreviewContainer');
                 if (previewContainer) {
                     previewContainer.innerHTML = `<p class="text-center text-red-500 font-semibold">Error al cargar la rutina. Asegúrate de que el usuario en la URL ('${userIdentifier}') es correcto y tiene un plan asignado.</p>`;
@@ -3249,11 +3018,9 @@
             }
         }
         
-        // NEW: Function to fetch video config from Supabase
         async function fetchVideoConfigFromSupabase() {
             if (!supabase || !userIdentifier) {
-                console.warn("Supabase client or user identifier not available. Cannot fetch video config.");
-                setupVideoCorrectionsButton(); // Set up with default 'none'
+                setupVideoCorrectionsButton();
                 return;
             }
 
@@ -3264,29 +3031,23 @@
                     .eq('client_id', userIdentifier)
                     .single();
 
-                if (error && error.code !== 'PGRST116') { // PGRST116 means no row found, which is a valid case
-                    console.error("Error fetching video config from Supabase:", error);
+                if (error && error.code !== 'PGRST116') {
                     showCustomAlert("Error al cargar la configuración de correcciones de vídeo.", "error");
                 }
                 
                 if (data && data.exercises_data && data.exercises_data.activeWeeks) {
                     VIDEO_PROMPT_CONFIG.activeWeeks = data.exercises_data.activeWeeks;
-                    console.log(`Video activeWeeks configured from Supabase to: "${VIDEO_PROMPT_CONFIG.activeWeeks}"`);
                 } else {
-                    console.log('No video config found in Supabase for this user. Using default \'none\'.');
                     VIDEO_PROMPT_CONFIG.activeWeeks = 'none';
                 }
 
             } catch (e) {
-                console.error("Unexpected error fetching video config:", e);
                 showCustomAlert("Error inesperado al cargar la configuración de vídeo.", "error");
             }
 
-            // Always call the setup button function after attempting to fetch the config
             setupVideoCorrectionsButton();
         }
 
-        // NEW: Function to configure the new video corrections button
         function setupVideoCorrectionsButton() {
             const videoCorrectionsButton = document.getElementById('videoCorrectionsButton');
             if (!videoCorrectionsButton) return;
@@ -3322,7 +3083,6 @@
 
         async function loadWorkoutLogs() {
             if (!supabase || !userIdentifier) {
-                console.warn("Supabase client or user identifier not available. Cannot load workout logs.");
                 individualExerciseLogs = [];
                 workoutSessionSummaries = [];
                 extraActivities = [];
@@ -3335,7 +3095,6 @@
                    .eq('client_id', userIdentifier)
                     .order('raw_date', { ascending: false });
                 if (error) {
-                    console.error("Error loading workout logs from Supabase:", error);
                     showCustomAlert("No se pudo cargar el historial de entrenamientos.", "error");
                     individualExerciseLogs = [];
                     workoutSessionSummaries = [];
@@ -3345,11 +3104,7 @@
                 individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary" && log.exercise_name !== "Extra Activity");
                 workoutSessionSummaries = data.filter(log => log.exercise_name === "Workout Session Summary");
                 extraActivities = data.filter(log => log.exercise_name === "Extra Activity");
-                console.log("Individual Exercise Logs loaded:", individualExerciseLogs);
-                console.log("Workout Session Summaries loaded:", workoutSessionSummaries);
-                console.log("Extra Activities loaded:", extraActivities);
             } catch (e) {
-                console.error("Error inesperado al cargar el historial de entrenamientos.", "error");
                 individualExerciseLogs = [];
                 workoutSessionSummaries = [];
                 extraActivities = [];
@@ -3370,7 +3125,6 @@
             try {
                 exercisesInSession = JSON.parse(sessionSummaryEntry.sets_performed); 
             } catch (e) {
-                console.error("Error parsing exercises_performed for session summary:", e);
                 fullWorkoutLogContent.innerHTML = '<p class="text-red-400 text-center">Error al cargar los detalles del entrenamiento.</p>';
                 openModal(fullWorkoutLogModal);
                 return;
@@ -3398,7 +3152,7 @@
                     exerciseHtml.innerHTML = `
                         <h4 onclick="viewExerciseHistoryFromLog('${escapedExerciseName}')" style="cursor: pointer;" title="Ver historial de este ejercicio">${exerciseEntry.exerciseName}${prIcon}</h4>
                         <ul>
-                            ${exerciseEntry.setsPerformed.map(set => { // Note: it's setsPerformed here
+                            ${exerciseEntry.setsPerformed.map(set => {
                                 const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
                                 const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
                                 return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
@@ -3420,7 +3174,6 @@
             dayKeys.forEach((dayKey) => { 
                 const tab = document.createElement('button'); 
                 tab.className = 'day-tab'; 
-                // Corrected: Access name from workoutData[dayKey]
                 tab.textContent = workoutData[dayKey].name.split(':')[0].trim(); 
                 tab.dataset.dayKey = dayKey; 
                 tab.onclick = () => displayWorkoutPreview(dayKey); 
@@ -3431,7 +3184,6 @@
             } 
         }
         
-        // Modified displayWorkoutPreview to use window.workoutData explicitly
         function displayWorkoutPreview(dayKey) { 
             currentActiveDayKey = dayKey; 
             if (typeof workoutData === 'undefined' || !workoutData[dayKey]) { 
@@ -3455,9 +3207,7 @@
             workoutPreviewContainer.innerHTML = previewHtml; 
         }
 
-        // NEW: Function to set up the extras form modal
         function setupExtrasForm() {
-            // Reset form fields
             extraActivitySelect.value = 'Pádel';
             otherActivityInputGroup.style.display = 'none';
             otherActivityNameInput.value = '';
@@ -3467,7 +3217,6 @@
             extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
             uploadedCaptureFile = null;
 
-            // Handle "Otros" option visibility
             extraActivitySelect.onchange = () => {
                 if (extraActivitySelect.value === 'Otros') {
                     otherActivityInputGroup.style.display = 'block';
@@ -3476,7 +3225,6 @@
                 }
             };
 
-            // Display selected file name
             extraCaptureInput.onchange = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -3488,7 +3236,6 @@
                 }
             };
             
-            // Set up the register button
             registerExtraActivityButton.onclick = () => {
                 const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
                 if (activityName === '') {
@@ -3499,7 +3246,6 @@
             };
         }
 
-        // NEW: Function to upload file and register the extra activity
         async function registerExtraActivity(activityName, time, volume, captureFile) {
             if (!supabase || !userIdentifier) {
                 showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
@@ -3524,18 +3270,15 @@
                         throw new Error(`Error uploading image: ${error.message}`);
                     }
                     
-                    // Construct the public URL
                     const publicUrl = supabase.storage
                         .from('workout-captures')
                         .getPublicUrl(filePath).data.publicUrl;
                     captureUrl = publicUrl;
                 } catch (error) {
-                    console.error("Error al subir la imagen:", error);
                     showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
                 }
             }
             
-            // MODIFIED: total_time_session is formatted to HH:MM before sending
             const [hoursStr = '0', minutesStr = '0'] = time.split(':');
             const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
 
@@ -3544,9 +3287,9 @@
                 date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                 time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                 raw_date: new Date().toISOString(),
-                exercise_name: "Extra Activity", // Unique identifier for extra activities
+                exercise_name: "Extra Activity",
                 name_workout: activityName,
-                sets_performed: '[]', // Placeholder to maintain schema consistency
+                sets_performed: '[]',
                 completion_state: "completed",
                 session_id: crypto.randomUUID(),
                 total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
@@ -3564,14 +3307,12 @@
                 }
                 
                 showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
-                await loadWorkoutLogs(); // Reload logs to show the new entry in history
-                renderWorkoutHistoryList('all'); // Re-render the history list
+                await loadWorkoutLogs();
+                renderWorkoutHistoryList('all');
             } catch (error) {
-                console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
             }
         }
-
     </script>
 </body>
 </html>
