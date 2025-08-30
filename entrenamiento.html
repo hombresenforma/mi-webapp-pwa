@@ -1769,7 +1769,7 @@
                 const revertButton = document.createElement('button');
                 revertButton.className = 'w-full text-left p-3 bg-blue-700 hover:bg-blue-600 rounded-md transition-colors mb-2';
                 revertButton.innerHTML = `<strong class="text-yellow-300"><i class="fas fa-undo mr-2"></i>Volver a ${primordialExerciseData.name}</strong>`;
-                revertButton.onclick = () => { performExerciseSwap(cardId, primordialExerciseData); closeModalElement(swapExerciseModal); };
+                revertButton.onclick = () => { performExerciseSwap(cardId, primordialExerciseData, true); closeModalElement(swapExerciseModal); };
                 swapExerciseModalContent.appendChild(revertButton);
             }
             alternatives.forEach(alt => {
@@ -1777,8 +1777,7 @@
                 const button = document.createElement('button');
                 button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
                 button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
-                // MODIFIED: Pass imageUrl along with other alternative data
-                button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
+                button.onclick = () => { performExerciseSwap(cardId, alt, false); closeModalElement(swapExerciseModal); };
                 swapExerciseModalContent.appendChild(button);
             });
             if (swapExerciseModalContent.innerHTML === '') {
@@ -1786,7 +1785,39 @@
             }
             openModal(swapExerciseModal);
         }
-        function performExerciseSwap(cardId, newExerciseData) { const card = document.getElementById(cardId); if (!card) return; const parent = card.parentNode; const isSubItem = card.dataset.subOrder !== ''; let specialData = null; if (isSubItem) { const supersetContainer = card.closest('.quick-mode-superset-container'); if(supersetContainer){ const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } } } const primordialData = JSON.parse(card.dataset.primordialExerciseData || '{}'); const exerciseToCreate = { ...newExerciseData, primordialExerciseData: primordialData }; const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); if (parent) { parent.replaceChild(newCard, card); } updateAllExerciseCardInputStates(); }
+        function performExerciseSwap(cardId, swapData, isRevert = false) { 
+            const card = document.getElementById(cardId); 
+            if (!card) return; 
+            const primordialData = JSON.parse(card.dataset.primordialExerciseData || '{}');
+            
+            let exerciseToCreate;
+            if (isRevert) {
+                exerciseToCreate = primordialData;
+            } else {
+                // Combine original data with the alternative's data, ensuring primordialData is kept for potential reverts
+                exerciseToCreate = { ...primordialData, ...swapData, primordialExerciseData: primordialData };
+            }
+
+            const parent = card.parentNode; 
+            const isSubItem = card.dataset.subOrder !== ''; 
+            let specialData = null; 
+            if (isSubItem) { 
+                const supersetContainer = card.closest('.quick-mode-superset-container'); 
+                if(supersetContainer){ 
+                    const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); 
+                    if(supersetBlockData && supersetBlockData.isEMOM) { 
+                        specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; 
+                    } else if (supersetBlockData && supersetBlockData.circuitDetails) { 
+                        specialData = { series: supersetBlockData.circuitDetails.totalRounds }; 
+                    } 
+                } 
+            } 
+            const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); 
+            if (parent) { 
+                parent.replaceChild(newCard, card); 
+            } 
+            updateAllExerciseCardInputStates(); 
+        }
         function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); /* NEW: Release lock on close */ closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
         
         // MODIFIED: toggleWorkoutState to include Wake Lock
