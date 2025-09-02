@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" href="/mi-webapp-pwa/icons/icon-192x192.png">
     <meta charset="UTF-8">
     <!-- MODIFIED: Added user-scalable=no to prevent zoom on double-tap -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Entrenamiento - Programa Hombres en Forma</title>
     <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -115,7 +115,7 @@
             width: 95%;
             max-width: 700px; 
         }
-        #workoutSummaryModal .modal-content, #warmupModal .modal-content, #extrasModal .modal-content {
+        #workoutSummaryModal .modal-content, #warmupModal .modal-content, #extrasModal .modal-content, #exerciseSettingsModal .modal-content {
             width: 95%;
             max-width: 450px;
         }
@@ -186,41 +186,8 @@
         .quick-mode-exercise-header .info strong { color: #fde047; font-weight: 600; font-size: 1rem; line-height: 1.3; }
         .quick-mode-exercise-header .info span { color: #d1d5db; font-size: 0.75rem; display: block; }
 
-        /* MODIFIED: Buttons are now below inputs, centered */
-        .quick-mode-header-buttons {
-            display: flex;
-            justify-content: center; /* Align to the center */
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-            width: 100%;
-            gap: 0.75rem; /* Increased gap slightly */
-            margin-top: 0.75rem; /* Add space above the buttons */
-        }
-        .quick-mode-header-buttons .quick-action-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1px solid #4b5563;
-            color: #facc15;
-            cursor: pointer;
-            width: 2.75rem; /* Slightly wider */
-            height: 2.75rem; /* Slightly taller */
-            font-size: 1.1rem; /* Bigger icon */
-            border-radius: 0.375rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
-        }
-        .quick-mode-header-buttons .quick-action-btn:hover:not(:disabled) {
-            color: #eab308; background-color: #4b5563;
-        }
-        .quick-mode-header-buttons .quick-action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
 
         .increase-weight-btn { background: #facc15; border-color: #facc15; width: 2rem; height: 2rem; font-size: 0.9rem; border-radius: 0.375rem; display: inline-flex; align-items: center; justify-content: center; }
-        .quick-mode-exercise-body { display: grid; grid-template-columns: 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
         .quick-mode-input { width: 100%; background-color: #1f2937; border: 1px solid #4b5563; color: white; border-radius: 0.375rem; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
         .quick-mode-register-button { width: 100%; height: 100%; background-color: #facc15; color: #1f2937; font-weight: bold; border: none; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; }
         .quick-mode-register-button i { font-size: 1.1rem; }
@@ -398,7 +365,7 @@
             white-space: nowrap;
             font-size: 0.85rem; /* Slightly smaller font */
         }
-        .full-log-view-body .set-data-row .set-input {
+        .full-log-view-body .set-input {
             display: flex;
             gap: 0.5rem;
             flex-grow: 1;
@@ -445,17 +412,7 @@
             margin-bottom: 1rem;
         }
         .history-filter-select {
-            background-color: #4a5568;
-            color: #e5e7eb;
-            border: 1px solid #718096;
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-        }
-        .history-filter-select:hover {
-            background-color: #5a6578;
+            display: none; /* MODIFIED: Hide the dropdown as it's no longer needed */
         }
         
         /* NEW: Styles for the extras button and modal */
@@ -612,7 +569,241 @@
             background-color: #4a5568;
             border-color: #facc15;
         }
+        
+        /* NEW: Styles for the streamlined quick mode body */
+        .quick-mode-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 50px;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .quick-mode-register-button-small {
+            height: 100%;
+            width: 100%;
+            background-color: #facc15;
+            color: #1f2937;
+            font-weight: bold;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quick-mode-register-button-small i {
+            font-size: 1.1rem;
+        }
+        .quick-mode-register-button-small:hover:not(:disabled) {
+            background-color: #eab308;
+        }
+        /* NEW: Style for the set progress indicator */
+        .set-progress-indicator {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+        /* MODIFIED: Changed the position of the exercise-settings-button */
+        .exercise-settings-button {
+            position: absolute;
+            bottom: 0.5rem; /* Position at the bottom */
+            right: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            background: none;
+            border: none;
+            color: #d1d5db;
+            transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
+            z-index: 10;
+        }
+        .exercise-settings-button:hover {
+            color: #facc15;
+            transform: rotate(45deg);
+        }
+        .exercise-settings-button i {
+            font-size: 1.2rem;
+        }
 
+        /* NEW: Styles for the exercise settings modal buttons */
+        .settings-modal-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #2d3748;
+            color: #e5e7eb;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out;
+            border: 1px solid transparent;
+        }
+        .settings-modal-button:hover {
+            background-color: #4a5568;
+        }
+        .settings-modal-button i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .settings-modal-button.revert {
+            background-color: #3b82f6;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+        .settings-modal-button.revert:hover {
+            background-color: #2563eb;
+        }
+        .set-summary {
+            margin-top: 1rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid #4a5568;
+            font-size: 0.85rem;
+        }
+        .set-summary-title {
+            font-weight: 600;
+            color: #facc15;
+            margin-bottom: 0.25rem;
+        }
+        .set-summary-list li {
+            padding: 0.1rem 0;
+            color: #d1d5db;
+        }
+        /* NEW: Styles for the calendar view */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #facc15;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .calendar-header button {
+            background: none;
+            border: none;
+            color: #facc15;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        /* MODIFIED: New vertical calendar layout styles */
+        .calendar-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .calendar-day-item {
+            background-color: rgba(42, 50, 62, 0.7);
+            border-radius: 0.5rem;
+            border: 1px solid #4b5563;
+            padding: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .calendar-day-item.current-day {
+            border: 2px solid #facc15;
+        }
+        .calendar-day-item.expanded {
+            background-color: rgba(55, 65, 81, 0.9);
+        }
+        .calendar-day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+        }
+        .calendar-day-label {
+            font-size: 1.1rem;
+            color: #fde047;
+        }
+        .day-number {
+            font-size: 1rem;
+            color: #d1d5db;
+        }
+        .calendar-day-item .details-container {
+            display: none;
+            flex-direction: column;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #4b5563;
+            gap: 0.5rem;
+        }
+        .calendar-day-item.expanded .details-container {
+            display: flex;
+        }
+        .calendar-workout-item {
+            background-color: rgba(55, 65, 81, 0.9);
+            color: #e5e7eb;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.8rem;
+            text-align: left;
+            border-left: 3px solid #22c55e;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .calendar-workout-item.extra-activity {
+            border-left-color: #3b82f6;
+        }
+        .calendar-workout-item .plus-icon {
+            font-size: 0.7rem;
+            font-weight: 900;
+            margin-left: auto;
+            color: #facc15;
+            background-color: #4a5568;
+            border-radius: 9999px;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calendar-workout-item.no-workouts {
+            background: none;
+            cursor: default;
+            color: #9ca3af;
+            font-style: italic;
+            border-left: none;
+            text-align: center;
+        }
+        .calendar-day-item.expanded .calendar-workout-item {
+            font-size: 0.75rem; /* Smaller font for list items */
+        }
+
+        /* MODIFIED: Adjusted z-index values for proper modal layering */
+        #quickModeWorkoutModal { z-index: 60; }
+        #exerciseSettingsModal { z-index: 70; }
+        #restTimerModal { z-index: 75; }
+        #workTimerModal { z-index: 75; }
+        #circuitTimerModal { z-index: 76; }
+        #emomTimerModal { z-index: 75; }
+        #swapExerciseModal { z-index: 65; }
+        #warmupModal { z-index: 67; }
+        #extrasModal { z-index: 62; }
+        #mainHistoryModal { z-index: 55; }
+        #detailedHistoryModal { z-index: 57; }
+        #fullWorkoutLogModal { z-index: 58; }
+        #workoutSummaryModal { z-index: 95; }
+        #shareModal { z-index: 98; }
+        #newRecordModal { z-index: 99; }
+        #minimizedRestTimer { z-index: 100; }
+        #weekdayNoticeModal { z-index: 99; }
+        
+        #quickModeWorkoutModal .modal-content {
+            z-index: 61;
+        }
+        
+        .modal .modal-content {
+            z-index: 60;
+        }
+        
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
@@ -669,7 +860,7 @@
     <!-- MODALS (Workout Specific) -->
     
     <!-- Workout History Modal (for full workout sessions) -->
-    <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+    <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 55;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold text-yellow-400">Historial de Entrenamientos</h3>
@@ -678,20 +869,34 @@
             <!-- NEW: Filter dropdown -->
             <div class="history-filter-container">
                 <select id="historyFilterSelect" class="history-filter-select">
+                    <option value="weekly">Vista Semanal</option>
                     <option value="all">Todos</option>
                     <option value="7">Últimos 7 días</option>
                     <option value="15">Últimos 15 días</option>
                     <option value="30">Últimos 30 días</option>
                 </select>
             </div>
-            <div id="mainHistoryResults" class="space-y-2 max-h-80 overflow-y-auto pr-2">
-                 <p class="text-gray-400 text-center py-4">Aquí aparecerá tu historial de entrenamientos.</p>
+            <div id="mainHistoryContentContainer">
+                <div id="calendarViewContainer" class="hidden">
+                    <div class="calendar-header">
+                        <button id="prevWeekBtn"><i class="fas fa-arrow-left"></i></button>
+                        <h4 id="currentWeekDisplay"></h4>
+                        <button id="nextWeekBtn"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <!-- MODIFIED: Updated calendar grid layout to be vertical and mobile-friendly -->
+                    <div id="calendarGrid" class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+                        <!-- Day headers and content will be populated by JS -->
+                    </div>
+                </div>
+                <div id="mainHistoryResults" class="space-y-2 max-h-80 overflow-y-auto pr-2">
+                     <p class="text-gray-400 text-center py-4">Aquí aparecerá tu historial de entrenamientos.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Detailed Exercise History Modal (for individual exercise history) -->
-    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[55] opacity-0 pointer-events-none">
+    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 57;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             
             <!-- View 1: List View -->
@@ -728,7 +933,7 @@
     </div>
 
     <!-- Full Workout Log Modal -->
-    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[56] opacity-0 pointer-events-none">
+    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 58;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="fullWorkoutLogTitle" class="text-lg sm:text-xl font-semibold text-yellow-400"></h3>
@@ -742,9 +947,23 @@
             </button>
         </div>
     </div>
+    
+    <!-- NEW: Exercise Settings Modal -->
+    <div id="exerciseSettingsModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 70;">
+        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-yellow-400">Opciones de Ejercicio</h3>
+                <button onclick="closeModalElement(exerciseSettingsModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de ajustes">×</button>
+            </div>
+            <div id="exerciseSettingsContent" class="space-y-3">
+                <!-- Buttons will be dynamically loaded here -->
+            </div>
+        </div>
+    </div>
+
 
     <!-- NEW: Extras Modal -->
-    <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+    <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 62;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-semibold text-yellow-400">Seleccionar Actividad</h3>
@@ -772,8 +991,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
                     <!-- MODIFIED: Placeholder and oninput for hh:mm format validation -->
+                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
                     <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
                 </div>
 
@@ -801,7 +1020,7 @@
         </div>
     </div>
 
-    <div id="quickModeWorkoutModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-40 opacity-0 pointer-events-none">
+    <div id="quickModeWorkoutModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 60;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h3 id="quickModeWorkoutModalTitle" class="text-xl sm:text-2xl font-bold text-yellow-500 text-left"></h3>
@@ -820,7 +1039,7 @@
         </div>
     </div>
 
-    <div id="newRecordModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+    <div id="newRecordModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 99;">
         <div class="modal-content text-center transform scale-95 p-8 rounded-xl shadow-2xl">
             <button class="close-button" onclick="closeModalElement(newRecordModal)">&times;</button>
             <i class="fas fa-trophy text-6xl text-yellow-900/80 mb-4"></i>
@@ -829,7 +1048,7 @@
         </div>
     </div>
 
-    <div id="restTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[70] opacity-0 pointer-events-none">
+    <div id="restTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 75;">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
                 <div class="timer-card-header">
@@ -856,13 +1075,13 @@
     </div>
 
     <!-- NEW: Minimized Rest Timer Display -->
-    <div id="minimizedRestTimer" class="fixed top-4 left-4 z-[100] hidden" onclick="toggleRestTimerMinimize()">
+    <div id="minimizedRestTimer" class="fixed top-4 left-4 hidden" onclick="toggleRestTimerMinimize()" style="z-index: 100;">
         <span id="minimizedTimerDisplay" class="min-time">00:00</span>
         <span id="minimizedNextExercise" class="min-next-exercise"></span>
     </div>
 
     <!-- MODIFIED: Work Timer Modal HTML -->
-    <div id="workTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[71] opacity-0 pointer-events-none">
+    <div id="workTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 75;">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
                 <div class="timer-card-header">
@@ -885,7 +1104,7 @@
         </div>
     </div>
 
-    <div id="circuitTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[76] opacity-0 pointer-events-none">
+    <div id="circuitTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 76;">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
                 <div class="timer-card-header">
@@ -909,7 +1128,7 @@
         </div>
     </div>
 
-    <div id="swapExerciseModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[65] opacity-0 pointer-events-none">
+    <div id="swapExerciseModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 65;">
         <div class="modal-content bg-gray-800 border border-yellow-500 rounded-lg shadow-xl p-5 sm:p-6 w-full max-w-md transform scale-95">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="swapExerciseModalTitle" class="text-lg sm:text-xl font-semibold text-yellow-400">Sugerir Alternativa</h3>
@@ -922,7 +1141,7 @@
         </div>
     </div>
     
-    <div id="emomTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[75] opacity-0 pointer-events-none">
+    <div id="emomTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 75;">
         <div class="modal-content transform scale-95">
             <div class="timer-card">
                 <div class="timer-card-header">
@@ -946,7 +1165,7 @@
         </div>
     </div>
 
-    <div id="workoutSummaryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[95] opacity-0 pointer-events-none">
+    <div id="workoutSummaryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 95;">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl shadow-xl p-6 sm:p-8 w-full transform scale-95">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-semibold text-yellow-400">Resumen del Entrenamiento</h3>
@@ -969,7 +1188,7 @@
         </div>
     </div>
     
-    <div id="warmupModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[67] opacity-0 pointer-events-none">
+    <div id="warmupModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 67;">
         <div class="modal-content relative bg-gray-800 border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
             <button class="close-button" onclick="closeModalElement(warmupModal)">&times;</button>
             <h3 class="text-lg font-semibold text-yellow-400 mb-4">Calculadora de Aproximación</h3>
@@ -982,7 +1201,7 @@
         </div>
     </div>
 
-    <div id="shareModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[98] opacity-0 pointer-events-none">
+    <div id="shareModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 98;">
         <div class="modal-content">
             <div id="shareCard">
                 <!-- Content will be injected by JS -->
@@ -997,7 +1216,7 @@
     <!-- REMOVED: Video Submission Prompt Modal -->
     
     <!-- Weekday Notice Modal -->
-    <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+    <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 opacity-0 pointer-events-none" style="z-index: 99;">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
             <h3 class="text-xl font-semibold text-yellow-400 mb-4">Función No Disponible</h3>
             <p class="text-gray-300 mb-6">Esta función solo está disponible en los días configurados.</p>
@@ -1056,6 +1275,10 @@
         let workoutData = null; // Will be loaded from URL
         let exerciseAlternatives = null; // Will be loaded from URL
         let wakeLock = null; // NEW: For Screen Wake Lock API
+        // NEW: for history calendar view
+        let currentWeekStart = new Date();
+        // NEW: Store last logged sets to pre-fill inputs
+        let lastLoggedSets = {};
 
         // NEW: Global variables for time-based exercise sequence
         let currentTimedExerciseCardId = null;
@@ -1069,6 +1292,9 @@
         
         // NEW: Global variable for storing the uploaded image file
         let uploadedCaptureFile = null;
+        
+        // NEW: Global map for storing current set counts for each exercise
+        let currentExerciseSetCounters = {};
 
         // --- Supabase Setup ---
         let supabase = null;
@@ -1345,6 +1571,9 @@
         const extraCaptureFileName = document.getElementById('extraCaptureFileName');
         const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
         const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
+        // NEW: Modal and content for exercise settings
+        const exerciseSettingsModal = document.getElementById('exerciseSettingsModal');
+        const exerciseSettingsContent = document.getElementById('exerciseSettingsContent');
 
 
         // MODIFIED: Element selectors for the new work timer modal
@@ -1385,6 +1614,13 @@
         const warmupModal = document.getElementById('warmupModal');
         const shareModal = document.getElementById('shareModal');
         
+        // NEW: History calendar view specific elements
+        const calendarViewContainer = document.getElementById('calendarViewContainer');
+        const prevWeekBtn = document.getElementById('prevWeekBtn');
+        const nextWeekBtn = document.getElementById('nextWeekBtn');
+        const currentWeekDisplay = document.getElementById('currentWeekDisplay');
+        const calendarGrid = document.getElementById('calendarGrid');
+
         // NEW: Helper function to get the ISO week number of the year.
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -1397,6 +1633,12 @@
             var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
             // Return array of week number and year
             return weekNo;
+        }
+        
+        // NEW: Function to get the name of the weekday in Spanish
+        function getDayName(date) {
+            const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            return days[date.getDay()];
         }
 
         function openVideoLink(videoUrl) { if (videoUrl) { window.open(videoUrl, '_blank'); } }
@@ -1423,13 +1665,13 @@
             } 
         }
         
+        // MODIFIED: getLastLoggedDataForSet to get a specific set from the last workout
         function getLastLoggedDataForSet(exerciseName, setNumber) {
             const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a,b) => new Date(b.raw_date) - new Date(a.raw_date));
             if (entries.length > 0) {
                 const setsPerformed = entries[0].sets_performed;
                 const setData = setsPerformed.find(s => s.serie === setNumber);
                 if (setData) return { kg: setData.kg || "", reps: setData.reps || "" };
-                if(setsPerformed.length > 0) return { kg: setsPerformed[0].kg || "", reps: setsPerformed[0].reps || "" };
             }
             return { kg: "", reps: "" };
         }
@@ -1523,7 +1765,8 @@
         }
 
         if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderWorkoutHistoryList('all'); // Call with default filter 'all'
+            historyFilterSelect.value = 'weekly';
+            renderHistoryView('weekly');
             openModal(mainHistoryModal); 
         });
         if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
@@ -1533,56 +1776,180 @@
         // NEW: History filter element
         const historyFilterSelect = document.getElementById('historyFilterSelect');
         if (historyFilterSelect) {
-            historyFilterSelect.addEventListener('change', (event) => {
-                renderWorkoutHistoryList(event.target.value);
-            });
+            // MODIFIED: Removed event listener as the dropdown is now hidden
+            // historyFilterSelect.addEventListener('change', (event) => {
+            //     renderHistoryView(event.target.value);
+            // });
         }
         
+        // MODIFIED: The history view only has one option now: weekly
+        function renderHistoryView(viewType) {
+            const historyListContainer = document.getElementById('mainHistoryResults');
+            const calendarContainer = document.getElementById('calendarViewContainer');
+            
+            // Only render the weekly calendar view
+            historyListContainer.classList.add('hidden');
+            calendarContainer.classList.remove('hidden');
+            renderWeeklyCalendarView();
+        }
+        
+        // NEW: Render calendar view function
+        function renderWeeklyCalendarView() {
+            const now = currentWeekStart;
+            // Get the start of the week (Monday)
+            const startOfWeek = new Date(now);
+            const day = startOfWeek.getDay();
+            const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday (0)
+            startOfWeek.setDate(diff);
+            
+            const calendarGrid = document.getElementById('calendarGrid');
+            const currentWeekDisplay = document.getElementById('currentWeekDisplay');
+            calendarGrid.innerHTML = ''; // Clear previous content
+
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const startMonth = monthNames[startOfWeek.getMonth()];
+            const startYear = startOfWeek.getFullYear();
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            const endMonth = monthNames[endOfWeek.getMonth()];
+            
+            let displayString = `${startMonth} ${startYear}`;
+            if (startMonth !== endMonth) {
+                displayString = `${startMonth}/${endMonth} ${startYear}`;
+            }
+
+            currentWeekDisplay.textContent = displayString;
+            
+            const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']; // Updated for consistent indexing
+            
+            for(let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
+                const dayKey = day.toDateString(); // Unique key for the day
+                
+                const allItemsForDay = allHistoryItems.filter(item => {
+                    const itemDate = new Date(item.raw_date);
+                    return itemDate.getFullYear() === day.getFullYear() &&
+                           itemDate.getMonth() === day.getMonth() &&
+                           itemDate.getDate() === day.getDate();
+                }).sort((a, b) => new Date(a.raw_date) - new Date(b.raw_date));
+                
+                const dayItem = document.createElement('div');
+                dayItem.className = 'calendar-day-item';
+                if(day.toDateString() === new Date().toDateString()){
+                    dayItem.classList.add('current-day');
+                }
+                
+                let dayContentHtml = `
+                    <div class="calendar-day-header" onclick="toggleDayDetails(this)">
+                        <div>
+                            <span class="calendar-day-label">${getDayName(day)}</span>
+                            <span class="day-number">${day.getDate()}</span>
+                        </div>
+                    </div>
+                    <div class="details-container"></div>
+                `;
+                dayItem.innerHTML = dayContentHtml;
+                const detailsContainer = dayItem.querySelector('.details-container');
+                
+                if(allItemsForDay.length > 0) {
+                    // Show the first item and add a plus if there are more
+                    const firstItem = allItemsForDay[0];
+                    const firstWorkoutItem = createCalendarWorkoutItem(firstItem);
+                    if (firstWorkoutItem) {
+                        dayItem.querySelector('.calendar-day-header').appendChild(firstWorkoutItem);
+                    }
+                    
+                    if (allItemsForDay.length > 1) {
+                         const plusIcon = document.createElement('div');
+                         plusIcon.className = 'plus-icon';
+                         plusIcon.textContent = `+${allItemsForDay.length - 1}`;
+                         dayItem.querySelector('.calendar-day-header').appendChild(plusIcon);
+                    }
+
+                    // Add all items to the details container
+                    allItemsForDay.forEach(item => {
+                        const workoutItem = createCalendarWorkoutItem(item);
+                        if (workoutItem) {
+                            detailsContainer.appendChild(workoutItem);
+                        }
+                    });
+                    
+                } else {
+                    const noWorkoutItem = document.createElement('div');
+                    noWorkoutItem.className = 'calendar-workout-item no-workouts';
+                    noWorkoutItem.textContent = 'Sin entreno';
+                    detailsContainer.appendChild(noWorkoutItem);
+                }
+                
+                calendarGrid.appendChild(dayItem);
+            }
+        }
+        
+        // NEW: Helper function to create the workout item for the calendar
+        function createCalendarWorkoutItem(item) {
+            const workoutItem = document.createElement('div');
+            let icon = '';
+            let className = 'calendar-workout-item';
+            
+            if (item.exercise_name === "Workout Session Summary") {
+                icon = '<i class="fas fa-dumbbell"></i>';
+                workoutItem.onclick = (e) => { e.stopPropagation(); openFullWorkoutLogModal(item.session_id); };
+            } else if (item.exercise_name === "Extra Activity") {
+                icon = '<i class="fas fa-plus"></i>';
+                className += ' extra-activity';
+                workoutItem.onclick = (e) => { e.stopPropagation(); showExtraActivityDetails(item); };
+            } else {
+                return null; // Don't create an item for individual logs
+            }
+
+            workoutItem.className = className;
+            workoutItem.innerHTML = `${icon} ${item.name_workout}`;
+            return workoutItem;
+        }
+        
+        // NEW: Function to toggle day card expansion
+        function toggleDayDetails(header) {
+            const dayItem = header.closest('.calendar-day-item');
+            if (dayItem) {
+                dayItem.classList.toggle('expanded');
+            }
+        }
+        
+        // NEW: Navigation for the calendar
+        if(prevWeekBtn) prevWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            renderWeeklyCalendarView();
+        });
+
+        if(nextWeekBtn) nextWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderWeeklyCalendarView();
+        });
+
         // MODIFIED: renderWorkoutHistoryList to accept a filter and render both workouts and extras
         function renderWorkoutHistoryList(filter) {
+            // MODIFIED: This function is now mostly legacy, but keeping it for a unified API.
+            // All logic now points to renderWeeklyCalendarView
             mainHistoryResults.innerHTML = '';
-            const now = new Date();
-            let filteredHistory = [];
-
-            // Combine and sort all history items
-            const allItems = [...workoutSessionSummaries, ...extraActivities];
-
-            // Filter logic
-            if (filter === '7') {
-                const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > sevenDaysAgo);
-            } else if (filter === '15') {
-                const fifteenDaysAgo = new Date(now.setDate(now.getDate() - 15));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > fifteenDaysAgo);
-            } else if (filter === '30') {
-                const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > thirtyDaysAgo);
-            } else { // 'all'
-                filteredHistory = allItems;
-            }
-
-            const sortedHistory = Array.from(filteredHistory).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
-            
+            const sortedHistory = Array.from(allHistoryItems).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
             if (sortedHistory.length === 0) {
-                mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos ni actividades registradas para este periodo.</p>';
-                return;
+                 mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos ni actividades registradas para este periodo.</p>';
+                 return;
             }
-            
+            // For now, just render the main history list, this view is no longer used by default
             sortedHistory.forEach(session => {
                 const button = document.createElement('button');
                 button.className = 'main-history-item';
                 const workoutName = session.name_workout || 'Entrenamiento no nombrado';
                 let icon = '';
-                // NEW: Get the duration string
                 let durationHtml = session.total_time_session ? ` <span class="text-sm text-gray-400 ml-2"><i class="fas fa-clock mr-1"></i>${session.total_time_session}</span>` : '';
                 
-                // Check if it's a workout session or an extra activity
                 if (session.exercise_name === "Workout Session Summary") {
                     icon = '<i class="fas fa-dumbbell mr-2 text-yellow-300"></i>';
                     button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
                 } else if (session.exercise_name === "Extra Activity") {
                     icon = getExtrasIcon(workoutName);
-                    // Pass the whole session object to showExtraActivityDetails
                     button.onclick = () => { showExtraActivityDetails(session); };
                 }
 
@@ -1856,86 +2223,75 @@
         function showNewRecordAlert(newRm) { newRecordText.textContent = `¡Has alcanzado un 1RM estimado de ${newRm.toFixed(1)}kg!`; openModal(newRecordModal); }
         function closeQuickModeWorkoutModal() { confirmBeforeClosingWorkoutModal(quickModeWorkoutModal, () => { releaseWakeLock(); }); }
 
+        // MODIFIED: updateAllExerciseCardInputStates to handle new card structure and set summaries
         function updateAllExerciseCardInputStates() { 
             document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item').forEach(card => { 
                 const exerciseName = card.dataset.currentName; 
                 const logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseName);
-                const isFinalized = logEntry && logEntry.setsPerformed && logEntry.setsPerformed.length > 0;
+                const totalSets = parseInt(card.dataset.totalSets);
+                const loggedSetsCount = logEntry ? logEntry.setsPerformed.length : 0;
+                const isFinalized = loggedSetsCount >= totalSets;
                 const isTimeBasedExercise = card.dataset.isTimeBased === "true";
                 const isTimerActiveForThisCard = isTimeBasedExercise && currentTimedExerciseCardId === card.id && workTimerInterval !== null;
-                let isDisabledOverall = !isWorkoutInProgress || isFinalized || isTimerActiveForThisCard;
                 const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
-                const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
+                
+                // NEW: Find the new set summary container
+                const setSummaryContainer = card.querySelector(`#setSummary-${card.id}`);
+                const currentSetInputsContainer = card.querySelector(`#currentSetInputs-${card.id}`);
+                
+                // Show/hide the summary and current inputs based on progress
+                if (loggedSetsCount > 0) {
+                    setSummaryContainer.style.display = 'block';
+                    const summaryList = setSummaryContainer.querySelector('.set-summary-list');
+                    summaryList.innerHTML = logEntry.setsPerformed.map(set => {
+                        const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
+                        const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
+                        return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
+                    }).join('');
+                } else {
+                    setSummaryContainer.style.display = 'none';
+                }
 
-                if (quickViewBody) {
-                    const kgInput = quickViewBody.querySelector('input[aria-label*="Peso"]');
-                    const repsInput = quickViewBody.querySelector('input[aria-label*="Repeticiones"]');
-                    const registerBtn = quickViewBody.querySelector('.quick-mode-register-button');
-                    kgInput.disabled = isDisabledOverall;
-                    repsInput.disabled = isDisabledOverall;
-                    registerBtn.disabled = isDisabledOverall;
-                    if (isTimeBasedExercise && !isTimerActiveForThisCard && !isFinalized) {
-                        repsInput.disabled = false;
-                    }
-                    if (kgInput.disabled) kgInput.classList.add('bg-gray-700'); else kgInput.classList.remove('bg-gray-700');
-                    if (repsInput.disabled) repsInput.classList.add('bg-gray-700'); else repsInput.classList.remove('bg-gray-700');
-                    if (isTimerActiveForThisCard) {
-                        registerBtn.innerHTML = '<i class="fas fa-hourglass-half text-xl"></i>';
-                    } else if (isFinalized) {
-                        registerBtn.innerHTML = '<i class="fas fa-check-double text-xl"></i>';
-                        registerBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                        registerBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-                    } else {
-                        const originalExerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-                        if (originalExerciseData.isSuperset || originalExerciseData.isEMOM || originalExerciseData.circuitDetails) {
-                             registerBtn.innerHTML = '<i class="fas fa-list-ol text-xl"></i>';
-                        } else {
-                            registerBtn.innerHTML = '<i class="fas fa-check text-xl"></i>';
-                        }
-                        registerBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                        registerBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-                    }
+                if (isFinalized) {
+                    currentSetInputsContainer.style.display = 'none';
+                } else {
+                    currentSetInputsContainer.style.display = 'flex';
+                    // Re-enable all inputs and button for the current set
+                    const kgInput = currentSetInputsContainer.querySelector('input[aria-label*="Peso"]');
+                    const repsInput = currentSetInputsContainer.querySelector('input[aria-label*="Repeticiones"]');
+                    const registerBtn = currentSetInputsContainer.querySelector('.quick-mode-register-button-small');
+                    kgInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                    repsInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                    registerBtn.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
                 }
                 
-                if (fullLogViewBody) {
-                    fullLogViewBody.querySelectorAll('.set-data-row').forEach(row => {
-                        const setNumber = parseInt(row.dataset.setNumber, 10);
-                        const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                        const repsInput = row.querySelector('input[aria-label*="Reps"]');
-                        const existingSet = logEntry ? logEntry.setsPerformed.find(s => s.serie === setNumber) : null;
-                        const isSetAlreadyLogged = existingSet && existingSet.isQuickMode === undefined;
-                        const shouldBeDisabled = isSetAlreadyLogged || !isWorkoutInProgress || isFinalized;
-                        if (kgInput) {
-                            kgInput.readOnly = shouldBeDisabled;
-                            kgInput.disabled = shouldBeDisabled;
-                            if (shouldBeDisabled) kgInput.classList.add('bg-gray-700'); else kgInput.classList.remove('bg-gray-700');
-                        }
-                        if (repsInput) {
-                            repsInput.readOnly = shouldBeDisabled;
-                            repsInput.disabled = shouldBeDisabled;
-                            if (shouldBeDisabled) repsInput.classList.add('bg-gray-700'); else repsInput.classList.remove('bg-gray-700');
-                        }
-                    });
-                    fullLogViewBody.querySelectorAll('.actions-footer button').forEach(btn => {
-                        btn.disabled = !isWorkoutInProgress || isFinalized;
-                    });
-                }
-
-                card.querySelectorAll('.quick-mode-header-buttons .quick-action-btn').forEach(btn => {
-                    if (btn.id && btn.id.startsWith('toggleViewBtn-')) {
-                        btn.disabled = isFinalized;
-                    } else {
-                        btn.disabled = isFinalized;
-                    }
-                });
-
+                // Update the overall card state based on completion
                 card.classList.remove('completed-good', 'completed-bad');
                 if (isFinalized && logEntry.completionState && logEntry.completionState !== 'neutral') {
                     card.classList.add(`completed-${logEntry.completionState}`);
                 }
+
+                // Update the progress indicator for the NEXT pending set
+                const setProgressEl = card.querySelector('.set-progress-indicator');
+                if (setProgressEl) {
+                    if (isFinalized) {
+                        setProgressEl.textContent = `¡Completado!`;
+                    } else {
+                        setProgressEl.textContent = `Serie ${loggedSetsCount + 1} de ${totalSets}`;
+                        // NEW: Update inputs for the next series
+                        const nextSetNumber = loggedSetsCount + 1;
+                        const lastSets = lastLoggedSets[exerciseName] || [];
+                        const nextSetData = lastSets.find(s => s.serie === nextSetNumber) || { kg: '', reps: '' };
+                        const kgInput = card.querySelector('input[aria-label*="Peso"]');
+                        const repsInput = card.querySelector('input[aria-label*="Repeticiones"]');
+                        if (kgInput) kgInput.value = nextSetData.kg;
+                        if (repsInput) repsInput.value = nextSetData.reps;
+                    }
+                }
             });
         }
         
+        // MODIFIED: startQuickMode to load last logged sets at the beginning
         function startQuickMode(dayKey) { 
             currentActiveDayKey = dayKey; 
             if (typeof workoutData === 'undefined' || !workoutData[dayKey]) { return; } 
@@ -1948,6 +2304,21 @@
             totalSetsForCurrentTimedExercise = 0;
             currentRestDurationForTimedExercise = 0;
             timedExerciseSetsLogged = [];
+            currentExerciseSetCounters = {}; // Reset set counters
+            
+            // NEW: Load last logged sets for pre-filling inputs
+            dayData.exercises.forEach(ex => {
+                const exerciseName = ex.name || ex.items?.[0]?.name;
+                if (exerciseName) {
+                    const lastEntry = getLastWorkoutEntry(exerciseName);
+                    if (lastEntry) {
+                        lastLoggedSets[exerciseName] = lastEntry.sets_performed;
+                    } else {
+                        lastLoggedSets[exerciseName] = [];
+                    }
+                }
+            });
+            
             dayData.exercises.forEach((exerciseItem) => { 
                 if (exerciseItem.isSuperset || exerciseItem.isEMOM || exerciseItem.circuitDetails) { 
                     quickModeExerciseList.appendChild(createQuickModeSupersetCard(dayKey, exerciseItem.order, exerciseItem));
@@ -1959,12 +2330,13 @@
             toggleWorkoutState(); 
             openModal(quickModeWorkoutModal); 
         }
-
+        
+        // MODIFIED: createQuickModeExerciseCard to use lastLoggedSets
         function createQuickModeExerciseCard(dayKey, mainOrder, exerciseInput, isSubItem, specialData = null) { 
             const card = document.createElement('div'); 
             const cardId = isSubItem ? `qm-ex-${dayKey}-${mainOrder}-${exerciseInput.subOrder}` : `qm-ex-${dayKey}-${mainOrder}`; 
             card.id = cardId; 
-            card.className = `quick-mode-exercise-item`; 
+            card.className = `quick-mode-exercise-item relative`; // MODIFIED: Added 'relative' for the absolute-positioned button
             card.dataset.dayKey = dayKey; 
             card.dataset.mainOrder = String(mainOrder); 
             card.dataset.subOrder = exerciseInput.subOrder !== undefined ? String(exerciseInput.subOrder) : ''; 
@@ -1973,13 +2345,19 @@
             const primordialData = exerciseInput.primordialExerciseData ? exerciseInput.primordialExerciseData : exerciseInput; 
             card.dataset.primordialExerciseData = JSON.stringify(primordialData); 
             card.dataset.isSwapped = (exerciseInput.name !== primordialData.name).toString(); 
-            card.dataset.viewMode = 'quick';
             const isTimeBasedExercise = isTimeBased(exerciseInput.reps);
-            const inputType = isTimeBasedExercise ? 'text' : 'number';
-            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (getLastLoggedDataForSet(exerciseInput.name, 1).reps || exerciseInput.reps || 'Reps');
-            const kgPlaceholder = getLastLoggedDataForSet(exerciseInput.name, 1).kg || 'Kg';
-            const repsOnClick = isTimeBasedExercise ? `onclick="handleTimeBasedRepsClick(this, '${cardId}')"` : '';
+            
+            // NEW: Get last logged sets and pre-fill for the first set
+            const lastSets = lastLoggedSets[exerciseInput.name] || [];
+            const firstSetData = lastSets.find(s => s.serie === 1) || { kg: '', reps: '' };
+            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (firstSetData.reps || exerciseInput.reps || 'Reps');
+            const kgPlaceholder = firstSetData.kg || 'Kg';
+            const repsInputHtml = isTimeBasedExercise ? 
+                `<button class="quick-mode-input" onclick="handleTimeBasedRepsClick(this, '${cardId}')">${repsPlaceholder}</button>` :
+                `<input type="number" value="${firstSetData.reps}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}">`;
+
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
+            
             card.dataset.totalSets = String(exerciseInput.sets || 1);
             const repsString = isTimeBasedExercise ? exerciseInput.reps : `${exerciseInput.reps || 'N/A'} reps`; 
             const lastData = getLastLoggedDataForSet(exerciseInput.name, 1); 
@@ -1988,32 +2366,7 @@
                 increaseWeightIndicator = `<div class="increase-weight-btn" title="¡Buen trabajo! Sube el peso en esta sesión."><i class="fas fa-arrow-up text-gray-900"></i></div>`; 
             } 
             let seriesText = `Series: ${specialData ? specialData.series : (exerciseInput.sets || '1')}`; 
-            let restHtml = ''; 
-            const restDurationMatch = typeof exerciseInput.rest === 'string' ? exerciseInput.rest.match(/(\d+)s/) : null; 
-            if(restDurationMatch && !isTimeBasedExercise){
-                const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item'));
-                const currentCardIndex = allExerciseCards.findIndex(card => card.id === cardId);
-                let nextExerciseForRest = null;
-                if (currentCardIndex !== -1 && currentCardIndex + 1 < allExerciseCards.length) {
-                    const nextCard = allExerciseCards[currentCardIndex + 1];
-                    nextExerciseForRest = {
-                        name: nextCard.dataset.currentName,
-                        reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                        kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                    };
-                }
-                restHtml = `<button onclick='startRestTimer(${parseInt(restDurationMatch[1])}, ${JSON.stringify(nextExerciseForRest)})' title="Descanso" class="quick-action-btn"><i class="fas fa-clock"></i></button>`; 
-            } 
-            let actionButtonsHtml = '';
-            const originalEscapedName = (exerciseInput.name || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
-            actionButtonsHtml += `<button onclick="viewExerciseHistoryFromLog('${originalEscapedName}')" title="Ver Histórico" class="quick-action-btn"><i class="fas fa-chart-line"></i></button>`;
-            if (!isSubItem) {
-                actionButtonsHtml += `<button onclick="openWarmupModal()" title="Calculadora de Aproximación" class="quick-action-btn"><i class="fas fa-fire"></i></button>`;
-            }
-            const alternatives = exerciseAlternatives[primordialData.name] || [];
-            if (alternatives.length > 0 || card.dataset.isSwapped === "true") {
-                actionButtonsHtml += `<button onclick="openSwapExerciseModal('${cardId}')" title="Cambiar Ejercicio" class="quick-action-btn"><i class="fas fa-exchange-alt"></i></button>`;
-            }
+            // MODIFIED: All action buttons moved to the settings modal
             const notesHtml = exerciseInput.notes ? `<div class="notes">${exerciseInput.notes}</div>` : '';
             const imageUrl = exerciseInput.imageUrl;
             const videoUrl = exerciseInput.videoUrl;
@@ -2026,7 +2379,11 @@
                     imageHtml = `<div class="flex-shrink-0">${imageTag}</div>`;
                 }
             }
+            // NEW: Unified single-view HTML structure
             card.innerHTML = ` 
+                <button onclick="openExerciseSettingsModal('${cardId}')" class="exercise-settings-button">
+                    <i class="fas fa-cog"></i>
+                </button>
                 <div class="quick-mode-exercise-header"> 
                     <div class="flex-top-row">
                         ${imageHtml}
@@ -2042,19 +2399,20 @@
                         </div>
                     </div>
                 </div> 
-                <div id="quickViewBody-${cardId}" class="quick-view-body"> 
-                    <input type="number" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
-                    <input type="${inputType}" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
-                    <button class="quick-mode-register-button" onclick="logQuickModeSetFromCard(this, '${cardId}')" aria-label="Registrar set"> 
-                        <i class="fas fa-check"></i> 
-                    </button> 
-                </div> 
-                <div class="quick-mode-header-buttons">
-                    ${restHtml} 
-                    <button id="toggleViewBtn-${cardId}" onclick='toggleExerciseCardView("${cardId}")' title="Registro Completo" class="quick-action-btn"><i class="fas fa-list-ol"></i></button> 
-                    ${actionButtonsHtml}
+                <div id="currentSetInputs-${cardId}">
+                    <div id="quickViewBody-${cardId}" class="quick-mode-body"> 
+                        <input type="number" value="${firstSetData.kg}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
+                        ${repsInputHtml}
+                        <button class="quick-mode-register-button-small" onclick="logSingleSetAndStartRest(this, '${cardId}')" aria-label="Registrar set"> 
+                            <i class="fas fa-check"></i> 
+                        </button> 
+                    </div> 
                 </div>
-                <div id="fullLogViewBody-${cardId}" class="full-log-view-body" style="display: none;"></div>
+                <div id="setSummary-${cardId}" class="set-summary" style="display:none;">
+                    <div class="set-summary-title">Series registradas:</div>
+                    <ul class="set-summary-list list-disc list-inside"></ul>
+                </div>
+                <p id="progress-${cardId}" class="set-progress-indicator">Serie 1 de ${card.dataset.totalSets}</p>
                 ${notesHtml}
             `; 
             return card; 
@@ -2094,241 +2452,44 @@
             } 
             return card; 
         }
-        
-        function toggleExerciseCardView(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const toggleButton = document.getElementById(`toggleViewBtn-${cardId}`);
-            const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
-            const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
-            if (card.dataset.viewMode === 'quick') {
-                quickViewBody.style.display = 'none';
-                fullLogViewBody.style.display = 'block';
-                card.dataset.viewMode = 'full-log';
-                toggleButton.innerHTML = '<i class="fas fa-times"></i>';
-                toggleButton.title = 'Cerrar Registro Detallado';
-                renderFullLogViewContent(card);
-            } else {
-                if (hasUnsavedFullLogChanges) {
-                    showCustomConfirm("Si cierras sin registrar, los cambios se perderán. ¿Deseas continuar?", () => {
-                        hasUnsavedFullLogChanges = false;
-                        quickViewBody.style.display = 'grid';
-                        fullLogViewBody.style.display = 'none';
-                        card.dataset.viewMode = 'quick';
-                        toggleButton.innerHTML = '<i class="fas fa-list-ol"></i>';
-                        toggleButton.title = 'Registro Completo';
-                    });
-                } else {
-                    quickViewBody.style.display = 'grid';
-                    fullLogViewBody.style.display = 'none';
-                    card.dataset.viewMode = 'quick';
-                    toggleButton.innerHTML = '<i class="fas fa-list-ol"></i>';
-                    toggleButton.title = 'Registro Completo';
-                }
-            }
-            updateAllExerciseCardInputStates();
-        }
 
-        function renderFullLogViewContent(card) {
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
-            fullLogViewBody.innerHTML = '';
-            let repGoals = []; 
-            const repsValue = exerciseData.reps; 
-            if (typeof repsValue === 'string' && repsValue.includes(',')) { 
-                repGoals = repsValue.split(',').map(r => r.trim()); 
-            } 
-            let numberOfSets = parseInt(exerciseData.sets, 10); 
-            if(repGoals.length > numberOfSets) numberOfSets = repGoals.length; 
-            const parentSuperset = card.closest('.quick-mode-superset-container');
-            if (parentSuperset) {
-                const mainOrder = parseInt(card.dataset.mainOrder);
-                const supersetBlockData = workoutData[card.dataset.dayKey].exercises.find(ex => ex.order === mainOrder);
-                if (supersetBlockData && supersetBlockData.isEMOM) {
-                    const exerciseCount = supersetBlockData.items.length;
-                    const totalIntervals = parseInt(supersetBlockData.emomDetails.totalIntervals, 10);
-                    if (exerciseCount > 0 && totalIntervals > 0) numberOfSets = Math.ceil(totalIntervals / exerciseCount);
-                } else if (supersetBlockData && supersetBlockData.circuitDetails) {
-                    numberOfSets = parseInt(supersetBlockData.circuitDetails.totalRounds, 10);
-                }
-            }
-            if(isNaN(numberOfSets) || numberOfSets <= 0) numberOfSets = 1; 
-            let setsHtml = '';
-            for (let i = 1; i <= numberOfSets; i++) { 
-                const lastSetData = getLastLoggedDataForSet(exerciseData.name, i); 
-                let repsTargetForThisSet = repGoals.length > 0 ? (repGoals[i - 1] || repGoals[repGoals.length - 1]) : (Array.isArray(exerciseData.reps) ? (exerciseData.reps[i-1] || exerciseData.reps[0]) : exerciseData.reps); 
-                const repsPlaceholder = lastSetData.reps || repsTargetForThisSet || 'Reps'; 
-                const inputType = isTimeBased(repsTargetForThisSet) ? 'text' : 'number'; 
-                const existingLog = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseData.name);
-                const existingSet = existingLog ? existingLog.setsPerformed.find(s => s.serie === i) : null;
-                const initialKg = existingSet ? existingSet.kg : (lastSetData.kg || '');
-                const initialReps = existingSet ? existingSet.reps : (lastSetData.reps || '');
-                const isSetLogged = existingSet && existingSet.isQuickMode === undefined;
-                const currentCompletionState = existingSet ? existingSet.completionState : 'neutral';
-                const repsClass = currentCompletionState === 'good' ? 'history-reps-good' : (currentCompletionState === 'bad' ? 'history-reps-bad' : '');
-                setsHtml += `
-                    <div class="set-data-row" data-set-number="${i}">
-                        <span class="text-gray-300 w-auto pr-2 text-sm shrink-0">S.${i}: ${repsTargetForThisSet || ''}</span>
-                        <div class="set-input flex-grow flex gap-2">
-                            <input type="number" value="${initialKg}" placeholder="Kg" class="p-1.5 border border-gray-600 bg-gray-900 text-white rounded text-center text-sm w-full" aria-label="Peso para S.${i}" ${isSetLogged ? 'readonly' : ''}>
-                            <input type="${inputType}" value="${initialReps}" placeholder="Reps" class="p-1.5 border border-gray-600 bg-gray-900 text-white rounded text-center text-sm w-full ${repsClass}" aria-label="Reps para S.${i}" ${isSetLogged ? 'readonly' : ''}>
-                        </div>
-                    </div>
-                `;
-            }
-            // MODIFIED: Removed the "Completar Series" button and made "Registrar Series" full-width
-            fullLogViewBody.innerHTML = `
-                <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    ${setsHtml}
-                </div>
-                <div class="actions-footer">
-                    <button onclick="logFullSetsForCard('${card.id}')" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2.5 px-4 rounded-lg shadow-md">
-                        Registrar Series
-                    </button>
-                </div>
-            `;
-            hasUnsavedFullLogChanges = false;
-            fullLogViewBody.querySelectorAll('.set-input input').forEach(input => {
-                input.addEventListener('input', () => {
-                    hasUnsavedFullLogChanges = true;
-                });
-            });
-        }
-
-        function completeAllSetsForCard(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const firstSetRow = card.querySelector('.set-data-row');
-            if (firstSetRow) {
-                const firstKgInput = firstSetRow.querySelector('input[aria-label*="Peso"]');
-                const firstRepsInput = firstSetRow.querySelector('input[aria-label*="Repeticiones"]');
-                const firstKgValue = firstKgInput ? firstKgInput.value.trim() : '';
-                const firstRepsValue = firstRepsInput ? firstRepsInput.value.trim() : '';
-                if (firstKgValue !== '' || firstRepsValue !== '') {
-                    card.querySelectorAll('.set-data-row').forEach((row, index) => {
-                        const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                        const repsInput = row.querySelector('input[aria-label*="Repeticiones"]');
-                        if (kgInput && kgInput.value.trim() === '' && !kgInput.readOnly) {
-                            kgInput.value = firstKgValue;
-                        }
-                        if (repsInput && repsInput.value.trim() === '' && !repsInput.readOnly) {
-                            repsInput.value = firstRepsValue;
-                        }
-                        if (kgInput.value.trim() !== firstKgValue || repsInput.value.trim() !== firstRepsValue) {
-                            hasUnsavedFullLogChanges = true;
-                        }
-                    });
-                }
-            }
-            showCustomAlert("Series vacías completadas con los valores de la primera serie.", "info");
-            hasUnsavedFullLogChanges = true;
-        }
-
-        function logFullSetsForCard(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
+        // MODIFIED: logSingleSetAndStartRest function to handle multi-set logic and time-based exercise start
+        function logSingleSetAndStartRest(button, cardId) {
             if (!isWorkoutInProgress) {
                 showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
                 return;
             }
-            const exerciseName = card.dataset.currentName;
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const setsData = [];
-            let allSetsFilledForThisExercise = true;
-            let maxRmInSession = 0;
-            let overallCompletionState = 'good';
-            let heaviestSet = { kg: '0', reps: '0' };
-            card.querySelectorAll('.set-data-row').forEach(row => {
-                const setNumber = parseInt(row.dataset.setNumber, 10);
-                const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                const repsInput = row.querySelector('input[aria-label*="Reps"]');
-                const kg = kgInput.value.trim();
-                const reps = repsInput.value.trim();
-                if (!isTimeBased(repsInput.placeholder) && (kg === '' || reps === '')) {
-                    allSetsFilledForThisExercise = false;
-                }
-                const targetReps = Array.isArray(exerciseData.reps) ? exerciseData.reps[setNumber - 1] : exerciseData.reps;
-                const completionState = getRepCompletionState(reps, targetReps);
-                if (completionState === 'bad') {
-                    overallCompletionState = 'bad';
-                } else if (completionState === 'neutral' && overallCompletionState !== 'bad') {
-                    overallCompletionState = 'neutral';
-                }
-                setsData.push({ serie: setNumber, kg: kg || '0', reps: reps || '0', completionState });
-                if (kg !== '' && reps !== '' && !isTimeBased(reps)) {
-                    const currentRm = calculateEpley1RM(kg, reps);
-                    if (currentRm > maxRmInSession) maxRmInSession = currentRm;
-                    if (parseFloat(kg) > parseFloat(heaviestSet.kg)) heaviestSet = { kg, reps };
-                }
-                kgInput.readOnly = true;
-                kgInput.disabled = true;
-                repsInput.readOnly = true;
-                repsInput.disabled = true;
-                repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-                if (completionState === 'good') repsInput.classList.add('history-reps-good');
-                else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
-            });
-            if (!allSetsFilledForThisExercise) {
-                showCustomAlert(`Por favor, completa todas las series para el ejercicio "${exerciseName}" o rellena los campos vacíos.`, 'warning');
-                return;
-            } else {
-                const logEntry = {
-                    exerciseName,
-                    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                    time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                    rawDate: new Date().toISOString(),
-                    dayKey: card.dataset.dayKey,
-                    setsPerformed: setsData,
-                    completionState: overallCompletionState
-                };
-                const existingEntryIndex = currentWorkoutSummaryData.findIndex(e => e.exerciseName === exerciseName);
-                if (existingEntryIndex > -1) {
-                    currentWorkoutSummaryData[existingEntryIndex] = logEntry;
-                } else {
-                    currentWorkoutSummaryData.push(logEntry);
-                }
-                card.dataset.completionState = overallCompletionState;
-                const mainKgInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Peso"]');
-                const mainRepsInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Repeticiones"]');
-                if (mainKgInput) mainKgInput.value = heaviestSet.kg;
-                if (mainRepsInput && !isTimeBased(mainRepsInput.placeholder)) mainRepsInput.value = heaviestSet.reps;
-                hasUnsavedFullLogChanges = false;
-                toggleExerciseCardView(cardId);
-                updateAllExerciseCardInputStates();
-            }
-        }
-        
-        function logSingleSetAndStartRest(button, cardId, setNumber) {
-            if (!isWorkoutInProgress) {
-                showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            const isTimeBasedExercise = card.dataset.isTimeBased === "true";
+
+            if (isTimeBasedExercise) {
+                // If it's a time-based exercise, start the timer sequence instead of logging
+                handleTimeBasedRepsClick(null, cardId);
                 return;
             }
-            const setRow = button.closest('.set-data-row');
-            if (!setRow) return;
-            const kgInput = setRow.querySelector('input[aria-label*="Peso"]');
-            const repsInput = setRow.querySelector('input[aria-label*="Repeticiones"]');
+
+            const kgInput = card.querySelector('.quick-mode-body input[aria-label*="Peso"]');
+            const repsInput = card.querySelector('.quick-mode-body input[aria-label*="Repeticiones"]');
             const kg = kgInput.value.trim();
             const reps = repsInput.value.trim();
+            
             if (kg === '' || reps === '') {
-                showCustomAlert("Por favor, introduce el peso y las repeticiones para esta serie.", "warning");
+                showCustomAlert("Por favor, introduce el peso y las repeticiones.", "warning");
                 return;
             }
-            const card = document.getElementById(cardId);
-            if (!card) return;
+            
+            // Brief visual feedback for the button
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check-circle"></i>';
+            setTimeout(() => {
+                button.innerHTML = originalIcon;
+            }, 500);
+
             const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const targetReps = Array.isArray(exerciseData.reps) ? exerciseData.reps[setNumber - 1] : exerciseData.reps;
-            const completionState = getRepCompletionState(reps, targetReps);
-            kgInput.readOnly = true;
-            kgInput.disabled = true;
-            repsInput.readOnly = true;
-            repsInput.disabled = true;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-check-double"></i>';
-            button.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
-            repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-            if (completionState === 'good') repsInput.classList.add('history-reps-good');
-            else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
+            const totalSets = parseInt(card.dataset.totalSets, 10);
+            
+            // Find or create the log entry for this exercise
             let logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseData.name);
             if (!logEntry) {
                 logEntry = {
@@ -2342,13 +2503,16 @@
                 };
                 currentWorkoutSummaryData.push(logEntry);
             }
-            const existingSetIndex = logEntry.setsPerformed.findIndex(s => s.serie === setNumber);
-            if (existingSetIndex > -1) {
-                logEntry.setsPerformed[existingSetIndex] = { serie: setNumber, kg, reps, completionState };
-            } else {
-                logEntry.setsPerformed.push({ serie: setNumber, kg, reps, completionState });
-                logEntry.setsPerformed.sort((a, b) => a.serie - b.serie);
-            }
+            
+            // Determine the current set number
+            const currentSetNumber = logEntry.setsPerformed.length + 1;
+            const targetReps = isTimeBasedExercise ? exerciseData.reps : (Array.isArray(exerciseData.reps) ? exerciseData.reps[currentSetNumber - 1] : exerciseData.reps);
+            const completionState = getRepCompletionState(reps, targetReps);
+            
+            // Add the new set to the log
+            logEntry.setsPerformed.push({ serie: currentSetNumber, kg: kg || '0', reps: reps || '0', completionState });
+            
+            // Update the overall completion state for the exercise
             let overallCompletion = 'good';
             for (const s of logEntry.setsPerformed) {
                 if (s.completionState === 'bad') {
@@ -2360,24 +2524,30 @@
             }
             logEntry.completionState = overallCompletion;
             card.dataset.completionState = overallCompletion;
-            let heaviestSet = { kg: '0', reps: '0' };
-            logEntry.setsPerformed.forEach(s => {
-                if (parseFloat(s.kg) > parseFloat(heaviestSet.kg)) heaviestSet = { kg: s.kg, reps: s.reps };
-            });
-            const mainKgInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Peso"]');
-            const mainRepsInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Repeticiones"]');
-            if (mainKgInput) mainKgInput.value = heaviestSet.kg;
-            if (mainRepsInput && !isTimeBased(mainRepsInput.placeholder)) mainRepsInput.value = heaviestSet.reps;
-            hasUnsavedFullLogChanges = true;
-            const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
-            if (restDurationMatch) {
-                const restSeconds = parseInt(restDurationMatch[1], 10);
-                if (restSeconds > 0) {
-                    const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                    const currentCardElement = document.getElementById(cardId);
-                    const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextExerciseForRest = null;
-                    if (currentCardIndex !== -1) {
+
+            // Check if all sets are completed
+            if (logEntry.setsPerformed.length >= totalSets) {
+                // Finalize the exercise
+                showCustomAlert("¡Ejercicio completado!", "info");
+            } else {
+                // NEW: Get next set data from last logged sets
+                const lastSets = lastLoggedSets[exerciseData.name] || [];
+                const nextSetData = lastSets.find(s => s.serie === currentSetNumber + 1) || { kg: '', reps: '' };
+                
+                // Update inputs with next set's data
+                kgInput.value = nextSetData.kg;
+                repsInput.value = nextSetData.reps;
+                
+                showCustomAlert(`Serie ${currentSetNumber} registrada. ¡Vamos a por la siguiente!`, "info");
+
+                // Start rest timer
+                const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
+                if (restDurationMatch) {
+                    const restSeconds = parseInt(restDurationMatch[1], 10);
+                    if (restSeconds > 0) {
+                        const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
+                        const currentCardElement = document.getElementById(cardId);
+                        const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
                         let nextCard = null;
                         for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
                             if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
@@ -2398,87 +2568,7 @@
                                 kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
                             };
                         }
-                    }
-                    startRestTimer(restSeconds, nextExerciseForRest);
-                }
-            }
-            updateAllExerciseCardInputStates();
-        }
-
-        function logQuickModeSetFromCard(button, cardId) {
-            if (!isWorkoutInProgress) {
-                showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
-                return;
-            }
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const kgInput = card.querySelector('.quick-view-body input[aria-label*="Peso"]');
-            const repsInput = card.querySelector('.quick-view-body input[aria-label*="Repeticiones"]');
-            const kg = kgInput.value.trim();
-            const reps = repsInput.value.trim();
-            if (kg === '' || reps === '') {
-                showCustomAlert("Por favor, introduce el peso y las repeticiones.", "warning");
-                return;
-            }
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const exerciseName = exerciseData.name;
-            const targetReps = exerciseData.reps;
-            const completionState = getRepCompletionState(reps, targetReps);
-            const setsData = [{ serie: 1, kg: kg || '0', reps: reps || '0', completionState, isQuickMode: true }];
-            const logEntry = {
-                exerciseName,
-                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                rawDate: new Date().toISOString(),
-                dayKey: card.dataset.dayKey,
-                setsPerformed: setsData,
-                completionState: completionState
-            };
-            const existingEntryIndex = currentWorkoutSummaryData.findIndex(e => e.exerciseName === exerciseName);
-            if (existingEntryIndex > -1) {
-                currentWorkoutSummaryData[existingEntryIndex] = logEntry;
-            } else {
-                currentWorkoutSummaryData.push(logEntry);
-            }
-            card.dataset.completionState = completionState;
-            kgInput.readOnly = true;
-            kgInput.disabled = true;
-            repsInput.readOnly = true;
-            repsInput.disabled = true;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-check-double text-xl"></i>';
-            button.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
-            repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-            if (completionState === 'good') repsInput.classList.add('history-reps-good');
-            else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
-            showCustomAlert("¡Set registrado con éxito!", "info");
-            const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
-            if (restDurationMatch) {
-                const restSeconds = parseInt(restDurationMatch[1], 10);
-                if (restSeconds > 0) {
-                    const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                    const currentCardElement = document.getElementById(cardId);
-                    const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextCard = null;
-                    for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                        if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                            nextCard = allExerciseCards[i];
-                            break;
-                        } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                            const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                            if (firstSubExercise) {
-                                nextCard = firstSubExercise;
-                                break;
-                            }
-                        }
-                    }
-                    if (nextCard) {
-                        nextExerciseForRest = {
-                            name: nextCard.dataset.currentName,
-                            reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                        };
+                        startRestTimer(restSeconds, nextExerciseForRest);
                     }
                 }
             }
@@ -2720,7 +2810,7 @@
 
         // MODIFIED: Circuit timer logic
         function startCircuit(dayKey, mainOrder) {
-            const circuitBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.circuitDetails);
+            const circuitBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.isCircuit);
             if (!circuitBlock || !circuitBlock.circuitDetails || !circuitBlock.items) {
                 showCustomAlert("Datos de Circuito no encontrados.", "error"); return;
             }
@@ -2923,7 +3013,7 @@
             if (modalTitleEl) modalTitleEl.textContent = 'PREPÁRATE';
             if (stateLabelEl) {
                 stateLabelEl.textContent = 'CUENTA ATRÁS';
-                stateLabelEl.className = 'state-label countdown';
+                stateLabelA.className = 'state-label countdown';
             }
             
             if (type === 'work' && currentTimedExerciseCardId) {
@@ -3004,6 +3094,7 @@
             }
         }
 
+        // MODIFIED: handleTimeBasedRepsClick is now triggered by the check button
         function handleTimeBasedRepsClick(inputElement, cardId) {
             if (!isWorkoutInProgress) {
                 showCustomAlert("Inicia el entrenamiento primero para usar el cronómetro.", "warning");
@@ -3011,6 +3102,14 @@
             }
             const card = document.getElementById(cardId);
             if (!card) return;
+            const isTimeBasedExercise = card.dataset.isTimeBased === "true";
+
+            // ADDED: Check to ensure it's a time-based exercise before starting the timer flow.
+            if (!isTimeBasedExercise) {
+                // This case should not be reached with the new logic, but is a good safeguard.
+                return;
+            }
+
             if (currentTimedExerciseCardId === cardId && workTimerInterval !== null) {
                 showCustomAlert("El cronómetro para este ejercicio ya está activo.", "info");
                 return;
@@ -3032,7 +3131,7 @@
             currentTimedExerciseSetNumber = 1;
             totalSetsForCurrentTimedExercise = totalSets;
             timedExerciseSetsLogged = [];
-            const registerBtn = card.querySelector('.quick-view-body .quick-mode-register-button');
+            const registerBtn = card.querySelector('.quick-mode-register-button-small');
             if (registerBtn) {
                 registerBtn.disabled = true;
                 registerBtn.innerHTML = '<i class="fas fa-hourglass-half text-xl"></i>';
@@ -3221,8 +3320,6 @@
                 }
                 const mainDataText = await mainResponse.text();
 
-                // REMOVED: Old logic for extracting datosCliente from the JS file
-                
                 // Extract workout data
                 const workoutDataRegex = /const workoutData = ({[\s\S]*?});/;
                 const workoutDataMatch = mainDataText.match(workoutDataRegex);
@@ -3345,6 +3442,7 @@
                 individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary" && log.exercise_name !== "Extra Activity");
                 workoutSessionSummaries = data.filter(log => log.exercise_name === "Workout Session Summary");
                 extraActivities = data.filter(log => log.exercise_name === "Extra Activity");
+                allHistoryItems = [...workoutSessionSummaries, ...extraActivities];
                 console.log("Individual Exercise Logs loaded:", individualExerciseLogs);
                 console.log("Workout Session Summaries loaded:", workoutSessionSummaries);
                 console.log("Extra Activities loaded:", extraActivities);
@@ -3453,6 +3551,41 @@
             }); 
             previewHtml += `</ul><button onclick="startQuickMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`; 
             workoutPreviewContainer.innerHTML = previewHtml; 
+        }
+        
+        // NEW: Function to open the new exercise settings modal
+        function openExerciseSettingsModal(cardId) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            const exerciseName = card.dataset.currentName;
+            const primordialData = JSON.parse(card.dataset.primordialExerciseData || '{}');
+            const isSwapped = card.dataset.isSwapped === "true";
+            
+            let buttonsHtml = '';
+            
+            // Revert button if it's a swapped exercise
+            if (isSwapped) {
+                buttonsHtml += `<button onclick="performExerciseSwap('${cardId}', ${JSON.stringify(primordialData).replace(/"/g, "'")}); closeModalElement(exerciseSettingsModal);" class="settings-modal-button revert"><i class="fas fa-undo"></i>Volver a ${primordialData.name}</button>`;
+            }
+            
+            // History button
+            const escapedName = exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            buttonsHtml += `<button onclick="closeModalElement(exerciseSettingsModal); viewExerciseHistoryFromLog('${escapedName}')" class="settings-modal-button"><i class="fas fa-chart-line"></i>Histórico</button>`;
+            
+            // Warmup button
+            const isSubItem = card.dataset.subOrder !== '';
+            if (!isSubItem) {
+                buttonsHtml += `<button onclick="closeModalElement(exerciseSettingsModal); openWarmupModal()" class="settings-modal-button"><i class="fas fa-fire"></i>Calculadora de Calentamiento</button>`;
+            }
+            
+            // Swap button
+            const alternatives = exerciseAlternatives[primordialData.name] || [];
+            if (alternatives.length > 0 || isSwapped) {
+                buttonsHtml += `<button onclick="closeModalElement(exerciseSettingsModal); openSwapExerciseModal('${cardId}')" class="settings-modal-button"><i class="fas fa-exchange-alt"></i>Cambiar Ejercicio</button>`;
+            }
+            
+            exerciseSettingsContent.innerHTML = buttonsHtml;
+            openModal(exerciseSettingsModal);
         }
 
         // NEW: Function to set up the extras form modal
