@@ -2234,33 +2234,43 @@
                 
                 // Show/hide the summary and current inputs based on progress
                 if (loggedSetsCount > 0) {
-                    setSummaryContainer.style.display = 'block';
-                    const summaryList = setSummaryContainer.querySelector('.set-summary-list');
-                    summaryList.innerHTML = logEntry.setsPerformed.map(set => {
-                        const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
-                        const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
-                        return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
-                    }).join('');
+                    if(setSummaryContainer) {
+                        setSummaryContainer.style.display = 'block';
+                        const summaryList = setSummaryContainer.querySelector('.set-summary-list');
+                        if (summaryList) {
+                            summaryList.innerHTML = logEntry.setsPerformed.map(set => {
+                                const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
+                                const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
+                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
+                            }).join('');
+                        }
+                    }
                 } else {
-                    setSummaryContainer.style.display = 'none';
+                    if(setSummaryContainer) {
+                        setSummaryContainer.style.display = 'none';
+                    }
                 }
 
                 if (isFinalized) {
-                    currentSetInputsContainer.style.display = 'none';
+                    if(currentSetInputsContainer) {
+                        currentSetInputsContainer.style.display = 'none';
+                    }
                 } else {
-                    currentSetInputsContainer.style.display = 'flex';
-                    // Re-enable all inputs and button for the current set
-                    const kgInput = currentSetInputsContainer.querySelector('input[aria-label*="Peso"]');
-                    const repsInput = currentSetInputsContainer.querySelector('input[aria-label*="Repeticiones"]');
-                    const registerBtn = currentSetInputsContainer.querySelector('.quick-mode-register-button-small');
-                    kgInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
-                    repsInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
-                    registerBtn.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                    if(currentSetInputsContainer) {
+                        currentSetInputsContainer.style.display = 'flex';
+                        // Re-enable all inputs and button for the current set
+                        const kgInput = currentSetInputsContainer.querySelector('input[aria-label*="Peso"]');
+                        const repsInput = currentSetInputsContainer.querySelector('input[aria-label*="Repeticiones"]');
+                        const registerBtn = currentSetInputsContainer.querySelector('.quick-mode-register-button-small');
+                        if(kgInput) kgInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                        if(repsInput) repsInput.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                        if(registerBtn) registerBtn.disabled = !isWorkoutInProgress || isTimerActiveForThisCard;
+                    }
                 }
                 
                 // Update the overall card state based on completion
                 card.classList.remove('completed-good', 'completed-bad');
-                if (isFinalized && logEntry.completionState && logEntry.completionState !== 'neutral') {
+                if (isFinalized && logEntry && logEntry.completionState && logEntry.completionState !== 'neutral') {
                     card.classList.add(`completed-${logEntry.completionState}`);
                 }
 
@@ -3006,7 +3016,9 @@
             if (modalTitleEl) modalTitleEl.textContent = 'PREPÁRATE';
             if (stateLabelEl) {
                 stateLabelEl.textContent = 'CUENTA ATRÁS';
-                stateLabelA.className = 'state-label countdown';
+                const stateClass = stateLabelEl.classList;
+                stateClass.remove('work', 'rest');
+                stateClass.add('countdown');
             }
             
             if (type === 'work' && currentTimedExerciseCardId) {
