@@ -1765,7 +1765,7 @@
         }
 
         if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            historyFilterSelect.value = 'weekly';
+            // MODIFIED: Simplified to only show weekly view
             renderHistoryView('weekly');
             openModal(mainHistoryModal); 
         });
@@ -1773,14 +1773,7 @@
         if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
         if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
         
-        // NEW: History filter element
-        const historyFilterSelect = document.getElementById('historyFilterSelect');
-        if (historyFilterSelect) {
-            // MODIFIED: Removed event listener as the dropdown is now hidden
-            // historyFilterSelect.addEventListener('change', (event) => {
-            //     renderHistoryView(event.target.value);
-            // });
-        }
+        // MODIFIED: History filter element removed
         
         // MODIFIED: The history view only has one option now: weekly
         function renderHistoryView(viewType) {
@@ -2285,7 +2278,7 @@
                         const kgInput = card.querySelector('input[aria-label*="Peso"]');
                         const repsInput = card.querySelector('input[aria-label*="Repeticiones"]');
                         if (kgInput) kgInput.value = nextSetData.kg;
-                        if (repsInput) repsInput.value = nextSetData.reps;
+                        if (repsInput && !isTimeBasedExercise) repsInput.value = nextSetData.reps;
                     }
                 }
             });
@@ -3310,7 +3303,15 @@
         // MODIFIED: This function now dynamically builds the URL for the workout data and reads client config.
         async function initializeWorkoutApp() {
             try {
-                // Dynamically construct the workout data URL from the user identifier in the page URL.
+                // MODIFIED: Added check for userIdentifier before fetching
+                if (!userIdentifier || userIdentifier === "default-user-id") {
+                    console.warn("User identifier is missing or default. Not fetching user-specific data.");
+                    const previewContainer = document.getElementById('workoutPreviewContainer');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = `<p class="text-center text-red-500 font-semibold">Error al cargar la rutina. Asegúrate de que el usuario en la URL ('${userIdentifier}') es correcto y tiene un plan asignado.</p>`;
+                    }
+                    return;
+                }
                 const workoutDataUrl = `https://raw.githubusercontent.com/hombresenforma/ivan-data/main/${userIdentifier || 'default-user'}.js`;
                 console.log(`Fetching workout data from: ${workoutDataUrl}`);
 
