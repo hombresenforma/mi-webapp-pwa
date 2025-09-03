@@ -596,6 +596,9 @@
             align-items: center;
             justify-content: center;
         }
+        .quick-mode-register-button-small i {
+            font-size: 1.1rem;
+        }
         .quick-mode-register-button-small:hover:not(:disabled) {
             background-color: #eab308;
         }
@@ -790,8 +793,8 @@
         #warmupModal { z-index: 67; }
         #extrasModal { z-index: 62; }
         #mainHistoryModal { z-index: 55; }
-        #detailedHistoryModal { z-index: 80; } /* MODIFIED: Increased z-index to be on top */
-        #fullWorkoutLogModal { z-index: 78; } /* MODIFIED: Increased z-index to be on top */
+        #detailedHistoryModal { z-index: 57; }
+        #fullWorkoutLogModal { z-index: 58; }
         #workoutSummaryModal { z-index: 95; }
         #shareModal { z-index: 98; }
         #newRecordModal { z-index: 99; }
@@ -898,7 +901,7 @@
     </div>
 
     <!-- Detailed Exercise History Modal (for individual exercise history) -->
-    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 80;">
+    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 57;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             
             <!-- View 1: List View -->
@@ -921,8 +924,6 @@
                  <div class="flex justify-between items-center mb-4">
                     <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
                     <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-right truncate"></h3>
-                    <!-- MODIFIED: Added a close button for the detail view -->
-                    <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">×</button>
                 </div>
                 <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
                     <!-- Historical 1RM will be injected here -->
@@ -937,7 +938,7 @@
     </div>
 
     <!-- Full Workout Log Modal -->
-    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 78;">
+    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 58;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="fullWorkoutLogTitle" class="text-lg sm:text-xl font-semibold text-yellow-400"></h3>
@@ -1648,7 +1649,7 @@
         function openVideoLink(videoUrl) { if (videoUrl) { window.open(videoUrl, '_blank'); } }
         function calculateEpley1RM(weight, reps) { if (reps == 0 || weight == 0) return 0; if (reps == 1) return parseFloat(weight); return parseFloat(weight) * (1 + (parseFloat(reps) / 30)); }
         function isTimeBased(repsString) { return typeof repsString === 'string' && repsString.endsWith('s'); }
-        function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific_list', reps }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
+        function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific', target: Math.min(...reps) }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
         function getRepCompletionState(performedReps, targetRepsString) { 
             if (isTimeBased(targetRepsString)) {
                 return 'good';
@@ -1665,9 +1666,6 @@
                     if (performed >= parsedTarget.target) return 'good'; 
                     if (performed <= parsedTarget.target - 3) return 'bad'; 
                     return 'neutral'; 
-                case 'specific_list':
-                    // We don't have a specific target for this, so we assume a good state if a number is entered
-                    return 'good';
                 default: return 'neutral'; 
             } 
         }
@@ -1688,16 +1686,11 @@
             return historyForExercise.length > 0 ? historyForExercise[0] : null;
         }
 
-        // MODIFIED: openExerciseHistoryExplorer to set a higher z-index for the modal
         function openExerciseHistoryExplorer() {
             showExerciseListView();
             historySearchInput.value = '';
             handleExerciseHistorySearch();
             openModal(detailedHistoryModal);
-            // Ensure the modal is on top
-            detailedHistoryModal.style.zIndex = '90'; 
-            // Also need to adjust the z-index of the parent modal if it's open
-            mainHistoryModal.style.zIndex = '80';
         }
 
         function showExerciseListView() {
@@ -2238,7 +2231,9 @@
                 const isFinalized = loggedSetsCount >= totalSets;
                 const isTimeBasedExercise = card.dataset.isTimeBased === "true";
                 const isTimerActiveForThisCard = isTimeBasedExercise && currentTimedExerciseCardId === card.id && workTimerInterval !== null;
+                const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
                 
+                // NEW: Find the new set summary container
                 const setSummaryContainer = card.querySelector(`#setSummary-${card.id}`);
                 const currentSetInputsContainer = card.querySelector(`#currentSetInputs-${card.id}`);
                 
@@ -2298,13 +2293,7 @@
                         const kgInput = card.querySelector('input[aria-label*="Peso"]');
                         const repsInput = card.querySelector('input[aria-label*="Repeticiones"]');
                         if (kgInput) kgInput.value = nextSetData.kg;
-                        if (repsInput) {
-                            // MODIFIED: Logic to handle comma-separated rep targets
-                            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-                            const nextRepsValue = getNextRepsValue(exerciseData.reps, nextSetNumber);
-                            repsInput.value = nextSetData.reps || '';
-                            repsInput.placeholder = nextRepsValue;
-                        }
+                        if (repsInput && !isTimeBasedExercise) repsInput.value = nextSetData.reps;
                     }
                 }
             });
@@ -2369,19 +2358,11 @@
             // NEW: Get last logged sets and pre-fill for the first set
             const lastSets = lastLoggedSets[exerciseInput.name] || [];
             const firstSetData = lastSets.find(s => s.serie === 1) || { kg: '', reps: '' };
-            // MODIFIED: Get the correct rep value for the first set based on the comma-separated list
-            let initialRepsValue = firstSetData.reps;
-            const parsedReps = parseRepRange(exerciseInput.reps);
-            if (parsedReps.type === 'specific_list' && parsedReps.reps.length > 0) {
-                initialRepsValue = parsedReps.reps[0];
-            } else if (parsedReps.type === 'range' || parsedReps.type === 'specific') {
-                initialRepsValue = firstSetData.reps || '';
-            }
-            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (initialRepsValue || exerciseInput.reps || 'Reps');
+            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (firstSetData.reps || exerciseInput.reps || 'Reps');
             const kgPlaceholder = firstSetData.kg || 'Kg';
             const repsInputHtml = isTimeBasedExercise ? 
                 `<button class="quick-mode-input" onclick="handleTimeBasedRepsClick(this, '${cardId}')">${repsPlaceholder}</button>` :
-                `<input type="tel" value="${initialRepsValue}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
+                `<input type="tel" value="${firstSetData.reps}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
             const kgInputHtml = `<input type="tel" value="${firstSetData.kg}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
 
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
@@ -2499,14 +2480,6 @@
 
             const kgInput = card.querySelector('.quick-mode-body input[aria-label*="Peso"]');
             const repsInput = card.querySelector('.quick-mode-body input[aria-label*="Repeticiones"]');
-
-            // NEW: Added null checks for kgInput and repsInput
-            if (!kgInput || !repsInput) {
-                console.error("Inputs not found for card:", cardId);
-                showCustomAlert("Error: Campos de entrada no encontrados. Intenta reiniciar el entrenamiento.", "error");
-                return;
-            }
-
             const kg = kgInput.value.trim();
             const reps = repsInput.value.trim();
             
@@ -2566,17 +2539,13 @@
                 // Finalize the exercise
                 showCustomAlert("¡Ejercicio completado!", "info");
             } else {
-                // NEW: Get next set data and update inputs
-                const nextSetNumber = logEntry.setsPerformed.length + 1;
+                // NEW: Get next set data from last logged sets
                 const lastSets = lastLoggedSets[exerciseData.name] || [];
-                const nextSetData = lastSets.find(s => s.serie === nextSetNumber) || { kg: '', reps: '' };
-                const nextRepsPlaceholder = getNextRepsPlaceholder(exerciseData.reps, nextSetNumber);
-
-                if(kgInput) kgInput.value = nextSetData.kg;
-                if(repsInput) {
-                    repsInput.value = nextSetData.reps || '';
-                    repsInput.placeholder = nextRepsPlaceholder;
-                }
+                const nextSetData = lastSets.find(s => s.serie === currentSetNumber + 1) || { kg: '', reps: '' };
+                
+                // Update inputs with next set's data
+                kgInput.value = nextSetData.kg;
+                repsInput.value = nextSetData.reps;
                 
                 showCustomAlert(`Serie ${currentSetNumber} registrada. ¡Vamos a por la siguiente!`, "info");
 
@@ -2613,18 +2582,6 @@
                 }
             }
             updateAllExerciseCardInputStates();
-        }
-
-        // NEW: Helper function to get the correct reps value for the next set
-        function getNextRepsPlaceholder(repsString, nextSetNumber) {
-            const parsedReps = parseRepRange(repsString);
-            if (parsedReps.type === 'specific_list' && parsedReps.reps.length >= nextSetNumber) {
-                return parsedReps.reps[nextSetNumber - 1];
-            }
-            if (parsedReps.type === 'specific') {
-                return parsedReps.target;
-            }
-            return 'Reps'; // Default placeholder
         }
 
         function openWorkoutSummaryModal() {
