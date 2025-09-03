@@ -596,9 +596,6 @@
             align-items: center;
             justify-content: center;
         }
-        .quick-mode-register-button-small i {
-            font-size: 1.1rem;
-        }
         .quick-mode-register-button-small:hover:not(:disabled) {
             background-color: #eab308;
         }
@@ -793,8 +790,8 @@
         #warmupModal { z-index: 67; }
         #extrasModal { z-index: 62; }
         #mainHistoryModal { z-index: 55; }
-        #detailedHistoryModal { z-index: 57; }
-        #fullWorkoutLogModal { z-index: 58; }
+        #detailedHistoryModal { z-index: 80; } /* MODIFIED: Increased z-index to be on top */
+        #fullWorkoutLogModal { z-index: 78; } /* MODIFIED: Increased z-index to be on top */
         #workoutSummaryModal { z-index: 95; }
         #shareModal { z-index: 98; }
         #newRecordModal { z-index: 99; }
@@ -901,7 +898,7 @@
     </div>
 
     <!-- Detailed Exercise History Modal (for individual exercise history) -->
-    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 57;">
+    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 80;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             
             <!-- View 1: List View -->
@@ -924,6 +921,8 @@
                  <div class="flex justify-between items-center mb-4">
                     <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
                     <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-right truncate"></h3>
+                    <!-- MODIFIED: Added a close button for the detail view -->
+                    <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">×</button>
                 </div>
                 <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
                     <!-- Historical 1RM will be injected here -->
@@ -938,7 +937,7 @@
     </div>
 
     <!-- Full Workout Log Modal -->
-    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 58;">
+    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 opacity-0 pointer-events-none" style="z-index: 78;">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="fullWorkoutLogTitle" class="text-lg sm:text-xl font-semibold text-yellow-400"></h3>
@@ -1686,11 +1685,16 @@
             return historyForExercise.length > 0 ? historyForExercise[0] : null;
         }
 
+        // MODIFIED: openExerciseHistoryExplorer to set a higher z-index for the modal
         function openExerciseHistoryExplorer() {
             showExerciseListView();
             historySearchInput.value = '';
             handleExerciseHistorySearch();
             openModal(detailedHistoryModal);
+            // Ensure the modal is on top
+            detailedHistoryModal.style.zIndex = '90'; 
+            // Also need to adjust the z-index of the parent modal if it's open
+            mainHistoryModal.style.zIndex = '80';
         }
 
         function showExerciseListView() {
@@ -2231,9 +2235,7 @@
                 const isFinalized = loggedSetsCount >= totalSets;
                 const isTimeBasedExercise = card.dataset.isTimeBased === "true";
                 const isTimerActiveForThisCard = isTimeBasedExercise && currentTimedExerciseCardId === card.id && workTimerInterval !== null;
-                const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
                 
-                // NEW: Find the new set summary container
                 const setSummaryContainer = card.querySelector(`#setSummary-${card.id}`);
                 const currentSetInputsContainer = card.querySelector(`#currentSetInputs-${card.id}`);
                 
@@ -2480,6 +2482,14 @@
 
             const kgInput = card.querySelector('.quick-mode-body input[aria-label*="Peso"]');
             const repsInput = card.querySelector('.quick-mode-body input[aria-label*="Repeticiones"]');
+
+            // NEW: Added null checks for kgInput and repsInput
+            if (!kgInput || !repsInput) {
+                console.error("Inputs not found for card:", cardId);
+                showCustomAlert("Error: Campos de entrada no encontrados. Intenta reiniciar el entrenamiento.", "error");
+                return;
+            }
+
             const kg = kgInput.value.trim();
             const reps = repsInput.value.trim();
             
@@ -2544,8 +2554,8 @@
                 const nextSetData = lastSets.find(s => s.serie === currentSetNumber + 1) || { kg: '', reps: '' };
                 
                 // Update inputs with next set's data
-                kgInput.value = nextSetData.kg;
-                repsInput.value = nextSetData.reps;
+                if(kgInput) kgInput.value = nextSetData.kg;
+                if(repsInput) repsInput.value = nextSetData.reps;
                 
                 showCustomAlert(`Serie ${currentSetNumber} registrada. ¡Vamos a por la siguiente!`, "info");
 
