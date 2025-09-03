@@ -567,7 +567,12 @@
         }
         #extrasFormModal .custom-file-input:hover {
             background-color: #4a5568;
-            border-color: #facc15;
+        }
+        #extrasFormModal .file-name {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #9ca3af;
         }
         
         /* NEW: Styles for the streamlined quick mode body */
@@ -2357,7 +2362,8 @@
             const kgPlaceholder = firstSetData.kg || 'Kg';
             const repsInputHtml = isTimeBasedExercise ? 
                 `<button class="quick-mode-input" onclick="handleTimeBasedRepsClick(this, '${cardId}')">${repsPlaceholder}</button>` :
-                `<input type="number" value="${firstSetData.reps}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}">`;
+                `<input type="tel" value="${firstSetData.reps}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
+            const kgInputHtml = `<input type="tel" value="${firstSetData.kg}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
 
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
             
@@ -2404,7 +2410,7 @@
                 </div> 
                 <div id="currentSetInputs-${cardId}">
                     <div id="quickViewBody-${cardId}" class="quick-mode-body"> 
-                        <input type="number" value="${firstSetData.kg}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
+                        ${kgInputHtml}
                         ${repsInputHtml}
                         <button class="quick-mode-register-button-small" onclick="logSingleSetAndStartRest(this, '${cardId}')" aria-label="Registrar set"> 
                             <i class="fas fa-check"></i> 
