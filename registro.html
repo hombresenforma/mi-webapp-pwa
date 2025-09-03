@@ -64,7 +64,7 @@
             max-width: 800px; /* Increased max-width for side-by-side view */
         }
         /* Specific modal widths for smaller modals */
-        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content {
+        #bodyRecordModal .modal-content, #weekdayNoticeModal .modal-content, #photoReminderModal .modal-content {
             width: 95%;
             max-width: 450px;
         }
@@ -254,6 +254,22 @@
         </div>
     </div>
 
+    <!-- Photo Reminder Modal -->
+    <div id="photoReminderModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">¡Importante!</h3>
+            <p class="text-gray-300 mb-6">Asegúrate de haberte tomado las fotos de progreso antes de continuar. Puedes subir hasta 3 fotos por registro.</p>
+            <div class="flex flex-col space-y-3">
+                <button id="accessRecordButton" class="action-button w-full font-semibold py-2.5 px-4 rounded-lg shadow-md">
+                    <i class="fas fa-camera-retro mr-2"></i>Hecho, acceder al registro
+                </button>
+                <button onclick="closeModalElement(document.getElementById('photoReminderModal'))" class="bg-gray-600 hover:bg-gray-700 text-white w-full py-2.5 px-4 rounded-lg font-semibold transition-colors">
+                    <i class="fas fa-times-circle mr-2"></i>Atrás
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Body Record Modal -->
     <div id="bodyRecordModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-lg transform scale-95 overflow-y-auto">
@@ -411,8 +427,8 @@
         // --- UTILITY FUNCTIONS (SHARED) ---
         function openModal(modalElement) {
             if (!modalElement) return;
-            modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
-            modalElement.classList.add('opacity-100');
+            modalElement.classList.remove('opacity-0', 'pointer-events-none');
+            modalElement.classList.add('opacity-100', 'pointer-events-auto');
             const content = modalElement.querySelector('.modal-content, .relative');
             if (content) {
                 content.classList.remove('scale-95');
@@ -429,11 +445,6 @@
             }
             modalElement.classList.remove('opacity-100', 'pointer-events-auto');
             modalElement.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                if (!modalElement.classList.contains('opacity-100')) {
-                    modalElement.classList.add('hidden');
-                }
-            }, 300);
         }
         
         function openPhotoPreview(imageUrl) {
@@ -634,6 +645,8 @@
             const photoPreviewsContainer = document.getElementById('photoPreviewsContainer');
             let addBodyRecordButton = document.getElementById('addBodyRecordButton');
             const bodyRecordModal = document.getElementById('bodyRecordModal');
+            const photoReminderModal = document.getElementById('photoReminderModal');
+            const accessRecordButton = document.getElementById('accessRecordButton');
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
             const recordConfirmationModal = document.getElementById('recordConfirmationModal');
@@ -667,8 +680,13 @@
                 addBodyRecordButton.addEventListener('click', (e) => { e.preventDefault(); showWeekdayNotice(); });
             } else {
                 addBodyRecordButton.classList.remove('button-disabled');
-                addBodyRecordButton.addEventListener('click', () => openModal(bodyRecordModal));
+                addBodyRecordButton.addEventListener('click', () => openModal(photoReminderModal));
             }
+            
+            accessRecordButton.addEventListener('click', () => {
+                closeModalElement(photoReminderModal);
+                openModal(bodyRecordModal);
+            });
 
             comparePhotosButton.addEventListener('click', openPhotoComparator);
             
