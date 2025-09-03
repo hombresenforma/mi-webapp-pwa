@@ -71,6 +71,7 @@
 
         /* --- BODY RECORD SECTION STYLES --- */
         .input-field { background-color: #374151; border: 1px solid #4b5563; color: #e5e7eb; border-radius: 0.375rem; padding: 0.5rem 0.75rem; width: 100%; }
+        .input-field.input-error { border-color: #ef4444; border-width: 2px; }
         .input-field::placeholder { color: #9ca3af; }
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .action-button { background-color: #facc15; color: #1f2937; transition: background-color 0.2s ease-in-out; }
@@ -279,7 +280,7 @@
                 
                 <div>
                     <label for="recordPhotos" class="block text-sm font-medium text-gray-300 mb-1">Fotos (hasta 3, opcional):</label>
-                    <input type="file" id="recordPhotos" name="recordPhotos" class="input-field file-input-styled" accept="image/*" multiple>
+                    <input type="file" id="recordPhotos" name="recordPhotos" class="input-field file-input-styled" accept="image/*, .heic, .heif" multiple>
                     <div id="photoPreviewsContainer" class="mt-3 grid grid-cols-3 gap-2"></div>
                 </div>
 
@@ -287,6 +288,22 @@
                     <i class="fas fa-save mr-2"></i>Guardar Registro
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Record Confirmation Modal -->
+    <div id="recordConfirmationModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm text-center transform scale-95">
+            <h3 class="text-xl font-semibold text-yellow-400 mb-4">¡Registro Guardado con Éxito!</h3>
+            <p class="text-gray-300 mb-6">Tus datos han sido registrados. ¿Deseas completar el cuestionario?</p>
+            <div class="flex flex-col space-y-3">
+                <button id="completeQuestionnaireButton" class="action-button py-2.5 px-4 rounded-md font-semibold">
+                    <i class="fas fa-edit mr-2"></i>Completar Cuestionario
+                </button>
+                <button id="exitWithoutQuestionnaireButton" class="bg-gray-600 hover:bg-gray-700 text-white py-2.5 px-4 rounded-md font-semibold transition-colors">
+                    <i class="fas fa-times mr-2"></i>Salir sin Cuestionario
+                </button>
+            </div>
         </div>
     </div>
 
@@ -357,11 +374,11 @@
                 { id: 'cadera', label: 'Cadera', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: true, active: true },
                 { id: 'biceps', label: 'Bíceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
                 { id: 'cuadriceps', label: 'Cuádriceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false },
-                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 1, chartable: true, fixed: false, active: false }
+                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false }
             ]
         };
 
@@ -549,6 +566,20 @@
             // Fallback for any other unexpected value
             return false;
         }
+        
+        // Función de validación para los campos de input
+        function validateInput(element) {
+            const value = element.value.trim();
+            const isRequired = element.required;
+            const isNumber = !isNaN(parseFloat(value)) && isFinite(value);
+            const isValid = (isRequired && value !== '' && isNumber) || (!isRequired && (value === '' || isNumber));
+
+            if (!isValid) {
+                element.classList.add('input-error');
+            } else {
+                element.classList.remove('input-error');
+            }
+        }
 
         // #############################################################
         // #                   BODY RECORD APP LOGIC                   #
@@ -605,6 +636,9 @@
             const bodyRecordModal = document.getElementById('bodyRecordModal');
             const comparePhotosButton = document.getElementById('comparePhotosButton');
             const chartMetricTogglesContainer = document.getElementById('chartMetricToggles');
+            const recordConfirmationModal = document.getElementById('recordConfirmationModal');
+            const completeQuestionnaireButton = document.getElementById('completeQuestionnaireButton');
+            const exitWithoutQuestionnaireButton = document.getElementById('exitWithoutQuestionnaireButton');
 
             // Actualizar el enlace del botón de menú principal
             if (mainMenuButton && userId) {
@@ -652,7 +686,8 @@
                         </label>
                         <input type="${metric.type}" step="${metric.step}" id="record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}" 
                                name="record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}" 
-                               class="input-field" placeholder="Ej: ${metric.unit === 'kg' ? '70.5' : (metric.unit === 'cm' ? '80' : '10')}"
+                               class="input-field" placeholder="Ej: ${metric.unit === 'kg' ? '70.5' : (metric.unit === 'cm' ? '80' : '10.5')}"
+                               oninput="validateInput(this)"
                                ${metric.fixed ? 'required' : ''}>`;
                     if (metric.unit === 'mm') {
                         plieguesContainer.appendChild(inputDiv);
@@ -773,13 +808,20 @@
 
             recordForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
-                const newTab = window.open(`${appConfig.urls.bodyRecordSubmission}?contact_id=${userId}`, '_blank');
-                if (!newTab) {
-                    showCustomAlert("No se pudo abrir el formulario. Por favor, deshabilita el bloqueador de pop-ups para este sitio.", "warning");
-                }
+                
                 const submitButton = this.querySelector('button[type="submit"]');
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+
+                // Check for input errors before submission
+                const hasInputErrors = Array.from(this.querySelectorAll('.input-field')).some(input => input.classList.contains('input-error'));
+                if (hasInputErrors) {
+                    showCustomAlert("Por favor, corrige los valores en rojo antes de guardar.", "error");
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Registro';
+                    return;
+                }
+
                 const files = recordPhotosInput.files;
                 let uploadedPhotoUrls = [];
                 if (files && files.length > 0) {
@@ -827,15 +869,27 @@
                     console.error("Error inserting record:", insertError);
                     showCustomAlert("No se pudo guardar el registro en la base de datos.", "error");
                 } else {
-                    showCustomAlert("¡Registro guardado con éxito!", "info");
                     await loadBodyRecords();
                     recordForm.reset();
                     photoPreviewsContainer.innerHTML = '';
                     recordDateInput.valueAsDate = new Date();
                     closeModalElement(bodyRecordModal);
+                    openModal(recordConfirmationModal);
                 }
                 submitButton.disabled = false;
                 submitButton.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Registro';
+            });
+            
+            completeQuestionnaireButton.addEventListener('click', () => {
+                const newTab = window.open(`${appConfig.urls.bodyRecordSubmission}?contact_id=${userId}`, '_blank');
+                if (!newTab) {
+                    showCustomAlert("No se pudo abrir el formulario. Por favor, deshabilita el bloqueador de pop-ups para este sitio.", "warning");
+                }
+                closeModalElement(recordConfirmationModal);
+            });
+
+            exitWithoutQuestionnaireButton.addEventListener('click', () => {
+                closeModalElement(recordConfirmationModal);
             });
 
             recordPhotosInput.addEventListener('change', function() { 
