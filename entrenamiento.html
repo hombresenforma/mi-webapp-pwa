@@ -2301,12 +2301,9 @@
                         if (repsInput) {
                             // MODIFIED: Logic to handle comma-separated rep targets
                             const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-                            const parsedReps = parseRepRange(exerciseData.reps);
-                            let newRepsValue = nextSetData.reps;
-                            if (parsedReps.type === 'specific_list' && parsedReps.reps.length >= nextSetNumber) {
-                                newRepsValue = parsedReps.reps[nextSetNumber - 1];
-                            }
-                            repsInput.value = newRepsValue;
+                            const nextRepsValue = getNextRepsValue(exerciseData.reps, nextSetNumber);
+                            repsInput.value = nextSetData.reps || '';
+                            repsInput.placeholder = nextRepsValue;
                         }
                     }
                 }
@@ -2573,10 +2570,13 @@
                 const nextSetNumber = logEntry.setsPerformed.length + 1;
                 const lastSets = lastLoggedSets[exerciseData.name] || [];
                 const nextSetData = lastSets.find(s => s.serie === nextSetNumber) || { kg: '', reps: '' };
-                const nextReps = getNextRepsValue(exerciseData.reps, nextSetNumber);
+                const nextRepsPlaceholder = getNextRepsPlaceholder(exerciseData.reps, nextSetNumber);
 
                 if(kgInput) kgInput.value = nextSetData.kg;
-                if(repsInput) repsInput.value = nextReps || nextSetData.reps;
+                if(repsInput) {
+                    repsInput.value = nextSetData.reps || '';
+                    repsInput.placeholder = nextRepsPlaceholder;
+                }
                 
                 showCustomAlert(`Serie ${currentSetNumber} registrada. ¡Vamos a por la siguiente!`, "info");
 
@@ -2616,12 +2616,15 @@
         }
 
         // NEW: Helper function to get the correct reps value for the next set
-        function getNextRepsValue(repsString, nextSetNumber) {
+        function getNextRepsPlaceholder(repsString, nextSetNumber) {
             const parsedReps = parseRepRange(repsString);
             if (parsedReps.type === 'specific_list' && parsedReps.reps.length >= nextSetNumber) {
                 return parsedReps.reps[nextSetNumber - 1];
             }
-            return '';
+            if (parsedReps.type === 'specific') {
+                return parsedReps.target;
+            }
+            return 'Reps'; // Default placeholder
         }
 
         function openWorkoutSummaryModal() {
