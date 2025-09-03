@@ -1648,7 +1648,7 @@
         function openVideoLink(videoUrl) { if (videoUrl) { window.open(videoUrl, '_blank'); } }
         function calculateEpley1RM(weight, reps) { if (reps == 0 || weight == 0) return 0; if (reps == 1) return parseFloat(weight); return parseFloat(weight) * (1 + (parseFloat(reps) / 30)); }
         function isTimeBased(repsString) { return typeof repsString === 'string' && repsString.endsWith('s'); }
-        function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific', target: Math.min(...reps) }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
+        function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific_list', reps }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
         function getRepCompletionState(performedReps, targetRepsString) { 
             if (isTimeBased(targetRepsString)) {
                 return 'good';
@@ -1665,6 +1665,9 @@
                     if (performed >= parsedTarget.target) return 'good'; 
                     if (performed <= parsedTarget.target - 3) return 'bad'; 
                     return 'neutral'; 
+                case 'specific_list':
+                    // We don't have a specific target for this, so we assume a good state if a number is entered
+                    return 'good';
                 default: return 'neutral'; 
             } 
         }
@@ -2295,7 +2298,16 @@
                         const kgInput = card.querySelector('input[aria-label*="Peso"]');
                         const repsInput = card.querySelector('input[aria-label*="Repeticiones"]');
                         if (kgInput) kgInput.value = nextSetData.kg;
-                        if (repsInput && !isTimeBasedExercise) repsInput.value = nextSetData.reps;
+                        if (repsInput) {
+                            // MODIFIED: Logic to handle comma-separated rep targets
+                            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
+                            const parsedReps = parseRepRange(exerciseData.reps);
+                            let newRepsValue = nextSetData.reps;
+                            if (parsedReps.type === 'specific_list' && parsedReps.reps.length >= nextSetNumber) {
+                                newRepsValue = parsedReps.reps[nextSetNumber - 1];
+                            }
+                            repsInput.value = newRepsValue;
+                        }
                     }
                 }
             });
@@ -2360,11 +2372,19 @@
             // NEW: Get last logged sets and pre-fill for the first set
             const lastSets = lastLoggedSets[exerciseInput.name] || [];
             const firstSetData = lastSets.find(s => s.serie === 1) || { kg: '', reps: '' };
-            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (firstSetData.reps || exerciseInput.reps || 'Reps');
+            // MODIFIED: Get the correct rep value for the first set based on the comma-separated list
+            let initialRepsValue = firstSetData.reps;
+            const parsedReps = parseRepRange(exerciseInput.reps);
+            if (parsedReps.type === 'specific_list' && parsedReps.reps.length > 0) {
+                initialRepsValue = parsedReps.reps[0];
+            } else if (parsedReps.type === 'range' || parsedReps.type === 'specific') {
+                initialRepsValue = firstSetData.reps || '';
+            }
+            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (initialRepsValue || exerciseInput.reps || 'Reps');
             const kgPlaceholder = firstSetData.kg || 'Kg';
             const repsInputHtml = isTimeBasedExercise ? 
                 `<button class="quick-mode-input" onclick="handleTimeBasedRepsClick(this, '${cardId}')">${repsPlaceholder}</button>` :
-                `<input type="tel" value="${firstSetData.reps}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
+                `<input type="tel" value="${initialRepsValue}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
             const kgInputHtml = `<input type="tel" value="${firstSetData.kg}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}" inputmode="numeric" pattern="[0-9]*">`;
 
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
@@ -2549,13 +2569,14 @@
                 // Finalize the exercise
                 showCustomAlert("¡Ejercicio completado!", "info");
             } else {
-                // NEW: Get next set data from last logged sets
+                // NEW: Get next set data and update inputs
+                const nextSetNumber = logEntry.setsPerformed.length + 1;
                 const lastSets = lastLoggedSets[exerciseData.name] || [];
-                const nextSetData = lastSets.find(s => s.serie === currentSetNumber + 1) || { kg: '', reps: '' };
-                
-                // Update inputs with next set's data
+                const nextSetData = lastSets.find(s => s.serie === nextSetNumber) || { kg: '', reps: '' };
+                const nextReps = getNextRepsValue(exerciseData.reps, nextSetNumber);
+
                 if(kgInput) kgInput.value = nextSetData.kg;
-                if(repsInput) repsInput.value = nextSetData.reps;
+                if(repsInput) repsInput.value = nextReps || nextSetData.reps;
                 
                 showCustomAlert(`Serie ${currentSetNumber} registrada. ¡Vamos a por la siguiente!`, "info");
 
@@ -2592,6 +2613,15 @@
                 }
             }
             updateAllExerciseCardInputStates();
+        }
+
+        // NEW: Helper function to get the correct reps value for the next set
+        function getNextRepsValue(repsString, nextSetNumber) {
+            const parsedReps = parseRepRange(repsString);
+            if (parsedReps.type === 'specific_list' && parsedReps.reps.length >= nextSetNumber) {
+                return parsedReps.reps[nextSetNumber - 1];
+            }
+            return '';
         }
 
         function openWorkoutSummaryModal() {
