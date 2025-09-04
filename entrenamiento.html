@@ -119,6 +119,123 @@
             width: 95%;
             max-width: 450px;
         }
+        /* NEW: Added calendar modal style to match the provided image */
+        #calendarModal .modal-content {
+            width: 95%;
+            max-width: 500px;
+            background-color: #2D3748;
+            border: 2px solid #FACC15;
+            border-radius: 1rem;
+        }
+        #calendarModal .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            color: #FACC15;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        #calendarModal .calendar-nav-btn {
+            background: none;
+            border: none;
+            color: #FACC15;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s ease-in-out;
+        }
+        #calendarModal .calendar-nav-btn:hover {
+            color: #EAB308;
+        }
+        #calendarModal .day-entry {
+            background-color: #1A202C;
+            border-bottom: 2px solid #4A5568;
+            color: #D1D5DB;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+        }
+        #calendarModal .day-entry.current-day {
+            border-left: 5px solid #FACC15;
+            padding-left: 0.75rem;
+        }
+        #calendarModal .day-entry:hover {
+            background-color: #2D3748;
+        }
+        #calendarModal .day-name {
+            font-weight: 600;
+        }
+        #calendarModal .day-date {
+            color: #9CA3AF;
+        }
+        #calendarModal .workout-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        #calendarModal .workout-name {
+            background-color: #4A5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #FACC15;
+        }
+        #calendarModal .workout-count {
+            background-color: #FACC15;
+            color: #1A202C;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        #calendarModal .day-scroll-indicator {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background-color: #FACC15;
+            border-radius: 0 5px 5px 0;
+        }
+        #calendarModal .day-entry.has-more .workout-count {
+            background-color: #22c55e;
+            color: #fff;
+        }
+        #calendarModal .expanded-day-view {
+            background-color: #1f2937;
+            border-left: 5px solid #22c55e;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        #calendarModal .expanded-day-view .expanded-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #FACC15;
+            margin-bottom: 0.75rem;
+        }
+        #calendarModal .expanded-day-view .expanded-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #4a5568;
+        }
+        #calendarModal .expanded-day-view .expanded-item:last-child {
+            border-bottom: none;
+        }
+        #calendarModal .expanded-day-view .item-name {
+            color: #D1D5DB;
+        }
+        #calendarModal .expanded-day-view .item-time {
+            color: #9CA3AF;
+        }
+
 
         /* --- WORKOUT SPECIFIC STYLES --- */
         .day-selection-container { display: flex; flex-direction: column; gap: 1rem; }
@@ -136,7 +253,7 @@
         .main-action-button:hover:not(:disabled) { background-color: #facc15; color: #1f2937; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-        .exercise-card-container, .quick-mode-superset-container { border-left: 4px solid #facc15; background-color: rgba(42, 50, 62, 0.8); backdrop-filter: blur(5px); border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); padding: 0.75rem; margin-bottom: 1rem; }
+        .exercise-card-container, .quick-mode-superset-container { border-left: 4px solid #facc15; background-color: rgba(42, 50, 62, 0.8); backdrop-filter: blur(5px); border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); padding: 0.75rem; margin-bottom: 1rem; position: relative; }
         .exercise-card-container-title, .quick-mode-superset-container .superset-title { font-size: 1rem; font-weight: 600; color: #fde047; margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid #4b5563; }
         .set-input input[readonly], .action-button:disabled, .quick-mode-register-button:disabled { background-color: #4A5568 !important; border-color: #718096 !important; color: #a0aec0 !important; cursor: not-allowed; }
         input::placeholder { color: #718096; opacity: 1; }
@@ -146,7 +263,7 @@
         .history-reps-bad { color: #f87171; font-weight: bold; }
         .main-history-item { background-color: #4a5568; color: #e5e7eb; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s ease-in-out; width: 100%; margin-bottom: 0.5rem; text-align: left; cursor: pointer; }
         .main-history-item:hover { background-color: #5a6578; }
-        .quick-mode-exercise-item { background-color: rgba(55, 65, 81, 0.8); border-radius: 0.5rem; margin-bottom: 1rem; border-left: 4px solid #facc15; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 0.75rem; transition: border-left-color 0.3s ease; }
+        .quick-mode-exercise-item { background-color: rgba(55, 65, 81, 0.8); border-radius: 0.5rem; margin-bottom: 1rem; border-left: 4px solid #facc15; box-shadow: 0 2px 4px rgba(0,0,0,0.2); padding: 0.75rem; transition: border-left-color 0.3s ease; position: relative; }
         .quick-mode-exercise-item.completed-good { border-left-color: #22c55e; background-color: rgba(34, 197, 94, 0.2); }
         .quick-mode-exercise-item.completed-bad { border-left-color: #ef4444; background-color: rgba(239, 68, 68, 0.2); }
         .quick-mode-superset-container .quick-mode-exercise-item { border-left: none; padding-left: 0.5rem; margin-left: -0.5rem; }
@@ -186,41 +303,104 @@
         .quick-mode-exercise-header .info strong { color: #fde047; font-weight: 600; font-size: 1rem; line-height: 1.3; }
         .quick-mode-exercise-header .info span { color: #d1d5db; font-size: 0.75rem; display: block; }
 
-        /* MODIFIED: Buttons are now below inputs, centered */
+        /* MODIFIED: Buttons are now a dropdown menu, hidden by default */
         .quick-mode-header-buttons {
+            display: none; /* Hidden by default */
+            flex-direction: column; /* Stack vertically */
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            background: rgba(31, 41, 55, 0.9);
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            z-index: 10;
+        }
+        .quick-mode-header-buttons.is-active {
             display: flex;
-            justify-content: center; /* Align to the center */
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-            width: 100%;
-            gap: 0.75rem; /* Increased gap slightly */
-            margin-top: 0.75rem; /* Add space above the buttons */
         }
         .quick-mode-header-buttons .quick-action-btn {
-            background: rgba(31, 41, 55, 0.6);
-            border: 1px solid #4b5563;
+            background: transparent;
+            border: none;
             color: #facc15;
             cursor: pointer;
-            width: 2.75rem; /* Slightly wider */
-            height: 2.75rem; /* Slightly taller */
-            font-size: 1.1rem; /* Bigger icon */
+            width: auto;
+            height: auto;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
             border-radius: 0.375rem;
             transition: all 0.2s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
-            justify-content: center;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
+            gap: 0.5rem;
+            text-align: left;
         }
         .quick-mode-header-buttons .quick-action-btn:hover:not(:disabled) {
-            color: #eab308; background-color: #4b5563;
+            background-color: #4b5563;
         }
         .quick-mode-header-buttons .quick-action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            color: #718096;
         }
+        /* NEW: Settings button icon */
+        .settings-icon-button {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            background: rgba(31, 41, 55, 0.6);
+            border: 1px solid #4b5563;
+            color: #facc15;
+            width: 2.75rem;
+            height: 2.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            transition: all 0.2s;
+            z-index: 11;
+        }
+        .settings-icon-button:hover {
+             color: #eab308; background-color: #4b5563;
+        }
+        .settings-icon-button.is-active {
+            background-color: #facc15;
+            color: #1f2937;
+        }
+
+        /* MODIFIED: Style for the new gray settings button */
+        .quick-mode-settings-button {
+            position: absolute;
+            bottom: 0.75rem; /* MODIFIED: Set to bottom */
+            right: 0.75rem; /* MODIFIED: Set to right */
+            width: 2rem;
+            height: 2rem;
+            background: #4A5568;
+            border-radius: 9999px; /* Rounded pill shape */
+            color: #9CA3AF; /* Light gray icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #4A5568;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: 0.875rem;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        .quick-mode-settings-button:hover {
+            background-color: #5a6578;
+            color: #e5e7eb;
+        }
+        .quick-mode-settings-button.active {
+            background-color: #facc15;
+            color: #1f2937;
+            border-color: #facc15;
+        }
+        /* End of new button styles */
 
 
         .increase-weight-btn { background: #facc15; border-color: #facc15; width: 2rem; height: 2rem; font-size: 0.9rem; border-radius: 0.375rem; display: inline-flex; align-items: center; justify-content: center; }
-        .quick-mode-exercise-body { display: grid; grid-template-columns: 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
+        .quick-mode-input-row { display: grid; grid-template-columns: 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
         .quick-mode-input { width: 100%; background-color: #1f2937; border: 1px solid #4b5563; color: white; border-radius: 0.375rem; padding: 0.5rem; text-align: center; font-size: 0.9rem; }
         .quick-mode-register-button { width: 100%; height: 100%; background-color: #facc15; color: #1f2937; font-weight: bold; border: none; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s; display: flex; align-items: center; justify-content: center; }
         .quick-mode-register-button i { font-size: 1.1rem; }
@@ -577,7 +757,7 @@
             border: 1px solid #4a5568;
         }
         
-        /* MODIFIED: Styles for the new register and cancel buttons in extras modal */
+        /* MODIFIED: Added distinct button styles */
         #registerExtraActivityButton {
             background-color: #22c55e; /* Green color for positive action */
             color: #fff;
@@ -611,6 +791,46 @@
         #extrasFormModal .custom-file-input:hover {
             background-color: #4a5568;
             border-color: #facc15;
+        }
+
+        /* NEW: EMOM and Circuit First View Styles */
+        .timer-modal-welcome-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            background-color: #2d3748;
+            border: 2px solid #4a5568;
+            width: 100%;
+            max-width: 400px;
+            color: #e5e7eb;
+            text-align: center;
+        }
+        .timer-modal-welcome-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #facc15;
+        }
+        .timer-modal-welcome-card p {
+            font-size: 0.95rem;
+            color: #d1d5db;
+        }
+        .timer-modal-welcome-card .start-button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            background-color: #22c55e;
+            color: #fff;
+            transition: background-color 0.2s ease;
+        }
+        .timer-modal-welcome-card .start-button:hover {
+            background-color: #16a34a;
         }
 
     </style>
@@ -668,24 +888,24 @@
 
     <!-- MODALS (Workout Specific) -->
     
-    <!-- Workout History Modal (for full workout sessions) -->
+    <!-- Workout History Modal (Now a calendar view) -->
     <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full transform scale-95">
-            <div class="flex justify-between items-center mb-6">
+        <div id="calendarModal" class="modal-content transform scale-95">
+            <div class="flex justify-between items-center px-4 py-2">
                 <h3 class="text-xl font-semibold text-yellow-400">Historial de Entrenamientos</h3>
                 <button onclick="closeModalElement(mainHistoryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial">×</button>
             </div>
-            <!-- NEW: Filter dropdown -->
-            <div class="history-filter-container">
-                <select id="historyFilterSelect" class="history-filter-select">
-                    <option value="all">Todos</option>
-                    <option value="7">Últimos 7 días</option>
-                    <option value="15">Últimos 15 días</option>
-                    <option value="30">Últimos 30 días</option>
-                </select>
+            <div class="calendar-header px-4">
+                <button class="calendar-nav-btn" onclick="changeWeek(-1)" aria-label="Semana anterior">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div id="currentMonthYear"></div>
+                <button class="calendar-nav-btn" onclick="changeWeek(1)" aria-label="Semana siguiente">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
             </div>
-            <div id="mainHistoryResults" class="space-y-2 max-h-80 overflow-y-auto pr-2">
-                 <p class="text-gray-400 text-center py-4">Aquí aparecerá tu historial de entrenamientos.</p>
+            <div id="calendarDaysContainer" class="max-h-[70vh] overflow-y-auto px-2 pb-2">
+                 <!-- The days will be rendered here by JS -->
             </div>
         </div>
     </div>
@@ -711,10 +931,15 @@
 
             <!-- View 2: Detail View (Initially hidden) -->
             <div id="exerciseHistoryDetailView" style="display: none;">
-                 <div class="flex justify-between items-center mb-4">
+                 <!-- MODIFIED: Restructured header for buttons and title -->
+                 <div class="flex justify-between items-center mb-2">
                     <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
-                    <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-right truncate"></h3>
+                    <!-- NEW: Close button for this view -->
+                    <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
+                <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-center mb-4 truncate"></h3>
                 <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
                     <!-- Historical 1RM will be injected here -->
                 </div>
@@ -772,8 +997,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
                     <!-- MODIFIED: Placeholder and oninput for hh:mm format validation -->
+                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
                     <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
                 </div>
 
@@ -862,7 +1087,7 @@
     </div>
 
     <!-- MODIFIED: Work Timer Modal HTML -->
-    <div id="workTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[71] opacity-0 pointer-events-none">
+    <div id="workTimerModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[71] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
                 <div class="timer-card-header">
@@ -885,20 +1110,29 @@
         </div>
     </div>
 
+    <!-- MODIFIED: EMOM and Circuit Timer Modal HTML with initial welcome view -->
     <div id="circuitTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[76] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
-             <div class="timer-card">
+             <!-- Welcome View -->
+            <div id="circuitWelcomeView" class="timer-modal-welcome-card" style="display: none;">
+                <h3 id="circuitWelcomeTitle"></h3>
+                <p id="circuitWelcomeDetails"></p>
+                <img id="circuitWelcomeImage" src="" alt="Ejercicio de Circuito" class="timer-exercise-image" style="display: none;">
+                <button onclick="runNextCircuitInterval()" class="start-button">EMPEZAR</button>
+            </div>
+             <!-- Active Timer View -->
+             <div id="circuitActiveView" class="timer-card" style="display: none;">
                 <div class="timer-card-header">
-                    <h3 id="circuitTimerTitle">CIRCUITO EN CURSO</h3>
-                    <p id="circuitOverallProgress">Ronda 1 de 3</p>
+                    <h3 id="circuitTimerTitle"></h3>
+                    <p id="circuitOverallProgress"></p>
                 </div>
                 <div class="timer-card-body">
                     <div id="circuitTimerDisplay" class="timer-card-main-time">00:00</div>
                     <div class="timer-card-info">
                         <img id="circuitCurrentImage" src="" alt="Ejercicio actual" class="timer-exercise-image">
                         <div id="circuitStateLabel" class="state-label"></div>
-                        <p id="circuitExerciseName" class="exercise-name">Ejercicio Actual</p>
-                        <p id="circuitExerciseDetails" class="exercise-details">Objetivo: 30s</p>
+                        <p id="circuitExerciseName" class="exercise-name"></p>
+                        <p id="circuitExerciseDetails" class="exercise-details"></p>
                     </div>
                 </div>
                 <div class="timer-card-actions">
@@ -924,10 +1158,18 @@
     
     <div id="emomTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[75] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
-            <div class="timer-card">
+            <!-- Welcome View -->
+            <div id="emomWelcomeView" class="timer-modal-welcome-card" style="display: none;">
+                <h3 id="emomWelcomeTitle"></h3>
+                <p id="emomWelcomeDetails"></p>
+                <img id="emomWelcomeImage" src="" alt="Ejercicio de EMOM" class="timer-exercise-image" style="display: none;">
+                <button onclick="runNextEmomInterval()" class="start-button">EMPEZAR</button>
+            </div>
+            <!-- Active Timer View -->
+            <div id="emomActiveView" class="timer-card" style="display: none;">
                 <div class="timer-card-header">
-                    <h3 id="emomTimerTitle">EMOM EN CURSO</h3>
-                    <p id="emomOverallProgress">Intervalo 1 de N</p>
+                    <h3 id="emomTimerTitle"></h3>
+                    <p id="emomOverallProgress"></p>
                 </div>
                 <div class="timer-card-body">
                     <div id="emomIntervalTimerDisplay" class="timer-card-main-time">01:00</div>
@@ -999,7 +1241,7 @@
     <!-- Weekday Notice Modal -->
     <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
-            <h3 class="text-xl font-semibold text-yellow-400 mb-4">Función No Disponible</h3>
+            <h3 class="text-xl font-semibold text-yellow-400">Función No Disponible</h3>
             <p class="text-gray-300 mb-6">Esta función solo está disponible en los días configurados.</p>
             <button onclick="closeModalElement(weekdayNoticeModal)" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
         </div>
@@ -1025,7 +1267,7 @@
             // Options:
             // 'all'    - Show every week.
             // 'even'   - Show on even-numbered weeks (2, 4, 6...).
-            // 'odd'    - Show on odd-numbered weeks (1, 3, 5...).
+            // 'odd'   - Show on odd-numbered weeks (1, 3, 5...).
             // 'none'   - Never show the prompt.
             // [30, 32] - Show only on specific week numbers (e.g., week 30 and 32).
             activeWeeks: 'none' // MODIFIED: Default to 'none' if no config is found
@@ -1069,6 +1311,16 @@
         
         // NEW: Global variable for storing the uploaded image file
         let uploadedCaptureFile = null;
+
+        // MODIFIED: Map to track progress of each exercise step-by-step.
+        let exerciseProgressMap = new Map();
+
+        // NEW: Calendar state variables
+        let currentDate = new Date();
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        let groupedHistory = {};
+
 
         // --- Supabase Setup ---
         let supabase = null;
@@ -1176,6 +1428,22 @@
             // Add listeners that will trigger the audio initialization on the first user tap/click.
             document.body.addEventListener('click', initAudio, { once: true });
             document.body.addEventListener('touchstart', initAudio, { once: true });
+            
+            // NEW: Global event listener to close any open settings menus on outside click
+            document.addEventListener('click', (event) => {
+                document.querySelectorAll('.quick-mode-header-buttons.is-active').forEach(menu => {
+                    const card = menu.closest('.quick-mode-exercise-item');
+                    const button = card ? card.querySelector('.quick-mode-settings-button') : null;
+                    const isClickInsideMenu = menu.contains(event.target);
+                    const isClickOnButton = button && button.contains(event.target);
+                    if (!isClickInsideMenu && !isClickOnButton) {
+                        menu.classList.remove('is-active');
+                        if (button) {
+                            button.classList.remove('active');
+                        }
+                    }
+                });
+            });
 
             // Initialize Supabase and userIdentifier first
             initializeSupabaseClient();
@@ -1306,6 +1574,13 @@
         const viewWorkoutHistoryButton = document.getElementById('viewWorkoutHistoryButton');
         const viewExerciseHistoryButton = document.getElementById('viewExerciseHistoryButton');
         const mainHistoryModal = document.getElementById('mainHistoryModal');
+        // MODIFIED: calendar elements
+        const calendarModal = document.getElementById('calendarModal');
+        const currentMonthYear = document.getElementById('currentMonthYear');
+        const calendarDaysContainer = document.getElementById('calendarDaysContainer');
+        const detailedDayModal = document.getElementById('detailedDayModal');
+        const detailedDayContent = document.getElementById('detailedDayContent');
+
         const historySearchInput = document.getElementById('historySearchInput');
         const mainHistoryResults = document.getElementById('mainHistoryResults');
         const detailedHistoryModal = document.getElementById('detailedHistoryModal');
@@ -1358,6 +1633,11 @@
         const workCurrentImage = document.getElementById('workCurrentImage');
         
         const circuitTimerModal = document.getElementById('circuitTimerModal'); 
+        const circuitWelcomeView = document.getElementById('circuitWelcomeView');
+        const circuitWelcomeTitle = document.getElementById('circuitWelcomeTitle');
+        const circuitWelcomeDetails = document.getElementById('circuitWelcomeDetails');
+        const circuitWelcomeImage = document.getElementById('circuitWelcomeImage');
+        const circuitActiveView = document.getElementById('circuitActiveView');
         const circuitOverallProgress = document.getElementById('circuitOverallProgress'); 
         const circuitStateLabel = document.getElementById('circuitStateLabel'); 
         const circuitExerciseName = document.getElementById('circuitExerciseName'); 
@@ -1367,6 +1647,11 @@
         const swapExerciseModalTitle = document.getElementById('swapExerciseModalTitle');
         const swapExerciseModalContent = document.getElementById('swapExerciseModalContent');
         const emomTimerModal = document.getElementById('emomTimerModal');
+        const emomWelcomeView = document.getElementById('emomWelcomeView');
+        const emomWelcomeTitle = document.getElementById('emomWelcomeTitle');
+        const emomWelcomeDetails = document.getElementById('emomWelcomeDetails');
+        const emomWelcomeImage = document.getElementById('emomWelcomeImage');
+        const emomActiveView = document.getElementById('emomActiveView');
         const emomTimerTitle = document.getElementById('emomTimerTitle'); 
         const emomOverallProgress = document.getElementById('emomOverallProgress');
         const emomStateLabel = document.getElementById('emomStateLabel');
@@ -1423,13 +1708,13 @@
             } 
         }
         
+        // MODIFIED: This function now gets the last recorded data for a *specific set number*
         function getLastLoggedDataForSet(exerciseName, setNumber) {
             const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a,b) => new Date(b.raw_date) - new Date(a.raw_date));
             if (entries.length > 0) {
                 const setsPerformed = entries[0].sets_performed;
                 const setData = setsPerformed.find(s => s.serie === setNumber);
                 if (setData) return { kg: setData.kg || "", reps: setData.reps || "" };
-                if(setsPerformed.length > 0) return { kg: setsPerformed[0].kg || "", reps: setsPerformed[0].reps || "" };
             }
             return { kg: "", reps: "" };
         }
@@ -1451,11 +1736,12 @@
             exerciseHistoryDetailView.style.display = 'none';
         }
 
+        // MODIFIED: Changed sorting order to be descending (most recent first)
         function showExerciseDetailView(exerciseName) {
             exerciseHistoryListView.style.display = 'none';
             exerciseHistoryDetailView.style.display = 'block';
             detailedHistoryExerciseName.textContent = exerciseName;
-            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(a.raw_date) - new Date(b.raw_date));
+            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
             detailedHistoryContent.innerHTML = '';
             const chartLabels = [], chartData = [];
             let historicalMaxRm = 0;
@@ -1523,130 +1809,107 @@
         }
 
         if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderWorkoutHistoryList('all'); // Call with default filter 'all'
+            renderCalendar();
             openModal(mainHistoryModal); 
         });
         if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
         if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
         if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
         
-        // NEW: History filter element
-        const historyFilterSelect = document.getElementById('historyFilterSelect');
-        if (historyFilterSelect) {
-            historyFilterSelect.addEventListener('change', (event) => {
-                renderWorkoutHistoryList(event.target.value);
-            });
-        }
-        
-        // MODIFIED: renderWorkoutHistoryList to accept a filter and render both workouts and extras
-        function renderWorkoutHistoryList(filter) {
-            mainHistoryResults.innerHTML = '';
-            const now = new Date();
-            let filteredHistory = [];
-
-            // Combine and sort all history items
-            const allItems = [...workoutSessionSummaries, ...extraActivities];
-
-            // Filter logic
-            if (filter === '7') {
-                const sevenDaysAgo = new Date(now.setDate(now.getDate() - 7));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > sevenDaysAgo);
-            } else if (filter === '15') {
-                const fifteenDaysAgo = new Date(now.setDate(now.getDate() - 15));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > fifteenDaysAgo);
-            } else if (filter === '30') {
-                const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
-                filteredHistory = allItems.filter(s => new Date(s.raw_date) > thirtyDaysAgo);
-            } else { // 'all'
-                filteredHistory = allItems;
+        // MODIFIED: renderWorkoutHistoryList to now be the calendar renderer
+        function renderCalendar() {
+            const startOfWeek = getStartOfWeek(currentDate);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(endOfWeek.getDate() + 6);
+            
+            currentMonthYear.textContent = `${months[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
+            if (startOfWeek.getMonth() !== endOfWeek.getMonth()) {
+                currentMonthYear.textContent += ` - ${months[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
             }
 
-            const sortedHistory = Array.from(filteredHistory).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
-            
-            if (sortedHistory.length === 0) {
-                mainHistoryResults.innerHTML = '<p class="text-gray-400 text-center py-4">No hay entrenamientos ni actividades registradas para este periodo.</p>';
-                return;
-            }
-            
-            sortedHistory.forEach(session => {
-                const button = document.createElement('button');
-                button.className = 'main-history-item';
-                const workoutName = session.name_workout || 'Entrenamiento no nombrado';
-                let icon = '';
-                // NEW: Get the duration string
-                let durationHtml = session.total_time_session ? ` <span class="text-sm text-gray-400 ml-2"><i class="fas fa-clock mr-1"></i>${session.total_time_session}</span>` : '';
+            calendarDaysContainer.innerHTML = '';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(startOfWeek);
+                day.setDate(startOfWeek.getDate() + i);
                 
-                // Check if it's a workout session or an extra activity
-                if (session.exercise_name === "Workout Session Summary") {
-                    icon = '<i class="fas fa-dumbbell mr-2 text-yellow-300"></i>';
-                    button.onclick = () => { openFullWorkoutLogModal(session.session_id); };
-                } else if (session.exercise_name === "Extra Activity") {
-                    icon = getExtrasIcon(workoutName);
-                    // Pass the whole session object to showExtraActivityDetails
-                    button.onclick = () => { showExtraActivityDetails(session); };
+                const dayKey = day.toISOString().slice(0, 10);
+                const isCurrentDay = day.toDateString() === today.toDateString();
+                const dayName = daysOfWeek[day.getDay()];
+                const dayDate = day.getDate();
+                
+                const itemsForDay = groupedHistory[dayKey] || [];
+                const hasMultipleItems = itemsForDay.length > 1;
+
+                const dayEntry = document.createElement('div');
+                dayEntry.className = `day-entry ${isCurrentDay ? 'current-day' : ''} ${hasMultipleItems ? 'has-more' : ''}`;
+                dayEntry.innerHTML = `
+                    <div class="day-info">
+                        <span class="day-name">${dayName}</span>
+                        <span class="day-date">${dayDate}</span>
+                    </div>
+                    <div class="workout-info">
+                        ${itemsForDay.length > 0 ? `<span class="workout-name">${itemsForDay[0].name_workout.toUpperCase().substring(0, 15)}${itemsForDay[0].name_workout.length > 15 ? '...' : ''}</span>` : ''}
+                        ${hasMultipleItems ? `<span class="workout-count">+${itemsForDay.length - 1}</span>` : ''}
+                    </div>
+                    ${isCurrentDay ? '<div class="day-scroll-indicator"></div>' : ''}
+                `;
+                
+                if (itemsForDay.length > 0) {
+                     dayEntry.onclick = () => showDetailedDayLog(dayKey);
                 }
-
-                button.innerHTML = `
-                    <div class="flex items-center w-full">
-                        ${icon}
-                        <div class="flex flex-col items-start w-full">
-                            <span class="font-bold text-yellow-300">${workoutName} ${durationHtml}</span>
-                            <span class="text-sm text-gray-400 mt-1">${session.date} - ${session.time}</span>
-                        </div>
-                    </div>
-                `;
-                mainHistoryResults.appendChild(button);
-            });
-        }
-
-        // NEW: Function to get an icon for an extra activity
-        function getExtrasIcon(activityName) {
-            const normalizedName = activityName.toLowerCase();
-            if (normalizedName.includes('pádel')) return '<i class="fas fa-tennis-ball mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('bici')) return '<i class="fas fa-bicycle mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('natación')) return '<i class="fas fa-swimmer mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('kayak')) return '<i class="fas fa-water mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('correr')) return '<i class="fas fa-running mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('trecking')) return '<i class="fas fa-hiking mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('caminar')) return '<i class="fas fa-walking mr-2 text-blue-300"></i>';
-            if (normalizedName.includes('fútbol')) return '<i class="fas fa-futbol mr-2 text-blue-300"></i>';
-            return '<i class="fas fa-ellipsis-h mr-2 text-blue-300"></i>';
+                
+                calendarDaysContainer.appendChild(dayEntry);
+            }
         }
         
-        // MODIFIED: showExtraActivityDetails to display optional data and image
-        function showExtraActivityDetails(activity) {
-            let detailsHtml = `
-                <div class="workout-log-entry">
-                    <h4 class="text-yellow-400">${activity.name_workout}</h4>
-                    <p class="text-gray-300 mt-2">Registrado el ${activity.date} a las ${activity.time}.</p>
-            `;
+        function getStartOfWeek(date) {
+            const day = date.getDay();
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday-start week
+            return new Date(date.setDate(diff));
+        }
 
-            // Check and display time
-            if (activity.total_time_session) {
-                detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-clock mr-2 text-yellow-400"></i>Tiempo: ${activity.total_time_session}</p>`;
-            }
+        function changeWeek(direction) {
+            currentDate.setDate(currentDate.getDate() + direction * 7);
+            renderCalendar();
+        }
 
-            // Check and display volume
-            if (activity.total_volume_session) {
-                detailsHtml += `<p class="text-gray-300 mt-2"><i class="fas fa-chart-bar mr-2 text-yellow-400"></i>Volumen: ${activity.total_volume_session}</p>`;
-            }
-
-            detailsHtml += `</div>`;
+        function showDetailedDayLog(dayKey) {
+            const items = groupedHistory[dayKey];
+            if (!items || items.length === 0) return;
             
-            // Check and display image
-            if (activity.capture_url) {
-                detailsHtml += `
-                    <div class="extra-activity-image-container">
-                        <img src="${activity.capture_url}" alt="Captura de ${activity.name_workout}">
-                    </div>
-                `;
-            }
+            const detailedContent = document.createElement('div');
+            detailedContent.className = 'expanded-day-view';
+            detailedContent.innerHTML = `<div class="expanded-title">Entrenos del Día ${new Date(dayKey + 'T00:00:00').getDate()}</div>`;
 
-            fullWorkoutLogContent.innerHTML = detailsHtml;
-            fullWorkoutLogTitle.textContent = "Detalles de Actividad Extra";
-            openModal(fullWorkoutLogModal);
+            items.sort((a,b) => new Date(a.raw_date) - new Date(b.raw_date)).forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'expanded-item';
+                itemDiv.innerHTML = `<div class="item-name">${item.name_workout}</div><div class="item-time">${item.time}</div>`;
+                itemDiv.onclick = () => {
+                    if (item.exercise_name === "Extra Activity") {
+                        showExtraActivityDetails(item);
+                    } else {
+                        openFullWorkoutLogModal(item.session_id);
+                    }
+                };
+                detailedContent.appendChild(itemDiv);
+            });
+            
+            // Re-render the calendar view with the expanded content
+            calendarDaysContainer.innerHTML = '';
+            calendarDaysContainer.appendChild(detailedContent);
+
+            // Add a back button
+            const backButton = document.createElement('button');
+            backButton.className = 'main-action-button mt-4';
+            backButton.innerHTML = '<i class="fas fa-arrow-left mr-2"></i>Volver';
+            backButton.onclick = renderCalendar;
+            calendarDaysContainer.appendChild(backButton);
         }
-        
+
         function renderRmEvolutionChart(labels, data) { 
             if (rmChartInstance) { rmChartInstance.destroy(); } 
             const ctx = rmEvolutionChartCanvas.getContext('2d'); 
@@ -1786,7 +2049,7 @@
             }
             openModal(swapExerciseModal);
         }
-        function performExerciseSwap(cardId, newExerciseData) { const card = document.getElementById(cardId); if (!card) return; const parent = card.parentNode; const isSubItem = card.dataset.subOrder !== ''; let specialData = null; if (isSubItem) { const supersetContainer = card.closest('.quick-mode-superset-container'); if(supersetContainer){ const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } } } const primordialData = JSON.parse(card.dataset.primordialExerciseData || '{}'); const exerciseToCreate = { ...newExerciseData, primordialExerciseData: primordialData }; const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); if (parent) { parent.replaceChild(newCard, card); } updateAllExerciseCardInputStates(); }
+        function performExerciseSwap(cardId, newExerciseData) { const card = document.getElementById(cardId); if (!card) return; const parent = card.parentNode; const isSubItem = card.dataset.subOrder !== ''; let specialData = null; if (isSubItem) { const supersetContainer = card.closest('.quick-mode-superset-container'); if(supersetContainer){ const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } } } const primordialData = exerciseAlternatives[newExerciseData.name] ? newExerciseData : JSON.parse(card.dataset.primordialExerciseData || '{}'); const exerciseToCreate = { ...newExerciseData, primordialExerciseData: primordialData }; const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); if (parent) { parent.replaceChild(newCard, card); } updateAllExerciseCardInputStates(); }
         function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); /* NEW: Release lock on close */ closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
         
         // MODIFIED: toggleWorkoutState to include Wake Lock
@@ -1832,11 +2095,12 @@
             return maxRm;
         }
 
-        function getHistoricalMaxRmExcludingSession(exerciseName, sessionDate, sessionTime) {
+        // NEW: Function to get the historical max RM, excluding the current session being registered
+        function getHistoricalMaxRmExcludingSession(exerciseName, sessionId) {
             let maxRm = 0;
             const historyForExercise = individualExerciseLogs.filter(e => 
                 e.exercise_name === exerciseName && 
-                !(e.date === sessionDate && e.time === sessionTime)
+                e.session_id !== sessionId
             );
             if (historyForExercise.length === 0) return 0;
             historyForExercise.forEach(entry => {
@@ -1856,110 +2120,77 @@
         function showNewRecordAlert(newRm) { newRecordText.textContent = `¡Has alcanzado un 1RM estimado de ${newRm.toFixed(1)}kg!`; openModal(newRecordModal); }
         function closeQuickModeWorkoutModal() { confirmBeforeClosingWorkoutModal(quickModeWorkoutModal, () => { releaseWakeLock(); }); }
 
-        function updateAllExerciseCardInputStates() { 
-            document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item').forEach(card => { 
-                const exerciseName = card.dataset.currentName; 
+        // MODIFIED: Simplified `updateAllExerciseCardInputStates` for the single-view mode.
+        function updateAllExerciseCardInputStates() {
+            document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item').forEach(card => {
+                const exerciseName = card.dataset.currentName;
+                const cardId = card.id;
                 const logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseName);
-                const isFinalized = logEntry && logEntry.setsPerformed && logEntry.setsPerformed.length > 0;
-                const isTimeBasedExercise = card.dataset.isTimeBased === "true";
-                const isTimerActiveForThisCard = isTimeBasedExercise && currentTimedExerciseCardId === card.id && workTimerInterval !== null;
-                let isDisabledOverall = !isWorkoutInProgress || isFinalized || isTimerActiveForThisCard;
-                const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
-                const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
+                const setsLoggedCount = logEntry ? logEntry.setsPerformed.length : 0;
+                const totalSets = parseInt(card.dataset.totalSets);
+                const isFinalized = setsLoggedCount >= totalSets;
 
-                if (quickViewBody) {
-                    const kgInput = quickViewBody.querySelector('input[aria-label*="Peso"]');
-                    const repsInput = quickViewBody.querySelector('input[aria-label*="Repeticiones"]');
-                    const registerBtn = quickViewBody.querySelector('.quick-mode-register-button');
-                    kgInput.disabled = isDisabledOverall;
-                    repsInput.disabled = isDisabledOverall;
-                    registerBtn.disabled = isDisabledOverall;
-                    if (isTimeBasedExercise && !isTimerActiveForThisCard && !isFinalized) {
-                        repsInput.disabled = false;
-                    }
-                    if (kgInput.disabled) kgInput.classList.add('bg-gray-700'); else kgInput.classList.remove('bg-gray-700');
-                    if (repsInput.disabled) repsInput.classList.add('bg-gray-700'); else repsInput.classList.remove('bg-gray-700');
-                    if (isTimerActiveForThisCard) {
-                        registerBtn.innerHTML = '<i class="fas fa-hourglass-half text-xl"></i>';
-                    } else if (isFinalized) {
-                        registerBtn.innerHTML = '<i class="fas fa-check-double text-xl"></i>';
-                        registerBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                        registerBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-                    } else {
-                        const originalExerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-                        if (originalExerciseData.isSuperset || originalExerciseData.isEMOM || originalExerciseData.circuitDetails) {
-                             registerBtn.innerHTML = '<i class="fas fa-list-ol text-xl"></i>';
-                        } else {
-                            registerBtn.innerHTML = '<i class="fas fa-check text-xl"></i>';
-                        }
-                        registerBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                        registerBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-                    }
-                }
+                const quickViewBody = document.getElementById(`quickViewBody-${cardId}`);
+                if (!quickViewBody) return; // Skip if the body isn't there (e.g., superset containers)
+
+                const kgInput = quickViewBody.querySelector('input[aria-label*="Peso"]');
+                const repsInput = quickViewBody.querySelector('input[aria-label*="Repeticiones"]');
+                const registerBtn = quickViewBody.querySelector('.quick-mode-register-button');
                 
-                if (fullLogViewBody) {
-                    fullLogViewBody.querySelectorAll('.set-data-row').forEach(row => {
-                        const setNumber = parseInt(row.dataset.setNumber, 10);
-                        const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                        const repsInput = row.querySelector('input[aria-label*="Reps"]');
-                        const existingSet = logEntry ? logEntry.setsPerformed.find(s => s.serie === setNumber) : null;
-                        const isSetAlreadyLogged = existingSet && existingSet.isQuickMode === undefined;
-                        const shouldBeDisabled = isSetAlreadyLogged || !isWorkoutInProgress || isFinalized;
-                        if (kgInput) {
-                            kgInput.readOnly = shouldBeDisabled;
-                            kgInput.disabled = shouldBeDisabled;
-                            if (shouldBeDisabled) kgInput.classList.add('bg-gray-700'); else kgInput.classList.remove('bg-gray-700');
-                        }
-                        if (repsInput) {
-                            repsInput.readOnly = shouldBeDisabled;
-                            repsInput.disabled = shouldBeDisabled;
-                            if (shouldBeDisabled) repsInput.classList.add('bg-gray-700'); else repsInput.classList.remove('bg-gray-700');
-                        }
-                    });
-                    fullLogViewBody.querySelectorAll('.actions-footer button').forEach(btn => {
-                        btn.disabled = !isWorkoutInProgress || isFinalized;
-                    });
+                // NEW: Update progress display and series logged list
+                const progressDisplayContainer = document.getElementById(`progressDisplay-${cardId}`);
+                if (progressDisplayContainer) {
+                    let seriesHtml = `
+                        <div class="text-center text-sm font-semibold text-gray-400 mt-2">
+                            Serie ${setsLoggedCount + 1} de ${totalSets}
+                        </div>
+                    `;
+                    const setsList = logEntry ? logEntry.setsPerformed.map(s => {
+                        const repsUnit = isTimeBased(s.reps) ? 's' : 'reps';
+                        const completionClass = s.completionState === 'good' ? 'text-green-400' : (s.completionState === 'bad' ? 'text-red-400' : 'text-gray-400');
+                        return `<li>S.${s.serie}: ${s.kg}kg x <span class="${completionClass} font-bold">${s.reps} ${repsUnit}</span></li>`;
+                    }).join('') : '';
+
+                    if (isFinalized) {
+                        seriesHtml = `
+                            <div class="text-center text-sm font-semibold text-green-400 mt-2">
+                                ¡Completado!
+                            </div>
+                        `;
+                    }
+                    
+                    const registeredSetsListHtml = logEntry && logEntry.setsPerformed.length > 0 ? `
+                        <div class="bg-gray-700/50 p-3 rounded-md mb-2 mt-2">
+                            <h5 class="text-yellow-400 text-sm font-semibold mb-1">Series registradas:</h5>
+                            <ul class="list-disc list-inside space-y-1 text-xs">
+                                ${setsList}
+                            </ul>
+                        </div>
+                    ` : '';
+                    
+                    progressDisplayContainer.innerHTML = seriesHtml + registeredSetsListHtml;
                 }
 
-                card.querySelectorAll('.quick-mode-header-buttons .quick-action-btn').forEach(btn => {
-                    if (btn.id && btn.id.startsWith('toggleViewBtn-')) {
-                        btn.disabled = isFinalized;
-                    } else {
-                        btn.disabled = isFinalized;
-                    }
-                });
+                // Disable inputs and button if finalized
+                kgInput.disabled = isFinalized;
+                repsInput.disabled = isFinalized;
+                registerBtn.disabled = isFinalized;
 
-                card.classList.remove('completed-good', 'completed-bad');
-                if (isFinalized && logEntry.completionState && logEntry.completionState !== 'neutral') {
-                    card.classList.add(`completed-${logEntry.completionState}`);
+                if (isFinalized) {
+                    registerBtn.innerHTML = '<i class="fas fa-check-double text-xl"></i>';
+                    registerBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    registerBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                    card.classList.add('completed-good');
+                } else {
+                     registerBtn.innerHTML = '<i class="fas fa-check-circle text-xl"></i>';
+                     registerBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                     registerBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                     card.classList.remove('completed-good', 'completed-bad');
                 }
             });
         }
         
-        function startQuickMode(dayKey) { 
-            currentActiveDayKey = dayKey; 
-            if (typeof workoutData === 'undefined' || !workoutData[dayKey]) { return; } 
-            const dayData = workoutData[dayKey]; 
-            quickModeWorkoutModalTitle.textContent = dayData.name.toUpperCase(); 
-            quickModeExerciseList.innerHTML = ''; 
-            currentWorkoutSummaryData = []; 
-            currentTimedExerciseCardId = null;
-            currentTimedExerciseSetNumber = 0;
-            totalSetsForCurrentTimedExercise = 0;
-            currentRestDurationForTimedExercise = 0;
-            timedExerciseSetsLogged = [];
-            dayData.exercises.forEach((exerciseItem) => { 
-                if (exerciseItem.isSuperset || exerciseItem.isEMOM || exerciseItem.circuitDetails) { 
-                    quickModeExerciseList.appendChild(createQuickModeSupersetCard(dayKey, exerciseItem.order, exerciseItem));
-                } else { 
-                    quickModeExerciseList.appendChild(createQuickModeExerciseCard(dayKey, exerciseItem.order, exerciseItem, false, null));
-                } 
-            }); 
-            isWorkoutInProgress = false; 
-            toggleWorkoutState(); 
-            openModal(quickModeWorkoutModal); 
-        }
-
+        // Modified createQuickModeExerciseCard to use specific placeholders
         function createQuickModeExerciseCard(dayKey, mainOrder, exerciseInput, isSubItem, specialData = null) { 
             const card = document.createElement('div'); 
             const cardId = isSubItem ? `qm-ex-${dayKey}-${mainOrder}-${exerciseInput.subOrder}` : `qm-ex-${dayKey}-${mainOrder}`; 
@@ -1970,50 +2201,50 @@
             card.dataset.subOrder = exerciseInput.subOrder !== undefined ? String(exerciseInput.subOrder) : ''; 
             card.dataset.currentName = exerciseInput.name; 
             card.dataset.originalExerciseData = JSON.stringify(exerciseInput); 
-            const primordialData = exerciseInput.primordialExerciseData ? exerciseInput.primordialExerciseData : exerciseInput; 
+            const primordialData = exerciseAlternatives[exerciseInput.name] ? exerciseInput : JSON.parse(card.dataset.primordialExerciseData || '{}'); 
             card.dataset.primordialExerciseData = JSON.stringify(primordialData); 
             card.dataset.isSwapped = (exerciseInput.name !== primordialData.name).toString(); 
-            card.dataset.viewMode = 'quick';
             const isTimeBasedExercise = isTimeBased(exerciseInput.reps);
             const inputType = isTimeBasedExercise ? 'text' : 'number';
-            const repsPlaceholder = isTimeBasedExercise ? exerciseInput.reps : (getLastLoggedDataForSet(exerciseInput.name, 1).reps || exerciseInput.reps || 'Reps');
-            const kgPlaceholder = getLastLoggedDataForSet(exerciseInput.name, 1).kg || 'Kg';
+
+            // MODIFIED: Use the exact target reps as the placeholder
+            const repsPlaceholder = Array.isArray(exerciseInput.reps) ? exerciseInput.reps.join(', ') : exerciseInput.reps;
+            // MODIFIED: Hardcode kg placeholder to 'kg'
+            const kgPlaceholder = 'kg';
+
+            const lastData = getLastLoggedDataForSet(exerciseInput.name, 1);
             const repsOnClick = isTimeBasedExercise ? `onclick="handleTimeBasedRepsClick(this, '${cardId}')"` : '';
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
-            card.dataset.totalSets = String(exerciseInput.sets || 1);
-            const repsString = isTimeBasedExercise ? exerciseInput.reps : `${exerciseInput.reps || 'N/A'} reps`; 
-            const lastData = getLastLoggedDataForSet(exerciseInput.name, 1); 
+            const totalSets = specialData ? specialData.series : (exerciseInput.sets || 1);
+            card.dataset.totalSets = String(totalSets);
+            const repsString = isTimeBasedExercise ? exerciseInput.reps : (Array.isArray(exerciseInput.reps) ? exerciseInput.reps.join(', ') : `${exerciseInput.reps || 'N/A'}`);
             let increaseWeightIndicator = ''; 
             if (getLastWorkoutEntry(exerciseInput.name) && getLastWorkoutEntry(exerciseInput.name).completion_state === 'good') { 
                 increaseWeightIndicator = `<div class="increase-weight-btn" title="¡Buen trabajo! Sube el peso en esta sesión."><i class="fas fa-arrow-up text-gray-900"></i></div>`; 
             } 
-            let seriesText = `Series: ${specialData ? specialData.series : (exerciseInput.sets || '1')}`; 
-            let restHtml = ''; 
-            const restDurationMatch = typeof exerciseInput.rest === 'string' ? exerciseInput.rest.match(/(\d+)s/) : null; 
-            if(restDurationMatch && !isTimeBasedExercise){
-                const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item'));
-                const currentCardIndex = allExerciseCards.findIndex(card => card.id === cardId);
-                let nextExerciseForRest = null;
-                if (currentCardIndex !== -1 && currentCardIndex + 1 < allExerciseCards.length) {
-                    const nextCard = allExerciseCards[currentCardIndex + 1];
-                    nextExerciseForRest = {
-                        name: nextCard.dataset.currentName,
-                        reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                        kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                    };
-                }
-                restHtml = `<button onclick='startRestTimer(${parseInt(restDurationMatch[1])}, ${JSON.stringify(nextExerciseForRest)})' title="Descanso" class="quick-action-btn"><i class="fas fa-clock"></i></button>`; 
-            } 
-            let actionButtonsHtml = '';
+            let seriesText = `Series: ${totalSets}`; 
+            
+            // NEW: Create the settings dropdown and icon button
+            let settingsButtonHtml = '';
+            let settingsDropdownHtml = '';
             const originalEscapedName = (exerciseInput.name || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
-            actionButtonsHtml += `<button onclick="viewExerciseHistoryFromLog('${originalEscapedName}')" title="Ver Histórico" class="quick-action-btn"><i class="fas fa-chart-line"></i></button>`;
-            if (!isSubItem) {
-                actionButtonsHtml += `<button onclick="openWarmupModal()" title="Calculadora de Aproximación" class="quick-action-btn"><i class="fas fa-fire"></i></button>`;
-            }
-            const alternatives = exerciseAlternatives[primordialData.name] || [];
-            if (alternatives.length > 0 || card.dataset.isSwapped === "true") {
-                actionButtonsHtml += `<button onclick="openSwapExerciseModal('${cardId}')" title="Cambiar Ejercicio" class="quick-action-btn"><i class="fas fa-exchange-alt"></i></button>`;
-            }
+            
+            // MODIFIED: Changed the settings button to the new gray, small one
+            settingsButtonHtml = `<button class="quick-mode-settings-button" onclick="toggleSettingsMenu(this, '${cardId}')" aria-label="Opciones de ejercicio"><i class="fas fa-cog"></i></button>`;
+
+            settingsDropdownHtml = `
+                <div class="quick-mode-header-buttons" id="settingsMenu-${cardId}">
+                    ${(typeof exerciseInput.rest === 'string' && !isTimeBasedExercise) ? 
+                        `<button onclick="startRestTimer(${parseInt(exerciseInput.rest.match(/(\d+)s/)[1])})" class="quick-action-btn"><i class="fas fa-clock w-5 text-center"></i> Descanso</button>` : ''
+                    }
+                    <button onclick="viewExerciseHistoryFromLog('${originalEscapedName}')" class="quick-action-btn"><i class="fas fa-chart-line w-5 text-center"></i> Ver Historial</button>
+                    ${!isSubItem ? `<button onclick="openWarmupModal()" class="quick-action-btn"><i class="fas fa-fire w-5 text-center"></i> Calc. Aproximación</button>` : ''}
+                    ${(exerciseAlternatives[primordialData.name] || []).length > 0 || card.dataset.isSwapped === "true" ? 
+                        `<button onclick="openSwapExerciseModal('${cardId}')" class="quick-action-btn"><i class="fas fa-exchange-alt w-5 text-center"></i> Cambiar Ejercicio</button>` : ''
+                    }
+                </div>
+            `;
+            
             const notesHtml = exerciseInput.notes ? `<div class="notes">${exerciseInput.notes}</div>` : '';
             const imageUrl = exerciseInput.imageUrl;
             const videoUrl = exerciseInput.videoUrl;
@@ -2026,6 +2257,7 @@
                     imageHtml = `<div class="flex-shrink-0">${imageTag}</div>`;
                 }
             }
+            // MODIFIED: Simplified the card's inner HTML for the unified view
             card.innerHTML = ` 
                 <div class="quick-mode-exercise-header"> 
                     <div class="flex-top-row">
@@ -2042,20 +2274,21 @@
                         </div>
                     </div>
                 </div> 
-                <div id="quickViewBody-${cardId}" class="quick-view-body"> 
-                    <input type="number" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
-                    <input type="${inputType}" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
-                    <button class="quick-mode-register-button" onclick="logQuickModeSetFromCard(this, '${cardId}')" aria-label="Registrar set"> 
+                <div id="quickViewBody-${cardId}" class="quick-mode-input-row"> 
+                    <input type="number" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
+                    <input type="${inputType}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
+                    <button class="quick-mode-register-button" onclick="logSingleSetStepByStep(this, '${cardId}')" aria-label="Registrar set"> 
                         <i class="fas fa-check"></i> 
                     </button> 
                 </div> 
-                <div class="quick-mode-header-buttons">
-                    ${restHtml} 
-                    <button id="toggleViewBtn-${cardId}" onclick='toggleExerciseCardView("${cardId}")' title="Registro Completo" class="quick-action-btn"><i class="fas fa-list-ol"></i></button> 
-                    ${actionButtonsHtml}
+                <div id="progressDisplay-${cardId}">
+                    <div class="text-center text-sm font-semibold text-gray-400 mt-2">
+                        Serie 1 de ${totalSets}
+                    </div>
                 </div>
-                <div id="fullLogViewBody-${cardId}" class="full-log-view-body" style="display: none;"></div>
                 ${notesHtml}
+                ${settingsButtonHtml}
+                ${settingsDropdownHtml}
             `; 
             return card; 
         }
@@ -2095,240 +2328,72 @@
             return card; 
         }
         
-        function toggleExerciseCardView(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const toggleButton = document.getElementById(`toggleViewBtn-${cardId}`);
-            const quickViewBody = document.getElementById(`quickViewBody-${card.id}`);
-            const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
-            if (card.dataset.viewMode === 'quick') {
-                quickViewBody.style.display = 'none';
-                fullLogViewBody.style.display = 'block';
-                card.dataset.viewMode = 'full-log';
-                toggleButton.innerHTML = '<i class="fas fa-times"></i>';
-                toggleButton.title = 'Cerrar Registro Detallado';
-                renderFullLogViewContent(card);
-            } else {
-                if (hasUnsavedFullLogChanges) {
-                    showCustomConfirm("Si cierras sin registrar, los cambios se perderán. ¿Deseas continuar?", () => {
-                        hasUnsavedFullLogChanges = false;
-                        quickViewBody.style.display = 'grid';
-                        fullLogViewBody.style.display = 'none';
-                        card.dataset.viewMode = 'quick';
-                        toggleButton.innerHTML = '<i class="fas fa-list-ol"></i>';
-                        toggleButton.title = 'Registro Completo';
-                    });
-                } else {
-                    quickViewBody.style.display = 'grid';
-                    fullLogViewBody.style.display = 'none';
-                    card.dataset.viewMode = 'quick';
-                    toggleButton.innerHTML = '<i class="fas fa-list-ol"></i>';
-                    toggleButton.title = 'Registro Completo';
-                }
-            }
-            updateAllExerciseCardInputStates();
-        }
-
-        function renderFullLogViewContent(card) {
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const fullLogViewBody = document.getElementById(`fullLogViewBody-${card.id}`);
-            fullLogViewBody.innerHTML = '';
-            let repGoals = []; 
-            const repsValue = exerciseData.reps; 
-            if (typeof repsValue === 'string' && repsValue.includes(',')) { 
-                repGoals = repsValue.split(',').map(r => r.trim()); 
-            } 
-            let numberOfSets = parseInt(exerciseData.sets, 10); 
-            if(repGoals.length > numberOfSets) numberOfSets = repGoals.length; 
-            const parentSuperset = card.closest('.quick-mode-superset-container');
-            if (parentSuperset) {
-                const mainOrder = parseInt(card.dataset.mainOrder);
-                const supersetBlockData = workoutData[card.dataset.dayKey].exercises.find(ex => ex.order === mainOrder);
-                if (supersetBlockData && supersetBlockData.isEMOM) {
-                    const exerciseCount = supersetBlockData.items.length;
-                    const totalIntervals = parseInt(supersetBlockData.emomDetails.totalIntervals, 10);
-                    if (exerciseCount > 0 && totalIntervals > 0) numberOfSets = Math.ceil(totalIntervals / exerciseCount);
-                } else if (supersetBlockData && supersetBlockData.circuitDetails) {
-                    numberOfSets = parseInt(supersetBlockData.circuitDetails.totalRounds, 10);
-                }
-            }
-            if(isNaN(numberOfSets) || numberOfSets <= 0) numberOfSets = 1; 
-            let setsHtml = '';
-            for (let i = 1; i <= numberOfSets; i++) { 
-                const lastSetData = getLastLoggedDataForSet(exerciseData.name, i); 
-                let repsTargetForThisSet = repGoals.length > 0 ? (repGoals[i - 1] || repGoals[repGoals.length - 1]) : (Array.isArray(exerciseData.reps) ? (exerciseData.reps[i-1] || exerciseData.reps[0]) : exerciseData.reps); 
-                const repsPlaceholder = lastSetData.reps || repsTargetForThisSet || 'Reps'; 
-                const inputType = isTimeBased(repsTargetForThisSet) ? 'text' : 'number'; 
-                const existingLog = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseData.name);
-                const existingSet = existingLog ? existingLog.setsPerformed.find(s => s.serie === i) : null;
-                const initialKg = existingSet ? existingSet.kg : (lastSetData.kg || '');
-                const initialReps = existingSet ? existingSet.reps : (lastSetData.reps || '');
-                const isSetLogged = existingSet && existingSet.isQuickMode === undefined;
-                const currentCompletionState = existingSet ? existingSet.completionState : 'neutral';
-                const repsClass = currentCompletionState === 'good' ? 'history-reps-good' : (currentCompletionState === 'bad' ? 'history-reps-bad' : '');
-                setsHtml += `
-                    <div class="set-data-row" data-set-number="${i}">
-                        <span class="text-gray-300 w-auto pr-2 text-sm shrink-0">S.${i}: ${repsTargetForThisSet || ''}</span>
-                        <div class="set-input flex-grow flex gap-2">
-                            <input type="number" value="${initialKg}" placeholder="Kg" class="p-1.5 border border-gray-600 bg-gray-900 text-white rounded text-center text-sm w-full" aria-label="Peso para S.${i}" ${isSetLogged ? 'readonly' : ''}>
-                            <input type="${inputType}" value="${initialReps}" placeholder="Reps" class="p-1.5 border border-gray-600 bg-gray-900 text-white rounded text-center text-sm w-full ${repsClass}" aria-label="Reps para S.${i}" ${isSetLogged ? 'readonly' : ''}>
-                        </div>
-                    </div>
-                `;
-            }
-            // MODIFIED: Removed the "Completar Series" button and made "Registrar Series" full-width
-            fullLogViewBody.innerHTML = `
-                <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    ${setsHtml}
-                </div>
-                <div class="actions-footer">
-                    <button onclick="logFullSetsForCard('${card.id}')" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold py-2.5 px-4 rounded-lg shadow-md">
-                        Registrar Series
-                    </button>
-                </div>
-            `;
-            hasUnsavedFullLogChanges = false;
-            fullLogViewBody.querySelectorAll('.set-input input').forEach(input => {
-                input.addEventListener('input', () => {
-                    hasUnsavedFullLogChanges = true;
-                });
-            });
-        }
-
-        function completeAllSetsForCard(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const firstSetRow = card.querySelector('.set-data-row');
-            if (firstSetRow) {
-                const firstKgInput = firstSetRow.querySelector('input[aria-label*="Peso"]');
-                const firstRepsInput = firstSetRow.querySelector('input[aria-label*="Repeticiones"]');
-                const firstKgValue = firstKgInput ? firstKgInput.value.trim() : '';
-                const firstRepsValue = firstRepsInput ? firstRepsInput.value.trim() : '';
-                if (firstKgValue !== '' || firstRepsValue !== '') {
-                    card.querySelectorAll('.set-data-row').forEach((row, index) => {
-                        const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                        const repsInput = row.querySelector('input[aria-label*="Repeticiones"]');
-                        if (kgInput && kgInput.value.trim() === '' && !kgInput.readOnly) {
-                            kgInput.value = firstKgValue;
-                        }
-                        if (repsInput && repsInput.value.trim() === '' && !repsInput.readOnly) {
-                            repsInput.value = firstRepsValue;
-                        }
-                        if (kgInput.value.trim() !== firstKgValue || repsInput.value.trim() !== firstRepsValue) {
-                            hasUnsavedFullLogChanges = true;
-                        }
-                    });
-                }
-            }
-            showCustomAlert("Series vacías completadas con los valores de la primera serie.", "info");
-            hasUnsavedFullLogChanges = true;
-        }
-
-        function logFullSetsForCard(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            if (!isWorkoutInProgress) {
-                showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
-                return;
-            }
-            const exerciseName = card.dataset.currentName;
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const setsData = [];
-            let allSetsFilledForThisExercise = true;
-            let maxRmInSession = 0;
-            let overallCompletionState = 'good';
-            let heaviestSet = { kg: '0', reps: '0' };
-            card.querySelectorAll('.set-data-row').forEach(row => {
-                const setNumber = parseInt(row.dataset.setNumber, 10);
-                const kgInput = row.querySelector('input[aria-label*="Peso"]');
-                const repsInput = row.querySelector('input[aria-label*="Reps"]');
-                const kg = kgInput.value.trim();
-                const reps = repsInput.value.trim();
-                if (!isTimeBased(repsInput.placeholder) && (kg === '' || reps === '')) {
-                    allSetsFilledForThisExercise = false;
-                }
-                const targetReps = Array.isArray(exerciseData.reps) ? exerciseData.reps[setNumber - 1] : exerciseData.reps;
-                const completionState = getRepCompletionState(reps, targetReps);
-                if (completionState === 'bad') {
-                    overallCompletionState = 'bad';
-                } else if (completionState === 'neutral' && overallCompletionState !== 'bad') {
-                    overallCompletionState = 'neutral';
-                }
-                setsData.push({ serie: setNumber, kg: kg || '0', reps: reps || '0', completionState });
-                if (kg !== '' && reps !== '' && !isTimeBased(reps)) {
-                    const currentRm = calculateEpley1RM(kg, reps);
-                    if (currentRm > maxRmInSession) maxRmInSession = currentRm;
-                    if (parseFloat(kg) > parseFloat(heaviestSet.kg)) heaviestSet = { kg, reps };
-                }
-                kgInput.readOnly = true;
-                kgInput.disabled = true;
-                repsInput.readOnly = true;
-                repsInput.disabled = true;
-                repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-                if (completionState === 'good') repsInput.classList.add('history-reps-good');
-                else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
-            });
-            if (!allSetsFilledForThisExercise) {
-                showCustomAlert(`Por favor, completa todas las series para el ejercicio "${exerciseName}" o rellena los campos vacíos.`, 'warning');
-                return;
-            } else {
-                const logEntry = {
-                    exerciseName,
-                    date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                    time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                    rawDate: new Date().toISOString(),
-                    dayKey: card.dataset.dayKey,
-                    setsPerformed: setsData,
-                    completionState: overallCompletionState
-                };
-                const existingEntryIndex = currentWorkoutSummaryData.findIndex(e => e.exerciseName === exerciseName);
-                if (existingEntryIndex > -1) {
-                    currentWorkoutSummaryData[existingEntryIndex] = logEntry;
-                } else {
-                    currentWorkoutSummaryData.push(logEntry);
-                }
-                card.dataset.completionState = overallCompletionState;
-                const mainKgInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Peso"]');
-                const mainRepsInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Repeticiones"]');
-                if (mainKgInput) mainKgInput.value = heaviestSet.kg;
-                if (mainRepsInput && !isTimeBased(mainRepsInput.placeholder)) mainRepsInput.value = heaviestSet.reps;
-                hasUnsavedFullLogChanges = false;
-                toggleExerciseCardView(cardId);
-                updateAllExerciseCardInputStates();
-            }
-        }
+        // REMOVED: `toggleExerciseCardView` and `renderFullLogViewContent` functions as they are no longer needed.
         
-        function logSingleSetAndStartRest(button, cardId, setNumber) {
+        // MODIFIED: `logQuickModeSetFromCard` is now `logSingleSetStepByStep`
+        // NEW: Unifies the logging experience into a single step-by-step view
+        async function logSingleSetStepByStep(button, cardId) {
             if (!isWorkoutInProgress) {
                 showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
                 return;
             }
-            const setRow = button.closest('.set-data-row');
-            if (!setRow) return;
-            const kgInput = setRow.querySelector('input[aria-label*="Peso"]');
-            const repsInput = setRow.querySelector('input[aria-label*="Repeticiones"]');
+
+            const card = document.getElementById(cardId);
+            if (!card || card.querySelector('.quick-mode-register-button').disabled) {
+                // If button is disabled, it means the exercise is already completed
+                return;
+            }
+
+            const kgInput = card.querySelector('.quick-mode-input-row input[aria-label*="Peso"]');
+            const repsInput = card.querySelector('.quick-mode-input-row input[aria-label*="Repeticiones"]');
+            const progressSpan = document.getElementById(`progressDisplay-${cardId}`);
+            
             const kg = kgInput.value.trim();
             const reps = repsInput.value.trim();
-            if (kg === '' || reps === '') {
-                showCustomAlert("Por favor, introduce el peso y las repeticiones para esta serie.", "warning");
+            const totalSets = parseInt(card.dataset.totalSets, 10);
+
+            // Handle time-based and number-based exercises
+            const isTimeBasedExercise = isTimeBased(repsInput.placeholder);
+            if (!isTimeBasedExercise && (kg === '' || reps === '')) {
+                showCustomAlert("Por favor, introduce el peso y las repeticiones.", "warning");
                 return;
             }
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const targetReps = Array.isArray(exerciseData.reps) ? exerciseData.reps[setNumber - 1] : exerciseData.reps;
-            const completionState = getRepCompletionState(reps, targetReps);
-            kgInput.readOnly = true;
-            kgInput.disabled = true;
-            repsInput.readOnly = true;
-            repsInput.disabled = true;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-check-double"></i>';
+
+            // Visual confirmation
+            const originalButtonContent = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check-circle text-xl animate-pulse"></i>';
             button.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
-            repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-            if (completionState === 'good') repsInput.classList.add('history-reps-good');
-            else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
+            button.classList.add('bg-green-500');
+            setTimeout(() => {
+                if (!card.querySelector('.quick-mode-register-button').disabled) {
+                    button.innerHTML = originalButtonContent;
+                    button.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                    button.classList.remove('bg-green-500');
+                }
+            }, 500);
+
+            let currentSet = exerciseProgressMap.get(cardId) || 1;
+            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
+            const targetReps = isTimeBasedExercise ? exerciseData.reps : (Array.isArray(exerciseData.reps) && exerciseData.reps.length >= currentSet ? exerciseData.reps[currentSet - 1] : exerciseData.reps);
+            const completionState = getRepCompletionState(reps, targetReps);
+
+            // MODIFIED: Check for new PR before creating the log entry
+            let newPrValue = null;
+            if (!isTimeBasedExercise && parseFloat(kg) > 0 && parseInt(reps) > 0) {
+                const currentRm = calculateEpley1RM(kg, reps);
+                // MODIFIED: Use the new function to get historical max RM, excluding the current session
+                const historicalMaxRm = getHistoricalMaxRmExcludingSession(exerciseData.name, currentSessionId);
+                // MODIFIED: Condition to show new record alert only if current RM is greater than historical max
+                if (historicalMaxRm > 0 && currentRm > historicalMaxRm) {
+                    showNewRecordAlert(currentRm);
+                    newPrValue = currentRm.toFixed(1);
+                } else if (historicalMaxRm === 0 && currentRm > 0) {
+                    // This is the first record, don't show the alert, but track the PR for the log
+                    newPrValue = currentRm.toFixed(1);
+                }
+            }
+
+            // Create or update log entry
             let logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseData.name);
             if (!logEntry) {
                 logEntry = {
@@ -2338,150 +2403,93 @@
                     rawDate: new Date().toISOString(),
                     dayKey: card.dataset.dayKey,
                     setsPerformed: [],
-                    completionState: 'neutral'
+                    completionState: 'neutral',
+                    personalRecord: newPrValue
                 };
                 currentWorkoutSummaryData.push(logEntry);
             }
-            const existingSetIndex = logEntry.setsPerformed.findIndex(s => s.serie === setNumber);
-            if (existingSetIndex > -1) {
-                logEntry.setsPerformed[existingSetIndex] = { serie: setNumber, kg, reps, completionState };
-            } else {
-                logEntry.setsPerformed.push({ serie: setNumber, kg, reps, completionState });
-                logEntry.setsPerformed.sort((a, b) => a.serie - b.serie);
-            }
+            logEntry.setsPerformed.push({ serie: currentSet, kg, reps, completionState });
+
+            // Update overall completion state
             let overallCompletion = 'good';
-            for (const s of logEntry.setsPerformed) {
-                if (s.completionState === 'bad') {
+            // MODIFIED: Check all sets logged so far for completion state
+            for(const set of logEntry.setsPerformed) {
+                const setCompletionState = getRepCompletionState(set.reps, targetReps); // Use the same target for all sets for simplicity
+                if(setCompletionState === 'bad') {
                     overallCompletion = 'bad';
                     break;
-                } else if (s.completionState === 'neutral') {
+                }
+                if(setCompletionState === 'neutral') {
                     overallCompletion = 'neutral';
                 }
             }
             logEntry.completionState = overallCompletion;
-            card.dataset.completionState = overallCompletion;
-            let heaviestSet = { kg: '0', reps: '0' };
-            logEntry.setsPerformed.forEach(s => {
-                if (parseFloat(s.kg) > parseFloat(heaviestSet.kg)) heaviestSet = { kg: s.kg, reps: s.reps };
-            });
-            const mainKgInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Peso"]');
-            const mainRepsInput = document.getElementById(`quickViewBody-${cardId}`).querySelector('input[aria-label*="Repeticiones"]');
-            if (mainKgInput) mainKgInput.value = heaviestSet.kg;
-            if (mainRepsInput && !isTimeBased(mainRepsInput.placeholder)) mainRepsInput.value = heaviestSet.reps;
-            hasUnsavedFullLogChanges = true;
-            const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
-            if (restDurationMatch) {
-                const restSeconds = parseInt(restDurationMatch[1], 10);
-                if (restSeconds > 0) {
-                    const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                    const currentCardElement = document.getElementById(cardId);
-                    const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextExerciseForRest = null;
-                    if (currentCardIndex !== -1) {
-                        let nextCard = null;
-                        for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                            if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                                nextCard = allExerciseCards[i];
-                                break;
-                            } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                                const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                                if (firstSubExercise) {
-                                    nextCard = firstSubExercise;
+            
+            // Check if the new set has a PR and if it's the highest so far in this session.
+            if (newPrValue && (!logEntry.personalRecord || parseFloat(newPrValue) > parseFloat(logEntry.personalRecord))) {
+                logEntry.personalRecord = newPrValue;
+            }
+
+            // Check if all sets are completed
+            if (currentSet >= totalSets) {
+                // Finalize the exercise
+                exerciseProgressMap.delete(cardId);
+                updateAllExerciseCardInputStates();
+                showCustomAlert(`¡Ejercicio "${exerciseData.name}" completado!`, "info");
+            } else {
+                // Prepare for the next set
+                exerciseProgressMap.set(cardId, currentSet + 1);
+                
+                // NEW: After a set is logged, pre-fill the inputs for the next set
+                const nextSetData = getLastLoggedDataForSet(exerciseData.name, currentSet + 1);
+                if (nextSetData.kg) {
+                    kgInput.value = nextSetData.kg;
+                } else {
+                    kgInput.value = '';
+                }
+                if (nextSetData.reps) {
+                    repsInput.value = nextSetData.reps;
+                } else {
+                    repsInput.value = '';
+                }
+                
+                // Start rest timer
+                const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
+                if (restDurationMatch) {
+                    const restSeconds = parseInt(restDurationMatch[1], 10);
+                    if (restSeconds > 0) {
+                        const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
+                        const currentCardElement = document.getElementById(cardId);
+                        const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
+                        let nextExerciseForRest = null;
+                        if (currentCardIndex !== -1) {
+                            let nextCard = null;
+                            for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
+                                if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
+                                    nextCard = allExerciseCards[i];
                                     break;
+                                } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
+                                    const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
+                                    if (firstSubExercise) {
+                                        nextCard = firstSubExercise;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        if (nextCard) {
-                            nextExerciseForRest = {
-                                name: nextCard.dataset.currentName,
-                                reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                            };
-                        }
-                    }
-                    startRestTimer(restSeconds, nextExerciseForRest);
-                }
-            }
-            updateAllExerciseCardInputStates();
-        }
-
-        function logQuickModeSetFromCard(button, cardId) {
-            if (!isWorkoutInProgress) {
-                showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
-                return;
-            }
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const kgInput = card.querySelector('.quick-view-body input[aria-label*="Peso"]');
-            const repsInput = card.querySelector('.quick-view-body input[aria-label*="Repeticiones"]');
-            const kg = kgInput.value.trim();
-            const reps = repsInput.value.trim();
-            if (kg === '' || reps === '') {
-                showCustomAlert("Por favor, introduce el peso y las repeticiones.", "warning");
-                return;
-            }
-            const exerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const exerciseName = exerciseData.name;
-            const targetReps = exerciseData.reps;
-            const completionState = getRepCompletionState(reps, targetReps);
-            const setsData = [{ serie: 1, kg: kg || '0', reps: reps || '0', completionState, isQuickMode: true }];
-            const logEntry = {
-                exerciseName,
-                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                rawDate: new Date().toISOString(),
-                dayKey: card.dataset.dayKey,
-                setsPerformed: setsData,
-                completionState: completionState
-            };
-            const existingEntryIndex = currentWorkoutSummaryData.findIndex(e => e.exerciseName === exerciseName);
-            if (existingEntryIndex > -1) {
-                currentWorkoutSummaryData[existingEntryIndex] = logEntry;
-            } else {
-                currentWorkoutSummaryData.push(logEntry);
-            }
-            card.dataset.completionState = completionState;
-            kgInput.readOnly = true;
-            kgInput.disabled = true;
-            repsInput.readOnly = true;
-            repsInput.disabled = true;
-            button.disabled = true;
-            button.innerHTML = '<i class="fas fa-check-double text-xl"></i>';
-            button.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-            button.classList.add('bg-green-500', 'hover:bg-green-600');
-            repsInput.classList.remove('history-reps-good', 'history-reps-bad');
-            if (completionState === 'good') repsInput.classList.add('history-reps-good');
-            else if (completionState === 'bad') repsInput.classList.add('history-reps-bad');
-            showCustomAlert("¡Set registrado con éxito!", "info");
-            const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
-            if (restDurationMatch) {
-                const restSeconds = parseInt(restDurationMatch[1], 10);
-                if (restSeconds > 0) {
-                    const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                    const currentCardElement = document.getElementById(cardId);
-                    const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
-                    let nextCard = null;
-                    for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                        if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                            nextCard = allExerciseCards[i];
-                            break;
-                        } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                            const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                            if (firstSubExercise) {
-                                nextCard = firstSubExercise;
-                                break;
+                            if (nextCard) {
+                                nextExerciseForRest = {
+                                    name: nextCard.dataset.currentName,
+                                    reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
+                                    kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                                };
                             }
                         }
-                    }
-                    if (nextCard) {
-                        nextExerciseForRest = {
-                            name: nextCard.dataset.currentName,
-                            reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
-                        };
+                        startRestTimer(restSeconds, nextExerciseForRest);
                     }
                 }
             }
+
+            // Update UI state for all cards
             updateAllExerciseCardInputStates();
         }
 
@@ -2642,25 +2650,46 @@
         function prepareShareableCard() { const cardContent = document.getElementById('shareCard'); const dayData = workoutData[currentActiveDayKey]; const totalVolume = workoutSummaryTotalVolume.textContent; const totalTime = workoutSummaryTotalTime.textContent; cardContent.innerHTML = ` <h4>${dayData.name.toUpperCase()}</h4> <img src="https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821cea25072096f7d31d5c1.png" class="logo" alt="Logo"> <p><strong><i class="fas fa-clock mr-2"></i>Tiempo:</strong> ${totalTime}</p> <p><strong><i class="fas fa-weight-hanging mr-2"></i>Volumen:</strong> ${totalVolume}</p> <p class="text-center text-xs mt-4">¡Entrenamiento completado!</p> `; openModal(shareModal); }
         function downloadShareableImage() { const cardToCapture = document.getElementById('shareCard'); html2canvas(cardToCapture, { backgroundColor: null, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = 'resumen-entrenamiento.png'; link.href = canvas.toDataURL('image/png'); link.click(); }); }
         
+        // MODIFIED: startEmom to show welcome screen first
         function startEmom(dayKey, mainOrder) {
             const emomBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.isEMOM);
             if (!emomBlock || !emomBlock.emomDetails || !emomBlock.items) {
-                showCustomAlert("Datos de EMOM no encontrados.", "error"); return;
+                showCustomAlert("Datos de EMOM no encontrados.", "error");
+                return;
             }
             emomExercisesArray = emomBlock.items;
             totalEmomIntervals = parseInt(emomBlock.emomDetails.totalIntervals, 10);
             emomWorkIntervalSeconds = 60;
             currentEmomMainOrder = mainOrder;
             if (isNaN(totalEmomIntervals) || isNaN(emomWorkIntervalSeconds) || emomWorkIntervalSeconds <= 0) {
-                showCustomAlert("Configuración de EMOM inválida.", "error"); return;
+                showCustomAlert("Configuración de EMOM inválida.", "error");
+                return;
             }
             currentEmomIntervalNumber = 0;
             currentEmomExerciseIndex = 0;
+            
+            // Show welcome view
+            emomActiveView.style.display = 'none';
+            emomWelcomeView.style.display = 'flex';
+            emomWelcomeTitle.textContent = 'EMOM';
+            const totalMinutes = Math.floor(totalEmomIntervals * emomWorkIntervalSeconds / 60);
+            // MODIFIED: Conciser summary for EMOM
+            emomWelcomeDetails.innerHTML = `Tendrás que completar <strong>${totalEmomIntervals} intervalos de 1 minuto</strong>. <br>Ejercicios: ${emomExercisesArray.map(e => e.name).join(', ')}.`;
+            const firstExerciseImage = emomExercisesArray[0].imageUrl;
+            if (emomWelcomeImage && firstExerciseImage) {
+                emomWelcomeImage.src = firstExerciseImage;
+                emomWelcomeImage.style.display = 'block';
+            } else if(emomWelcomeImage) {
+                emomWelcomeImage.style.display = 'none';
+                emomWelcomeImage.src = '';
+            }
             openModal(emomTimerModal);
-            startCountdownTimer('emom');
         }
 
         function runNextEmomInterval() {
+            // Hide welcome and show active view
+            emomWelcomeView.style.display = 'none';
+            emomActiveView.style.display = 'flex';
             clearInterval(emomIntervalTimer);
             if (currentEmomIntervalNumber >= totalEmomIntervals) {
                 terminateEmom(true); return;
@@ -2690,6 +2719,7 @@
         }
 
         function updateEmomModalDisplay(exercise) {
+            emomTimerTitle.innerHTML = `<span class="text-yellow-400">Ronda ${Math.floor((currentEmomIntervalNumber - 1) / emomExercisesArray.length) + 1} de ${Math.ceil(totalEmomIntervals / emomExercisesArray.length)}</span>`;
             emomOverallProgress.textContent = `Intervalo ${currentEmomIntervalNumber} de ${totalEmomIntervals}`;
             emomCurrentExerciseName.textContent = exercise.name;
             emomCurrentExerciseReps.textContent = exercise.reps || 'N/A';
@@ -2718,7 +2748,7 @@
             runNextEmomInterval();
         }
 
-        // MODIFIED: Circuit timer logic
+        // MODIFIED: Circuit timer logic with welcome screen
         function startCircuit(dayKey, mainOrder) {
             const circuitBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.circuitDetails);
             if (!circuitBlock || !circuitBlock.circuitDetails || !circuitBlock.items) {
@@ -2734,11 +2764,40 @@
             currentCircuitExerciseIndexInRound = 0;
             currentCircuitPhase = 'countdown'; 
             currentCircuitTimeLeft = 5;
+            
+            // Show welcome view
+            circuitActiveView.style.display = 'none';
+            circuitWelcomeView.style.display = 'flex';
+            circuitWelcomeTitle.textContent = 'CIRCUITO';
+            let totalCircuitDuration = 0;
+            circuitExercisesArray.forEach(ex => {
+                totalCircuitDuration += parseDurationToSeconds(ex.reps);
+            });
+            totalCircuitDuration += parseDurationToSeconds(circuitDetailsGlobal.restBetweenExercisesSeconds) * (circuitExercisesArray.length - 1);
+            totalCircuitDuration = totalCircuitDuration * circuitDetailsGlobal.totalRounds;
+            totalCircuitDuration += parseDurationToSeconds(circuitDetailsGlobal.restBetweenRoundsSeconds) * (circuitDetailsGlobal.totalRounds - 1);
+
+            const formattedTotalDuration = formatTime(totalCircuitDuration);
+
+            // MODIFIED: Conciser summary for Circuit
+            circuitWelcomeDetails.innerHTML = `Consta de <strong>${circuitDetailsGlobal.totalRounds} rondas</strong> con una duración total de ${formattedTotalDuration}. <br>Ejercicios: ${circuitExercisesArray.map(e => e.name).join(', ')}.`;
+            const firstExerciseImage = circuitExercisesArray[0].imageUrl;
+            if (circuitWelcomeImage && firstExerciseImage) {
+                circuitWelcomeImage.src = firstExerciseImage;
+                circuitWelcomeImage.style.display = 'block';
+            } else if (circuitWelcomeImage) {
+                circuitWelcomeImage.style.display = 'none';
+                circuitWelcomeImage.src = '';
+            }
+
             openModal(circuitTimerModal);
-            startCountdownTimer('circuit');
         }
 
         function runNextCircuitInterval() {
+            // Hide welcome and show active view
+            circuitWelcomeView.style.display = 'none';
+            circuitActiveView.style.display = 'flex';
+
             clearInterval(circuitTimerInterval);
 
             // Determine next phase
@@ -2809,7 +2868,10 @@
         }
 
         function updateCircuitModalDisplay() {
-            circuitOverallProgress.textContent = `Ronda ${currentCircuitRound} de ${circuitDetailsGlobal.totalRounds}`;
+            // MODIFIED: Change to show round number and total rounds in yellow title
+            circuitTimerTitle.innerHTML = `<span class="text-yellow-400">Ronda ${currentCircuitRound} de ${circuitDetailsGlobal.totalRounds}</span>`;
+            
+            circuitOverallProgress.textContent = ''; // Removed from here
             // MODIFIED: Format to HH:MM:SS
             circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
             let exerciseForDisplay = null;
@@ -2919,8 +2981,16 @@
                 stateLabelEl = circuitStateLabel;
                 openModal(circuitTimerModal);
             }
+            
+            // MODIFIED: Do not show PREPÁRATE title anymore
+            if (type === 'work') {
+                if (modalTitleEl) modalTitleEl.textContent = 'TIEMPO DE TRABAJO';
+            } else if (type === 'emom') {
+                 if (modalTitleEl) modalTitleEl.textContent = `<span class="text-yellow-400">EMOM</span>`;
+            } else if (type === 'circuit') {
+                 if (modalTitleEl) modalTitleEl.textContent = `<span class="text-yellow-400">CIRCUITO</span>`;
+            }
 
-            if (modalTitleEl) modalTitleEl.textContent = 'PREPÁRATE';
             if (stateLabelEl) {
                 stateLabelEl.textContent = 'CUENTA ATRÁS';
                 stateLabelEl.className = 'state-label countdown';
@@ -3063,7 +3133,7 @@
                 workCurrentImage.style.display = 'block';
             } else if (workCurrentImage) {
                 workCurrentImage.style.display = 'none';
-                workCurrentImage.src = '';
+                imgElement.src = '';
             }
 
             updateWorkTimerDisplay(durationSeconds);
@@ -3208,7 +3278,123 @@
             timedExerciseSetsLogged = [];
         }
 
-        // MODIFIED: This function now dynamically builds the URL for the workout data and reads client config.
+        // NEW: Function to set up the extras form modal
+        function setupExtrasForm() {
+            // Reset form fields
+            extraActivitySelect.value = 'Pádel';
+            otherActivityInputGroup.style.display = 'none';
+            otherActivityNameInput.value = '';
+            extraTimeInput.value = '';
+            extraVolumeInput.value = '';
+            extraCaptureInput.value = '';
+            extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
+            uploadedCaptureFile = null;
+
+            // Handle "Otros" option visibility
+            extraActivitySelect.onchange = () => {
+                if (extraActivitySelect.value === 'Otros') {
+                    otherActivityInputGroup.style.display = 'block';
+                } else {
+                    otherActivityInputGroup.style.display = 'none';
+                }
+            };
+
+            // Display selected file name
+            extraCaptureInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    extraCaptureFileName.textContent = file.name;
+                    uploadedCaptureFile = file;
+                } else {
+                    extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
+                    uploadedCaptureFile = null;
+                }
+            };
+            
+            // Set up the register button
+            registerExtraActivityButton.onclick = () => {
+                const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
+                if (activityName === '') {
+                    showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
+                    return;
+                }
+                registerExtraActivity(activityName, extraTimeInput.value.trim(), extraVolumeInput.value.trim(), uploadedCaptureFile);
+            };
+        }
+
+        // NEW: Function to upload file and register the extra activity
+        async function registerExtraActivity(activityName, time, volume, captureFile) {
+            if (!supabase || !userIdentifier) {
+                showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
+                return;
+            }
+            
+            closeModalElement(extrasModal);
+            showCustomAlert(`Registrando "${activityName}"...`, "info");
+            
+            let captureUrl = null;
+            if (captureFile) {
+                try {
+                    const filePath = `extra_captures/${userIdentifier}/${Date.now()}_${captureFile.name}`;
+                    const { data, error } = await supabase.storage
+                        .from('workout-captures')
+                        .upload(filePath, captureFile, {
+                            cacheControl: '3600',
+                            upsert: false
+                        });
+                    
+                    if (error) {
+                        throw new Error(`Error uploading image: ${error.message}`);
+                    }
+                    
+                    // Construct the public URL
+                    const publicUrl = supabase.storage
+                        .from('workout-captures')
+                        .getPublicUrl(filePath).data.publicUrl;
+                    captureUrl = publicUrl;
+                } catch (error) {
+                    console.error("Error al subir la imagen:", error);
+                    showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
+                }
+            }
+            
+            // MODIFIED: total_time_session is formatted to HH:MM before sending
+            const [hoursStr = '0', minutesStr = '0'] = time.split(':');
+            const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
+
+            const logEntry = {
+                client_id: userIdentifier,
+                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                raw_date: new Date().toISOString(),
+                exercise_name: "Extra Activity", // Unique identifier for extra activities
+                name_workout: activityName,
+                sets_performed: '[]', // Placeholder to maintain schema consistency
+                completion_state: "completed",
+                session_id: crypto.randomUUID(),
+                total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
+                total_volume_session: volume || null,
+                capture_url: captureUrl
+            };
+            
+            try {
+                const { error } = await supabase
+                    .from('workout_logs')
+                    .insert([logEntry]);
+                
+                if (error) {
+                    throw new Error(`Error inserting extra activity log: ${error.message}`);
+                }
+                
+                showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
+                await loadWorkoutLogs(); // Reload logs to show the new entry in history
+                renderCalendar(); // Re-render the history calendar
+            } catch (error) {
+                console.error("Error al registrar la actividad extra:", error);
+                showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
+            }
+        }
+
         async function initializeWorkoutApp() {
             try {
                 // Dynamically construct the workout data URL from the user identifier in the page URL.
@@ -3345,6 +3531,8 @@
                 individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary" && log.exercise_name !== "Extra Activity");
                 workoutSessionSummaries = data.filter(log => log.exercise_name === "Workout Session Summary");
                 extraActivities = data.filter(log => log.exercise_name === "Extra Activity");
+                allHistoryItems = [...workoutSessionSummaries, ...extraActivities];
+                groupHistoryByDay();
                 console.log("Individual Exercise Logs loaded:", individualExerciseLogs);
                 console.log("Workout Session Summaries loaded:", workoutSessionSummaries);
                 console.log("Extra Activities loaded:", extraActivities);
@@ -3354,6 +3542,18 @@
                 workoutSessionSummaries = [];
                 extraActivities = [];
             }
+        }
+        
+        // NEW: Function to group all history items by day
+        function groupHistoryByDay() {
+            groupedHistory = allHistoryItems.reduce((acc, item) => {
+                const date = new Date(item.raw_date).toISOString().slice(0, 10);
+                if (!acc[date]) {
+                    acc[date] = [];
+                }
+                acc[date].push(item);
+                return acc;
+            }, {});
         }
 
         function openFullWorkoutLogModal(sessionId) {
@@ -3379,18 +3579,9 @@
                 fullWorkoutLogContent.innerHTML = '<p class="text-gray-400 text-center">No se registraron ejercicios en esta sesión.</p>';
             } else {
                 exercisesInSession.forEach(exerciseEntry => {
-                    let maxRmForExerciseInSession = 0;
-                    exerciseEntry.setsPerformed.forEach(set => {
-                        if (!isTimeBased(set.reps)) {
-                            const currentRm = calculateEpley1RM(set.kg, set.reps);
-                            if (currentRm > maxRmForExerciseInSession) {
-                                maxRmForExerciseInSession = currentRm;
-                            }
-                        }
-                    });
-                    const historicalMaxRmBeforeThisSession = getHistoricalMaxRmExcludingSession(exerciseEntry.exerciseName, sessionSummaryEntry.date, sessionSummaryEntry.time);
-                    const isNewPR = historicalMaxRmBeforeThisSession > 0 && maxRmForExerciseInSession > historicalMaxRmBeforeThisSession;
-                    const prIcon = isNewPR ? '<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal!"></i>' : '';
+                    // MODIFIED: Check for the personalRecord property
+                    const isNewPR = exerciseEntry.personalRecord !== null && exerciseEntry.personalRecord !== undefined;
+                    const prIcon = isNewPR ? `<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal! (${exerciseEntry.personalRecord} kg)"></i>` : '';
                     const escapedExerciseName = exerciseEntry.exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
 
                     const exerciseHtml = document.createElement('div');
@@ -3453,6 +3644,45 @@
             }); 
             previewHtml += `</ul><button onclick="startQuickMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`; 
             workoutPreviewContainer.innerHTML = previewHtml; 
+        }
+
+        // NEW: Function to start quick mode workout
+        function startQuickMode(dayKey) {
+            if (isWorkoutInProgress) {
+                showCustomAlert("Ya hay un entrenamiento en curso. Por favor, termínalo antes de empezar uno nuevo.", "warning");
+                return;
+            }
+            
+            toggleWorkoutState(); // Start the workout session here
+            
+            const dayData = workoutData[dayKey];
+            quickModeWorkoutModalTitle.textContent = dayData.name;
+            quickModeExerciseList.innerHTML = '';
+            
+            dayData.exercises.forEach(exercise => {
+                if (exercise.isSuperset || exercise.isEMOM || exercise.circuitDetails) {
+                    quickModeExerciseList.appendChild(createQuickModeSupersetCard(dayKey, exercise.order, exercise));
+                } else {
+                    quickModeExerciseList.appendChild(createQuickModeExerciseCard(dayKey, exercise.order, exercise, false));
+                }
+            });
+
+            updateAllExerciseCardInputStates();
+            openModal(quickModeWorkoutModal);
+        }
+        
+        // NEW: Function to toggle the settings menu for an exercise card
+        function toggleSettingsMenu(button, cardId) {
+            const menu = document.getElementById(`settingsMenu-${cardId}`);
+            button.classList.toggle('active');
+            if (menu.classList.contains('is-active')) {
+                menu.classList.remove('is-active');
+            } else {
+                // Close all other menus
+                document.querySelectorAll('.quick-mode-header-buttons').forEach(m => m.classList.remove('is-active'));
+                document.querySelectorAll('.quick-mode-settings-button').forEach(b => b.classList.remove('active'));
+                menu.classList.add('is-active');
+            }
         }
 
         // NEW: Function to set up the extras form modal
@@ -3565,7 +3795,7 @@
                 
                 showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
                 await loadWorkoutLogs(); // Reload logs to show the new entry in history
-                renderWorkoutHistoryList('all'); // Re-render the history list
+                renderCalendar(); // Re-render the history calendar
             } catch (error) {
                 console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
@@ -3575,3 +3805,4 @@
     </script>
 </body>
 </html>
+
