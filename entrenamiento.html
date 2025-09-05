@@ -1420,7 +1420,7 @@
                     console.error('Could not initialize or prime audio:', e);
                     showCustomAlert('Error al activar el sonido.', 'error');
                 } finally {
-                    // Remove the event listeners after the first interaction
+                    // Remove the event listeners after the first interaction.
                     document.body.removeEventListener('click', initAudio);
                     document.body.removeEventListener('touchstart', initAudio);
                 }
@@ -2021,35 +2021,76 @@
             }
         }
 
+        // MODIFIED: Updated `openSwapExerciseModal` and `performExerciseSwap` to fix the issues
         function openSwapExerciseModal(cardId) {
             const card = document.getElementById(cardId);
             if (!card) return;
-            const primordialExerciseData = JSON.parse(card.dataset.primordialExerciseData);
-            swapExerciseModalTitle.textContent = `Alternativas para: ${card.dataset.currentName}`;
-            const alternatives = exerciseAlternatives[primordialExerciseData.name] || [];
+            // Get original data from the `originalExerciseData` dataset, which is never overwritten
+            const originalExerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
+            // Get current data from the `primordialExerciseData` dataset, which holds the original, pre-swapped data
+            const primordialExerciseData = JSON.parse(card.dataset.primordialExerciseData || '{}');
+
+            swapExerciseModalTitle.textContent = `Alternativas para: ${primordialExerciseData.name}`;
             swapExerciseModalContent.innerHTML = '';
-            if (card.dataset.isSwapped === "true") {
+
+            const alternatives = exerciseAlternatives[primordialExerciseData.name] || [];
+            
+            // 1. Check if there's an active swap to allow reverting
+            const isSwapped = card.dataset.isSwapped === "true";
+            if (isSwapped) {
                 const revertButton = document.createElement('button');
                 revertButton.className = 'w-full text-left p-3 bg-blue-700 hover:bg-blue-600 rounded-md transition-colors mb-2';
-                revertButton.innerHTML = `<strong class="text-yellow-300"><i class="fas fa-undo mr-2"></i>Volver a ${primordialExerciseData.name}</strong>`;
-                revertButton.onclick = () => { performExerciseSwap(cardId, primordialExerciseData); closeModalElement(swapExerciseModal); };
+                revertButton.innerHTML = `<strong class="text-yellow-300"><i class="fas fa-undo mr-2"></i>Volver a ${originalExerciseData.name}</strong>`;
+                revertButton.onclick = () => { performExerciseSwap(cardId, originalExerciseData); closeModalElement(swapExerciseModal); };
                 swapExerciseModalContent.appendChild(revertButton);
             }
-            alternatives.forEach(alt => {
-                if (alt.name === card.dataset.currentName) return;
-                const button = document.createElement('button');
-                button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
-                button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
-                // MODIFIED: Pass imageUrl along with other alternative data
-                button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
-                swapExerciseModalContent.appendChild(button);
-            });
-            if (swapExerciseModalContent.innerHTML === '') {
-                swapExerciseModalContent.innerHTML += '<p class="text-gray-400">No hay alternativas definidas.</p>';
+
+            // 2. Add alternative exercises
+            let hasAlternatives = false;
+            if (alternatives.length > 0) {
+                alternatives.forEach(alt => {
+                    // Prevent showing the current exercise in the alternatives list
+                    if (alt.name === card.dataset.currentName) return; 
+                    hasAlternatives = true;
+                    const button = document.createElement('button');
+                    button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
+                    button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
+                    // MODIFIED: Pass imageUrl along with other alternative data
+                    button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
+                    swapExerciseModalContent.appendChild(button);
+                });
             }
+
+            // 3. Display message if no alternatives exist
+            if (!hasAlternatives && !isSwapped) {
+                swapExerciseModalContent.innerHTML = '<p class="text-gray-400 text-center">No hay alternativas disponibles para este ejercicio.</p>';
+            }
+
             openModal(swapExerciseModal);
         }
-        function performExerciseSwap(cardId, newExerciseData) { const card = document.getElementById(cardId); if (!card) return; const parent = card.parentNode; const isSubItem = card.dataset.subOrder !== ''; let specialData = null; if (isSubItem) { const supersetContainer = card.closest('.quick-mode-superset-container'); if(supersetContainer){ const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } } } const primordialData = exerciseAlternatives[newExerciseData.name] ? newExerciseData : JSON.parse(card.dataset.primordialExerciseData || '{}'); const exerciseToCreate = { ...newExerciseData, primordialExerciseData: primordialData }; const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); if (parent) { parent.replaceChild(newCard, card); } updateAllExerciseCardInputStates(); }
+
+        function performExerciseSwap(cardId, newExerciseData) { 
+            const card = document.getElementById(cardId); 
+            if (!card) return; 
+            const parent = card.parentNode; 
+            const isSubItem = card.dataset.subOrder !== ''; 
+            let specialData = null; 
+            if (isSubItem) { 
+                const supersetContainer = card.closest('.quick-mode-superset-container'); 
+                if(supersetContainer){ 
+                    const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); 
+                    if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } 
+                    else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } 
+                } 
+            } 
+            // FIXED: Always use the original data from the `originalExerciseData` dataset, not the `primordial` one
+            const originalData = JSON.parse(card.dataset.originalExerciseData || '{}');
+            const exerciseToCreate = { ...newExerciseData, originalExerciseData: originalData }; 
+            const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); 
+            if (parent) { parent.replaceChild(newCard, card); } 
+            updateAllExerciseCardInputStates(); 
+        }
+
         function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); /* NEW: Release lock on close */ closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
         
         // MODIFIED: toggleWorkoutState to include Wake Lock
@@ -2200,10 +2241,12 @@
             card.dataset.mainOrder = String(mainOrder); 
             card.dataset.subOrder = exerciseInput.subOrder !== undefined ? String(exerciseInput.subOrder) : ''; 
             card.dataset.currentName = exerciseInput.name; 
-            card.dataset.originalExerciseData = JSON.stringify(exerciseInput); 
-            const primordialData = exerciseAlternatives[exerciseInput.name] ? exerciseInput : JSON.parse(card.dataset.primordialExerciseData || '{}'); 
-            card.dataset.primordialExerciseData = JSON.stringify(primordialData); 
-            card.dataset.isSwapped = (exerciseInput.name !== primordialData.name).toString(); 
+            // FIXED: Store the original data in a separate dataset to always be able to revert.
+            const originalData = exerciseInput.originalExerciseData || exerciseInput;
+            card.dataset.originalExerciseData = JSON.stringify(originalData); 
+            // FIXED: Keep track of the first-ever version of the exercise for alternatives.
+            card.dataset.primordialExerciseData = JSON.stringify(exerciseInput.primordialExerciseData || originalData);
+            card.dataset.isSwapped = (exerciseInput.name !== originalData.name).toString(); 
             const isTimeBasedExercise = isTimeBased(exerciseInput.reps);
             const inputType = isTimeBasedExercise ? 'text' : 'number';
 
@@ -2227,10 +2270,20 @@
             // NEW: Create the settings dropdown and icon button
             let settingsButtonHtml = '';
             let settingsDropdownHtml = '';
-            const originalEscapedName = (exerciseInput.name || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const originalEscapedName = (originalData.name || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
             
             // MODIFIED: Changed the settings button to the new gray, small one
             settingsButtonHtml = `<button class="quick-mode-settings-button" onclick="toggleSettingsMenu(this, '${cardId}')" aria-label="Opciones de ejercicio"><i class="fas fa-cog"></i></button>`;
+
+            // MODIFIED: Add conditional visibility for "Calc. Aproximación"
+            const showWarmupButton = !isSubItem && !isTimeBased(exerciseInput.reps) && !isTimeBased(repsPlaceholder);
+            const warmupButtonHtml = showWarmupButton ? `<button onclick="openWarmupModal()" class="quick-action-btn"><i class="fas fa-fire w-5 text-center"></i> Calc. Aproximación</button>` : '';
+
+            // FIXED: "Cambiar Ejercicio" button now appears if alternatives exist for the primordial exercise OR it's a swapped exercise
+            const primordialExerciseName = (JSON.parse(card.dataset.primordialExerciseData || '{}').name);
+            const showSwapButton = (exerciseAlternatives[primordialExerciseName] || []).length > 0 || card.dataset.isSwapped === "true";
+            const swapButtonHtml = showSwapButton ? 
+                `<button onclick="openSwapExerciseModal('${cardId}')" class="quick-action-btn"><i class="fas fa-exchange-alt w-5 text-center"></i> Cambiar Ejercicio</button>` : '';
 
             settingsDropdownHtml = `
                 <div class="quick-mode-header-buttons" id="settingsMenu-${cardId}">
@@ -2238,10 +2291,8 @@
                         `<button onclick="startRestTimer(${parseInt(exerciseInput.rest.match(/(\d+)s/)[1])})" class="quick-action-btn"><i class="fas fa-clock w-5 text-center"></i> Descanso</button>` : ''
                     }
                     <button onclick="viewExerciseHistoryFromLog('${originalEscapedName}')" class="quick-action-btn"><i class="fas fa-chart-line w-5 text-center"></i> Ver Historial</button>
-                    ${!isSubItem ? `<button onclick="openWarmupModal()" class="quick-action-btn"><i class="fas fa-fire w-5 text-center"></i> Calc. Aproximación</button>` : ''}
-                    ${(exerciseAlternatives[primordialData.name] || []).length > 0 || card.dataset.isSwapped === "true" ? 
-                        `<button onclick="openSwapExerciseModal('${cardId}')" class="quick-action-btn"><i class="fas fa-exchange-alt w-5 text-center"></i> Cambiar Ejercicio</button>` : ''
-                    }
+                    ${warmupButtonHtml}
+                    ${swapButtonHtml}
                 </div>
             `;
             
@@ -2945,7 +2996,7 @@
         function formatTimeHHMM(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
-            return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
         }
 
         let countdownTimerInterval = null;
@@ -3133,7 +3184,7 @@
                 workCurrentImage.style.display = 'block';
             } else if (workCurrentImage) {
                 workCurrentImage.style.display = 'none';
-                imgElement.src = '';
+                workCurrentImage.src = '';
             }
 
             updateWorkTimerDisplay(durationSeconds);
@@ -3805,4 +3856,3 @@
     </script>
 </body>
 </html>
-
