@@ -1054,6 +1054,7 @@
         </div>
     </div>
 
+    <!-- MODIFIED: Rest Timer Modal HTML to include an image and to update the display text -->
     <div id="restTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[70] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
@@ -1064,6 +1065,8 @@
                 <div class="timer-card-body">
                     <div id="restTimerDisplay" class="timer-card-main-time">00:00</div>
                     <div class="timer-card-info">
+                         <!-- NEW: Image for the next exercise -->
+                        <img id="restCurrentImage" src="" alt="Siguiente ejercicio" class="timer-exercise-image">
                         <div id="restStateLabel" class="state-label rest">DESCANSO</div>
                         <p id="restExerciseName" class="exercise-name">Siguiente: </p>
                         <p id="restExerciseDetails" class="exercise-details">Objetivo: </p>
@@ -1298,6 +1301,9 @@
         let workoutData = null; // Will be loaded from URL
         let exerciseAlternatives = null; // Will be loaded from URL
         let wakeLock = null; // NEW: For Screen Wake Lock API
+        // MODIFIED: Variable to store the next rest timer title
+        let nextRestTimerTitle = '';
+
 
         // NEW: Global variables for time-based exercise sequence
         let currentTimedExerciseCardId = null;
@@ -1606,6 +1612,7 @@
         const restStateLabel = document.getElementById('restStateLabel');
         const restExerciseName = document.getElementById('restExerciseName');
         const restExerciseDetails = document.getElementById('restExerciseDetails');
+        const restCurrentImage = document.getElementById('restCurrentImage'); // NEW: Added this element
         const minimizedRestTimer = document.getElementById('minimizedRestTimer');
         const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
         const minimizedNextExercise = document.getElementById('minimizedNextExercise');
@@ -1950,19 +1957,42 @@
             }
         }
 
+        // MODIFIED: startRestTimer to display image of next exercise
         function startRestTimer(durationSeconds, nextExerciseData = null) {
             currentRestDuration = durationSeconds;
             clearInterval(restTimerInterval);
             restTimerEndTime = Date.now() + currentRestDuration * 1000;
             restStateLabel.textContent = 'DESCANSO';
             restStateLabel.className = 'state-label rest';
+            
+            // NEW: Added image element and hide it by default
+            if(restCurrentImage) {
+                restCurrentImage.style.display = 'none';
+                restCurrentImage.src = '';
+            }
+            
+            // MODIFIED: Dynamic display based on the type of next item
             if (nextExerciseData) {
-                restExerciseName.textContent = `Siguiente: ${nextExerciseData.name || ''}`;
-                restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps || ''} con ${nextExerciseData.kg || '--'} Kg`;
+                if (nextExerciseData.type === 'nextSet') {
+                    restExerciseName.textContent = `Siguiente: Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
+                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps} con ${nextExerciseData.kg} Kg`;
+                    nextRestTimerTitle = `Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
+                } else {
+                    restExerciseName.textContent = `Siguiente: ${nextExerciseData.name || ''}`;
+                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps || ''} con ${nextExerciseData.kg || '--'} Kg`;
+                    nextRestTimerTitle = `Siguiente: ${nextExerciseData.name || ''}`;
+                }
+                // NEW: Set the image for the next exercise
+                if(nextExerciseData.imageUrl && restCurrentImage) {
+                    restCurrentImage.src = nextExerciseData.imageUrl;
+                    restCurrentImage.style.display = 'block';
+                }
             } else {
                 restExerciseName.textContent = '';
                 restExerciseDetails.textContent = '';
+                nextRestTimerTitle = '';
             }
+
             minimizedRestTimer.classList.remove('is-active');
             openModal(restTimerModal);
             playTimerSound("C5", "16n");
@@ -1999,7 +2029,8 @@
             const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             restTimerDisplay.textContent = formattedTime;
             minimizedTimerDisplay.textContent = formattedTime;
-            minimizedNextExercise.textContent = restExerciseName.textContent.replace('Siguiente: ', '');
+            // MODIFIED: Use the global variable for the next exercise name
+            minimizedNextExercise.textContent = nextRestTimerTitle;
         }
 
         function closeRestTimerModal(skipped = false) { 
@@ -2009,6 +2040,11 @@
             minimizedNextExercise.textContent = '';
             minimizedRestTimer.classList.remove('is-active');
             closeModalElement(restTimerModal); 
+            // NEW: Hide the image when the modal is closed
+            if(restCurrentImage) {
+                restCurrentImage.style.display = 'none';
+                restCurrentImage.src = '';
+            }
         }
 
         function toggleRestTimerMinimize() {
@@ -2084,7 +2120,8 @@
                 } 
             } 
             // FIXED: Always use the original data from the `originalExerciseData` dataset, not the `primordial` one
-            const originalData = JSON.parse(card.dataset.originalExerciseData || '{}');
+            const exerciseInput = newExerciseData;
+            const originalData = exerciseInput.originalExerciseData || exerciseInput;
             const exerciseToCreate = { ...newExerciseData, originalExerciseData: originalData }; 
             const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); 
             if (parent) { parent.replaceChild(newCard, card); } 
@@ -2509,30 +2546,94 @@
                 if (restDurationMatch) {
                     const restSeconds = parseInt(restDurationMatch[1], 10);
                     if (restSeconds > 0) {
-                        const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
-                        const currentCardElement = document.getElementById(cardId);
-                        const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
+                        // MODIFIED: Determine if the next item is a new exercise or the next set
                         let nextExerciseForRest = null;
-                        if (currentCardIndex !== -1) {
-                            let nextCard = null;
-                            for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
-                                if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
-                                    nextCard = allExerciseCards[i];
-                                    break;
-                                } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
-                                    const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
-                                    if (firstSubExercise) {
-                                        nextCard = firstSubExercise;
-                                        break;
-                                    }
+                        
+                        // Check if it's a superset and if there's a next item in the sequence
+                        const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item'));
+                        const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId);
+                        
+                        // Check if the current card is part of a superset
+                        const currentSupersetContainer = card.closest('.quick-mode-superset-container');
+                        
+                        if (currentSupersetContainer && currentSet < totalSets) {
+                            // If we are in a superset and there are still sets to do
+                            const supersetItems = Array.from(currentSupersetContainer.querySelectorAll('.quick-mode-exercise-item'));
+                            const currentSubIndex = supersetItems.findIndex(el => el.id === cardId);
+                            
+                            // Get the next exercise card within the same set
+                            const nextSubExerciseCard = supersetItems[currentSubIndex + 1];
+                            
+                            if (nextSubExerciseCard) {
+                                // We are resting to go to the next exercise within the superset
+                                const nextExerciseData = JSON.parse(nextSubExerciseCard.dataset.originalExerciseData || '{}');
+                                nextExerciseForRest = {
+                                    type: 'nextExercise',
+                                    name: nextExerciseData.name,
+                                    reps: nextExerciseData.reps,
+                                    kg: nextExerciseData.kg || '--',
+                                    imageUrl: nextExerciseData.imageUrl
+                                };
+                            } else {
+                                // We finished a round of the superset, going back to the first exercise
+                                const firstSubExerciseCard = supersetItems[0];
+                                if (firstSubExerciseCard) {
+                                    const nextExerciseData = JSON.parse(firstSubExerciseCard.dataset.originalExerciseData || '{}');
+                                    nextExerciseForRest = {
+                                        type: 'nextExercise',
+                                        name: nextExerciseData.name,
+                                        reps: nextExerciseData.reps,
+                                        kg: nextExerciseData.kg || '--',
+                                        imageUrl: nextExerciseData.imageUrl
+                                    };
                                 }
                             }
-                            if (nextCard) {
+                        } else {
+                            // Standard rest for next set or next exercise
+                            if (currentSet < totalSets) {
+                                const nextSetNumber = currentSet + 1;
+                                const nextKg = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).kg || '--';
+                                const nextReps = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).reps || exerciseData.reps;
                                 nextExerciseForRest = {
-                                    name: nextCard.dataset.currentName,
-                                    reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                    kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                                    type: 'nextSet',
+                                    name: exerciseData.name,
+                                    reps: nextReps,
+                                    kg: nextKg,
+                                    setNumber: nextSetNumber,
+                                    totalSets: totalSets,
+                                    // NEW: Add image URL to the next set data
+                                    imageUrl: exerciseData.imageUrl
                                 };
+                            } else {
+                                const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
+                                const currentCardElement = document.getElementById(cardId);
+                                const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId || el.contains(currentCardElement));
+                                if (currentCardIndex !== -1) {
+                                    let nextCard = null;
+                                    for (let i = currentCardIndex + 1; i < allExerciseCards.length; i++) {
+                                        if (allExerciseCards[i].classList.contains('quick-mode-exercise-item')) {
+                                            nextCard = allExerciseCards[i];
+                                            break;
+                                        } else if (allExerciseCards[i].classList.contains('quick-mode-superset-container')) {
+                                            const firstSubExercise = allExerciseCards[i].querySelector('.quick-mode-exercise-item');
+                                            if (firstSubExercise) {
+                                                nextCard = firstSubExercise;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (nextCard) {
+                                        const nextExerciseData = JSON.parse(nextCard.dataset.originalExerciseData || '{}');
+                                        nextExerciseForRest = {
+                                            type: 'nextExercise',
+                                            name: nextCard.dataset.currentName,
+                                            reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
+                                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--',
+                                            // NEW: Add image URL to the next exercise data
+                                            imageUrl: nextExerciseData.imageUrl
+                                        };
+                                    }
+                                }
                             }
                         }
                         startRestTimer(restSeconds, nextExerciseForRest);
@@ -2996,7 +3097,7 @@
         function formatTimeHHMM(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
-            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+            return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
         }
 
         let countdownTimerInterval = null;
@@ -3218,6 +3319,7 @@
             }, 1000);
         }
 
+        // MODIFIED: startRestTimerForTimedExercise to correctly pass image URL and next exercise info
         function startRestTimerForTimedExercise() {
             clearInterval(restTimerInterval);
             const card = document.getElementById(currentTimedExerciseCardId);
@@ -3230,9 +3332,13 @@
             let nextExerciseForRest = null;
             if (currentTimedExerciseSetNumber <= totalSetsForCurrentTimedExercise) {
                 nextExerciseForRest = {
+                    type: 'nextSet',
                     name: card.dataset.currentName,
                     reps: exerciseData.reps,
-                    kg: 'N/A'
+                    kg: 'N/A',
+                    setNumber: currentTimedExerciseSetNumber,
+                    totalSets: totalSetsForCurrentTimedExercise,
+                    imageUrl: exerciseData.imageUrl
                 };
             } else {
                 const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item, .quick-mode-superset-container'));
@@ -3253,10 +3359,13 @@
                         }
                     }
                     if (nextCard) {
+                        const nextExerciseData = JSON.parse(nextCard.dataset.originalExerciseData || '{}');
                         nextExerciseForRest = {
+                            type: 'nextExercise',
                             name: nextCard.dataset.currentName,
                             reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--'
+                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--',
+                            imageUrl: nextExerciseData.imageUrl
                         };
                     }
                 }
@@ -3266,13 +3375,24 @@
             restTimerTitle.textContent = `DESCANSO - Serie ${currentTimedExerciseSetNumber - 1} de ${totalSetsForCurrentTimedExercise} completada`;
             restStateLabel.textContent = 'DESCANSO';
             restStateLabel.className = 'state-label rest';
+            
+            // NEW: Set the image and text based on the next exercise data
             if (nextExerciseForRest) {
                 restExerciseName.textContent = `Siguiente: ${nextExerciseForRest.name || ''}`;
                 restExerciseDetails.textContent = `Objetivo: ${nextExerciseForRest.reps || ''} con ${nextExerciseForRest.kg || '--'} Kg`;
+                if(nextExerciseForRest.imageUrl && restCurrentImage) {
+                    restCurrentImage.src = nextExerciseForRest.imageUrl;
+                    restCurrentImage.style.display = 'block';
+                }
             } else {
                 restExerciseName.textContent = 'Entrenamiento casi terminado';
                 restExerciseDetails.textContent = '';
+                if(restCurrentImage) {
+                    restCurrentImage.style.display = 'none';
+                    restCurrentImage.src = '';
+                }
             }
+            
             minimizedRestTimer.classList.remove('is-active');
             openModal(restTimerModal);
             playTimerSound("C5", "16n");
