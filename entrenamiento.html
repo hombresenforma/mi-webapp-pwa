@@ -1909,7 +1909,9 @@
             items.sort((a,b) => new Date(a.raw_date) - new Date(b.raw_date)).forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'expanded-item';
-                itemDiv.innerHTML = `<div class="item-name">${item.name_workout}</div><div class="item-time">${item.time}</div>`;
+                // MODIFIED: Display total_time_session instead of item.time
+                const duration = item.total_time_session ? `Duración: ${item.total_time_session}` : `Hora: ${item.time}`;
+                itemDiv.innerHTML = `<div class="item-name">${item.name_workout}</div><div class="item-time">${duration}</div>`;
                 itemDiv.onclick = () => {
                     if (item.exercise_name === "Extra Activity") {
                         showExtraActivityDetails(item);
@@ -1986,18 +1988,15 @@
                 restCurrentImage.src = '';
             }
             
-            // MODIFIED: Dynamic display based on the type of next item
+           // MODIFIED: Dynamic display based on the type of next item
             if (nextExerciseData) {
-                const nextWeight = nextExerciseData.kg && nextExerciseData.kg !== '--' ? `${nextExerciseData.kg} Kg` : '';
-                const nextReps = nextExerciseData.reps || '';
-
                 if (nextExerciseData.type === 'nextSet') {
                     restExerciseName.textContent = `Siguiente: Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
-                    restExerciseDetails.textContent = `Objetivo: ${nextReps} ${nextWeight ? `con ${nextWeight}` : ''}`;
+                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps} con ${nextExerciseData.kg} Kg`;
                     nextRestTimerTitle = `Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
                 } else {
                     restExerciseName.textContent = `Siguiente: ${nextExerciseData.name || ''}`;
-                    restExerciseDetails.textContent = `Objetivo: ${nextReps} ${nextWeight ? `con ${nextWeight}` : ''}`;
+                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps || ''} con ${nextExerciseData.kg || '--'} Kg`;
                     nextRestTimerTitle = `Siguiente: ${nextExerciseData.name || ''}`;
                 }
                 // NEW: Set the image for the next exercise
@@ -2310,12 +2309,7 @@
             // MODIFIED: Hardcode kg placeholder to 'kg'
             const kgPlaceholder = 'kg';
 
-            // MODIFIED: Get last logged data for this specific exercise
             const lastData = getLastLoggedDataForSet(exerciseInput.name, 1);
-            
-            // NEW: Get the last recorded weight for this exercise to pre-populate
-            const lastRecordedWeight = getLastLoggedWeightForExercise(exerciseInput.name);
-
             const repsOnClick = isTimeBasedExercise ? `onclick="handleTimeBasedRepsClick(this, '${cardId}')"` : '';
             const dataIsTimeBased = isTimeBasedExercise ? `data-is-time-based="true"` : '';
             const totalSets = specialData ? specialData.series : (exerciseInput.sets || 1);
@@ -2348,7 +2342,7 @@
             settingsDropdownHtml = `
                 <div class="quick-mode-header-buttons" id="settingsMenu-${cardId}">
                     ${(typeof exerciseInput.rest === 'string' && !isTimeBasedExercise) ? 
-                        `<button onclick="startRestTimer(${parseInt(exerciseInput.rest.match(/(\d+)s/)[1])}, null, '${cardId}')" class="quick-action-btn"><i class="fas fa-clock w-5 text-center"></i> Descanso</button>` : ''
+                        `<button onclick="startRestTimer(${parseInt(exerciseInput.rest.match(/(\d+)s/)[1])})" class="quick-action-btn"><i class="fas fa-clock w-5 text-center"></i> Descanso</button>` : ''
                     }
                     <button onclick="viewExerciseHistoryFromLog('${originalEscapedName}')" class="quick-action-btn"><i class="fas fa-chart-line w-5 text-center"></i> Ver Historial</button>
                     ${warmupButtonHtml}
@@ -2386,7 +2380,7 @@
                     </div>
                 </div> 
                 <div id="quickViewBody-${cardId}" class="quick-mode-input-row"> 
-                    <input type="number" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastRecordedWeight || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
+                    <input type="number" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
                     <input type="${inputType}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
                     <button class="quick-mode-register-button" onclick="logSingleSetStepByStep(this, '${cardId}')" aria-label="Registrar set"> 
                         <i class="fas fa-check"></i> 
@@ -2594,7 +2588,7 @@
                                     type: 'nextExercise',
                                     name: nextExerciseData.name,
                                     reps: nextExerciseData.reps,
-                                    kg: getLastLoggedWeightForExercise(nextExerciseData.name) || '--',
+                                    kg: nextExerciseData.kg || '--',
                                     imageUrl: nextExerciseData.imageUrl
                                 };
                             } else {
@@ -2606,7 +2600,7 @@
                                         type: 'nextExercise',
                                         name: nextExerciseData.name,
                                         reps: nextExerciseData.reps,
-                                        kg: getLastLoggedWeightForExercise(nextExerciseData.name) || '--',
+                                        kg: nextExerciseData.kg || '--',
                                         imageUrl: nextExerciseData.imageUrl
                                     };
                                 }
@@ -2615,7 +2609,7 @@
                             // Standard rest for next set or next exercise
                             if (currentSet < totalSets) {
                                 const nextSetNumber = currentSet + 1;
-                                const nextKg = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).kg || getLastLoggedWeightForExercise(exerciseData.name) || '--';
+                                const nextKg = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).kg || '--';
                                 const nextReps = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).reps || exerciseData.reps;
                                 nextExerciseForRest = {
                                     type: 'nextSet',
@@ -2647,12 +2641,11 @@
                                     }
                                     if (nextCard) {
                                         const nextExerciseData = JSON.parse(nextCard.dataset.originalExerciseData || '{}');
-                                        const nextKg = getLastLoggedWeightForExercise(nextExerciseData.name) || '--';
                                         nextExerciseForRest = {
                                             type: 'nextExercise',
                                             name: nextCard.dataset.currentName,
                                             reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                                            kg: nextKg,
+                                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--',
                                             // NEW: Add image URL to the next exercise data
                                             imageUrl: nextExerciseData.imageUrl
                                         };
@@ -2833,12 +2826,7 @@
                 showCustomAlert("Datos de EMOM no encontrados.", "error");
                 return;
             }
-            emomExercisesArray = emomBlock.items.map(item => ({
-                ...item,
-                // NEW: Add last recorded weight to EMOM exercises
-                last_kg: getLastLoggedWeightForExercise(item.name) || '--'
-            }));
-
+            emomExercisesArray = emomBlock.items;
             totalEmomIntervals = parseInt(emomBlock.emomDetails.totalIntervals, 10);
             emomWorkIntervalSeconds = 60;
             currentEmomMainOrder = mainOrder;
@@ -2904,8 +2892,7 @@
             emomOverallProgress.textContent = `Intervalo ${currentEmomIntervalNumber} de ${totalEmomIntervals}`;
             emomCurrentExerciseName.textContent = exercise.name;
             emomCurrentExerciseReps.textContent = exercise.reps || 'N/A';
-            // MODIFIED: Use the last_kg from the exercise object
-            emomCurrentExerciseWeight.textContent = exercise.last_kg || '--';
+            emomCurrentExerciseWeight.textContent = exercise.kg || '--';
             const imgElement = document.getElementById('emomCurrentImage');
             if (imgElement && exercise.imageUrl) {
                 imgElement.src = exercise.imageUrl;
@@ -2936,12 +2923,7 @@
             if (!circuitBlock || !circuitBlock.circuitDetails || !circuitBlock.items) {
                 showCustomAlert("Datos de Circuito no encontrados.", "error"); return;
             }
-            // NEW: Add last recorded weight to Circuit exercises
-            circuitExercisesArray = circuitBlock.items.map(item => ({
-                ...item,
-                last_kg: getLastLoggedWeightForExercise(item.name) || '--'
-            }));
-
+            circuitExercisesArray = circuitBlock.items;
             circuitDetailsGlobal = circuitBlock.circuitDetails;
             currentCircuitMainOrder = mainOrder;
             if (isNaN(circuitDetailsGlobal.totalRounds) || circuitDetailsGlobal.totalRounds <= 0) {
@@ -3067,33 +3049,29 @@
                     exerciseForDisplay = circuitExercisesArray[0];
                     circuitStateLabel.textContent = 'CUENTA ATRÁS';
                     circuitStateLabel.className = 'state-label countdown';
-                    const firstExerciseWeight = exerciseForDisplay.last_kg && exerciseForDisplay.last_kg !== '--' ? ` con ${exerciseForDisplay.last_kg} Kg` : '';
                     circuitExerciseName.textContent = `Empezando con: ${exerciseForDisplay?.name || ''}`;
-                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}${firstExerciseWeight}`;
+                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}`;
                     break;
                 case 'working':
                     exerciseForDisplay = circuitExercisesArray[currentCircuitExerciseIndexInRound];
                     circuitStateLabel.textContent = 'TRABAJO';
                     circuitStateLabel.className = 'state-label work';
-                    const currentExerciseWeight = exerciseForDisplay.last_kg && exerciseForDisplay.last_kg !== '--' ? ` con ${exerciseForDisplay.last_kg} Kg` : '';
                     circuitExerciseName.textContent = exerciseForDisplay?.name || '';
-                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}${currentExerciseWeight}`;
+                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}`;
                     break;
                 case 'resting_exercise':
-                    exerciseForDisplay = circuitExercisesArray[currentCircuitExerciseIndexInRound + 1];
+                    exerciseForDisplay = circuitExercisesArray[currentCircuitExerciseIndexInRound];
                     circuitStateLabel.textContent = 'DESCANSO';
                     circuitStateLabel.className = 'state-label rest';
-                    const nextExerciseWeight = exerciseForDisplay.last_kg && exerciseForDisplay.last_kg !== '--' ? ` con ${exerciseForDisplay.last_kg} Kg` : '';
                     circuitExerciseName.textContent = `Siguiente: ${exerciseForDisplay?.name || ''}`;
-                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}${nextExerciseWeight}`;
+                    circuitExerciseDetails.textContent = `Objetivo: ${exerciseForDisplay?.reps || ''}`;
                     break;
                 case 'resting_round':
                     exerciseForDisplay = circuitExercisesArray[0];
                     circuitStateLabel.textContent = 'DESCANSO';
                     circuitStateLabel.className = 'state-label rest';
-                    const nextRoundWeight = exerciseForDisplay.last_kg && exerciseForDisplay.last_kg !== '--' ? ` con ${exerciseForDisplay.last_kg} Kg` : '';
                     circuitExerciseName.textContent = `Prepárate para la Ronda ${currentCircuitRound + 1}`;
-                    circuitExerciseDetails.textContent = `Empezando con: ${exerciseForDisplay?.name || ''}${nextRoundWeight}`;
+                    circuitExerciseDetails.textContent = `Empezando con: ${exerciseForDisplay?.name || ''}`;
                     break;
             }
             const imgElement = document.getElementById('circuitCurrentImage');
@@ -3374,7 +3352,7 @@
                     type: 'nextSet',
                     name: card.dataset.currentName,
                     reps: exerciseData.reps,
-                    kg: getLastLoggedWeightForExercise(exerciseData.name) || '--',
+                    kg: 'N/A',
                     setNumber: currentTimedExerciseSetNumber,
                     totalSets: totalSetsForCurrentTimedExercise,
                     imageUrl: exerciseData.imageUrl
@@ -3399,12 +3377,11 @@
                     }
                     if (nextCard) {
                         const nextExerciseData = JSON.parse(nextCard.dataset.originalExerciseData || '{}');
-                        const nextKg = getLastLoggedWeightForExercise(nextExerciseData.name) || '--';
                         nextExerciseForRest = {
                             type: 'nextExercise',
                             name: nextCard.dataset.currentName,
                             reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
-                            kg: nextKg,
+                            kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--',
                             imageUrl: nextExerciseData.imageUrl
                         };
                     }
@@ -3418,9 +3395,8 @@
             
             // NEW: Set the image and text based on the next exercise data
             if (nextExerciseForRest) {
-                const nextWeight = nextExerciseForRest.kg && nextExerciseForRest.kg !== '--' ? ` con ${nextExerciseForRest.kg} Kg` : '';
                 restExerciseName.textContent = `Siguiente: ${nextExerciseForRest.name || ''}`;
-                restExerciseDetails.textContent = `Objetivo: ${nextExerciseForRest.reps || ''}${nextWeight}`;
+                restExerciseDetails.textContent = `Objetivo: ${nextExerciseForRest.reps || ''} con ${nextExerciseForRest.kg || '--'} Kg`;
                 if(nextExerciseForRest.imageUrl && restCurrentImage) {
                     restCurrentImage.src = nextExerciseForRest.imageUrl;
                     restCurrentImage.style.display = 'block';
