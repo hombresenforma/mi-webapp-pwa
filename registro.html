@@ -390,13 +390,11 @@
                 { id: 'cadera', label: 'Cadera', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: true, active: true },
                 { id: 'biceps', label: 'Bíceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
                 { id: 'cuadriceps', label: 'Cuádriceps', unit: 'cm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true },
-                // Nueva métrica para la suma de pliegues
-                { id: 'sumatorioPliegues', label: 'Sumatorio de Pliegues', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: true, isCalculated: true }
+                { id: 'triceps', label: 'Tríceps', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'escapula', label: 'Escápula', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'abdominal', label: 'Abdominal', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'oblicuo', label: 'Oblicuo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false },
+                { id: 'muslo', label: 'Muslo', unit: 'mm', type: 'number', step: 0.1, chartable: true, fixed: false, active: false }
             ]
         };
 
@@ -580,13 +578,8 @@
             return false;
         }
         
-        /**
-         * Reemplaza la coma por un punto y valida el formato.
-         * @param {HTMLElement} element El elemento input.
-         */
+        // Función de validación para los campos de input
         function validateInput(element) {
-            // Reemplazar coma por punto para que el input type="number" lo reconozca.
-            element.value = element.value.replace(',', '.');
             const value = element.value.trim();
             const isRequired = element.required;
             const isNumber = !isNaN(parseFloat(value)) && isFinite(value);
@@ -704,9 +697,6 @@
                 plieguesContainer.innerHTML = '';
 
                 appConfig.bodyMetrics.filter(m => m.active).forEach(metric => {
-                    // No creamos input para la métrica calculada
-                    if (metric.isCalculated) return;
-
                     const inputDiv = document.createElement('div');
                     inputDiv.innerHTML = `
                         <label for="record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}" class="block text-xs font-medium text-gray-300 mb-1">
@@ -871,39 +861,15 @@
                 }
                 const newRecordData = { client_id: userId, fecha_registro: recordDateInput.value, photo_urls: uploadedPhotoUrls.length > 0 ? uploadedPhotoUrls : null };
                 let hasAnyMetricValue = false;
-                
-                // Sumar los valores de los pliegues
-                let plieguesSum = 0;
-                let hasPliegues = false;
-
                 appConfig.bodyMetrics.filter(m => m.active).forEach(metric => {
-                    // Si es la métrica de sumatorio, la calcularemos al final, no tomamos el valor del input.
-                    if (metric.isCalculated) return;
-
                     const inputElement = document.getElementById(`record${metric.id.charAt(0).toUpperCase() + metric.id.slice(1)}`);
                     if (inputElement && inputElement.value.trim() !== '') {
-                        const parsedValue = parseFloat(inputElement.value);
-                        newRecordData[metric.id] = parsedValue;
+                        newRecordData[metric.id] = parseFloat(inputElement.value);
                         hasAnyMetricValue = true;
-                        
-                        // Si la métrica es un pliegue, la añadimos a la suma
-                        if (metric.unit === 'mm') {
-                            plieguesSum += parsedValue;
-                            hasPliegues = true;
-                        }
                     } else {
                         newRecordData[metric.id] = null;
                     }
                 });
-
-                // Asignar el sumatorio de pliegues a la nueva métrica en el objeto de registro
-                if (hasPliegues) {
-                    newRecordData.sumatorioPliegues = parseFloat(plieguesSum.toFixed(2));
-                } else {
-                    newRecordData.sumatorioPliegues = null;
-                }
-
-
                 if (!newRecordData.fecha_registro) {
                     showCustomAlert("Por favor, introduce la fecha del registro.", "warning");
                     submitButton.disabled = false;
