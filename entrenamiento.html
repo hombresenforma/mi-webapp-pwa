@@ -1,44 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- MODIFIED: Updated manifest and icon paths to include the repository name -->
     <link rel="manifest" href="/mi-webapp-pwa/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="apple-touch-icon" href="/mi-webapp-pwa/icons/icon-192x192.png">
     <meta charset="UTF-8">
-    <!-- MODIFIED: Added user-scalable=no to prevent zoom on double-tap -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Entrenamiento - Programa Hombres en Forma</title>
-    <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Tone.js for audio feedback in timers -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Chart.js for historical data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2canvas for sharing feature -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Supabase Client for database interaction -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Orbitron font for timers -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
     
     <style>
-        /* General Body and Scrollbar Styles */
         body {
             font-family: 'Inter', sans-serif;
             background-image: url('https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821c6f4dbcf316861282241.png');
-            background-color: #1A263A; /* Fallback color */
+            background-color: #1A263A;
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             overflow-x: hidden; 
             color: #e5e7eb;
-            /* MODIFIED: Added touch-action to prevent zoom on double-tap on mobile devices */
             touch-action: manipulation;
         }
         ::-webkit-scrollbar { width: 8px; }
@@ -46,26 +34,24 @@
         ::-webkit-scrollbar-thumb { background: #facc15; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #eab308; }
 
-        /* Main App Container */
         .main-container {
             width: 100%;
-            max-width: 36rem; /* Equivalent to max-w-md */
+            max-width: 36rem;
             margin-left: auto;
             margin-right: auto;
         }
-        @media (min-width: 640px) { .main-container { max-width: 42rem; } } /* sm:max-w-lg */
-        @media (min-width: 768px) { .main-container { max-width: 48rem; } } /* md:max-w-2xl */
+        @media (min-width: 640px) { .main-container { max-width: 42rem; } }
+        @media (min-width: 768px) { .main-container { max-width: 48rem; } }
 
-        /* Tab Navigation (kept for consistency, though only one tab is active here) */
         .app-tabs {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2x2 Grid for mobile */
+            grid-template-columns: repeat(2, 1fr);
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
         .app-tab {
             position: relative;
-            padding: 0.75rem 0.5rem; /* Adjusted padding for smaller screens */
+            padding: 0.75rem 0.5rem;
             font-weight: 600;
             color: #d1d5db;
             background-color: rgba(31, 41, 55, 0.8);
@@ -74,7 +60,7 @@
             cursor: pointer;
             text-align: center;
             transition: all 0.2s ease-in-out;
-            font-size: 0.875rem; /* Slightly smaller font for mobile */
+            font-size: 0.875rem;
         }
         .app-tab:hover {
             background-color: rgba(55, 65, 81, 0.9);
@@ -85,14 +71,13 @@
             color: #1f2937;
             border-color: #facc15;
         }
-        /* NEW: Style for active notification tabs */
         .app-tab.app-tab-notify {
-            background-color: #22c55e; /* Green color */
+            background-color: #22c55e;
             color: #1f2937;
             border-color: #22c55e;
         }
         .app-tab.app-tab-notify:hover {
-            background-color: #16a34a; /* Darker green on hover */
+            background-color: #16a34a;
             border-color: #16a34a;
         }
 
@@ -103,7 +88,6 @@
             display: block;
         }
 
-        /* Modal Styles */
         .modal, .modal-base { 
             transition: opacity 0.25s ease; 
         }
@@ -111,7 +95,7 @@
             transition: transform 0.25s ease; 
             max-height: 90vh; 
         }
-        #quickModeWorkoutModal .modal-content, #detailedHistoryModal .modal-content, #mainHistoryModal .modal-content, #fullWorkoutLogModal .modal-content { /* Added fullWorkoutLogModal */
+        #quickModeWorkoutModal .modal-content, #detailedHistoryModal .modal-content, #mainHistoryModal .modal-content, #fullWorkoutLogModal .modal-content {
             width: 95%;
             max-width: 700px; 
         }
@@ -119,7 +103,6 @@
             width: 95%;
             max-width: 450px;
         }
-        /* NEW: Added calendar modal style to match the provided image */
         #calendarModal .modal-content {
             width: 95%;
             max-width: 500px;
@@ -237,7 +220,6 @@
         }
 
 
-        /* --- WORKOUT SPECIFIC STYLES --- */
         .day-selection-container { display: flex; flex-direction: column; gap: 1rem; }
         .day-tab-bar { display: flex; flex-direction: column; gap: 0.5rem; }
         .day-tab { padding: 0.75rem 1rem; color: #d1d5db; font-weight: 500; border-radius: 0.375rem; cursor: pointer; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; text-align: center; background-color: rgba(31, 41, 55, 0.8); border: 1px solid #4b5563; }
@@ -268,34 +250,30 @@
         .quick-mode-exercise-item.completed-bad { border-left-color: #ef4444; background-color: rgba(239, 68, 68, 0.2); }
         .quick-mode-superset-container .quick-mode-exercise-item { border-left: none; padding-left: 0.5rem; margin-left: -0.5rem; }
         
-        /* MODIFIED: quick-mode-exercise-header for new layout */
         .quick-mode-exercise-header { 
             display: flex; 
-            flex-direction: column; /* Stack elements vertically */
-            gap: 0.75rem; /* Space between image/info block and buttons */
-            margin-bottom: 0.75rem; /* Space below header */
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
         }
-        /* Container for image and main text/settings */
         .quick-mode-exercise-header .flex-top-row {
             display: flex;
-            align-items: center; /* Align items to the center */
-            gap: 0.75rem; /* Space between image and text/settings */
+            align-items: center;
+            gap: 0.75rem;
             width: 100%;
         }
-        /* Container for text and settings */
         .quick-mode-exercise-header .info-and-settings {
             flex-grow: 1;
-            min-width: 0; /* Allow content to shrink */
+            min-width: 0;
             display: flex;
-            flex-direction: column; /* Stack info and settings vertically if needed, but flex-wrap will keep them horizontal */
+            flex-direction: column;
         }
-        /* Flex for name/increase indicator and settings button */
         .quick-mode-exercise-header .info-line-with-settings {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* Align name/settings to top */
+            align-items: flex-start;
             width: 100%;
-            gap: 0.5rem; /* Space between info and settings button */
+            gap: 0.5rem;
         }
 
         .quick-mode-exercise-header .info { flex-grow: 1; min-width: 0; }
@@ -303,10 +281,9 @@
         .quick-mode-exercise-header .info strong { color: #fde047; font-weight: 600; font-size: 1rem; line-height: 1.3; }
         .quick-mode-exercise-header .info span { color: #d1d5db; font-size: 0.75rem; display: block; }
 
-        /* MODIFIED: Buttons are now a dropdown menu, hidden by default */
         .quick-mode-header-buttons {
-            display: none; /* Hidden by default */
-            flex-direction: column; /* Stack vertically */
+            display: none;
+            flex-direction: column;
             position: absolute;
             bottom: 0.75rem;
             right: 0.75rem;
@@ -343,7 +320,6 @@
             cursor: not-allowed;
             color: #718096;
         }
-        /* NEW: Settings button icon */
         .settings-icon-button {
             position: absolute;
             bottom: 0.75rem;
@@ -368,16 +344,15 @@
             color: #1f2937;
         }
 
-        /* MODIFIED: Style for the new gray settings button */
         .quick-mode-settings-button {
             position: absolute;
-            bottom: 0.75rem; /* MODIFIED: Set to bottom */
-            right: 0.75rem; /* MODIFIED: Set to right */
+            bottom: 0.75rem;
+            right: 0.75rem;
             width: 2rem;
             height: 2rem;
             background: #4A5568;
-            border-radius: 9999px; /* Rounded pill shape */
-            color: #9CA3AF; /* Light gray icon */
+            border-radius: 9999px;
+            color: #9CA3AF;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -396,8 +371,6 @@
             color: #1f2937;
             border-color: #facc15;
         }
-        /* End of new button styles */
-
 
         .increase-weight-btn { background: #facc15; border-color: #facc15; width: 2rem; height: 2rem; font-size: 0.9rem; border-radius: 0.375rem; display: inline-flex; align-items: center; justify-content: center; }
         .quick-mode-input-row { display: grid; grid-template-columns: 1fr 1fr 50px; gap: 0.5rem; align-items: center; }
@@ -436,11 +409,9 @@
         .timer-card-info .state-label.countdown { color: #facc15; }
         .timer-card-info .exercise-name { font-size: 1rem; font-weight: 500; color: #e5e7eb; text-align: center; }
         .timer-card-info .exercise-details { font-size: 0.8rem; color: #9ca3af; }
-        /* Adjusted to make buttons fill space */
         .timer-card-actions { display: flex; gap: 1rem; width: 100%; }
         .timer-card-actions button { flex-grow: 1; padding: 0.75rem; border-radius: 0.5rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease; }
         
-        /* Styles for the new full workout log modal */
         .workout-log-entry {
             background-color: rgba(55, 65, 81, 0.8);
             border-left: 4px solid #facc15;
@@ -470,10 +441,9 @@
             padding: 0.2rem 0;
         }
         .workout-log-entry .pr-icon {
-            color: #facc15; /* Yellow for trophy */
+            color: #facc15;
             font-size: 1.2em;
         }
-        /* Style for the new history button inside fullLogModal */
         .full-log-history-button {
             background: none;
             border: none;
@@ -492,7 +462,6 @@
         .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid #FACC15; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* NEW: Minimized Timer Styles */
         #minimizedRestTimer {
             background-color: rgba(31, 41, 55, 0.9);
             border: 2px solid #facc15;
@@ -506,18 +475,16 @@
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all 0.2s ease-in-out;
-            min-width: 120px; /* Ensure it's not too small */
+            min-width: 120px;
             max-width: 150px;
-            flex-direction: column; /* Keep flex-direction for content alignment */
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0.25rem;
-            /* Default to hidden */
             display: none;
         }
-        /* Class to make minimized timer visible */
         #minimizedRestTimer.is-active {
-            display: flex; /* Only show when active */
+            display: flex;
         }
         #minimizedRestTimer:hover {
             background-color: rgba(55, 65, 81, 0.95);
@@ -533,7 +500,6 @@
             line-height: 1.2;
         }
 
-        /* Style for the new minimize button */
         .minimize-button {
             background-color: #4A5568;
             color: #facc15;
@@ -545,14 +511,13 @@
             text-align: center;
             transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
             font-size: 0.9rem;
-            margin-top: 1rem; /* Space below timer display */
+            margin-top: 1rem;
         }
         .minimize-button:hover {
             background-color: #facc15;
             color: #1f2937;
         }
 
-        /* Styles for quick and full log view bodies */
         .quick-view-body {
             display: grid;
             grid-template-columns: 1fr 1fr 50px;
@@ -570,13 +535,13 @@
             align-items: center;
             justify-content: flex-start;
             margin-bottom: 0.5rem;
-            gap: 0.5rem; /* Reduced gap */
+            gap: 0.5rem;
         }
         .full-log-view-body .set-data-row > span {
             flex-basis: auto;
-            margin-right: 0.25rem; /* Reduced margin */
+            margin-right: 0.25rem;
             white-space: nowrap;
-            font-size: 0.85rem; /* Slightly smaller font */
+            font-size: 0.85rem;
         }
         .full-log-view-body .set-data-row .set-input {
             display: flex;
@@ -584,41 +549,37 @@
             flex-grow: 1;
         }
         .full-log-view-body .set-input input {
-            padding: 0.4rem; /* Smaller padding */
-            font-size: 0.85rem; /* Smaller font */
+            padding: 0.4rem;
+            font-size: 0.85rem;
         }
         .full-log-view-body .actions-footer {
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-        /* MODIFIED: Removed flex-grow to allow w-full to work correctly */
         .full-log-view-body .actions-footer button {
             padding: 0.6rem 0.8rem;
             font-size: 0.85rem;
         }
 
-        /* NEW: Style for exercise notes */
         .quick-mode-exercise-item .notes {
-            color: #d1d5db; /* Same color as series/objetivo */
-            font-size: 0.75rem; /* Same size as series/objetivo */
+            color: #d1d5db;
+            font-size: 0.75rem;
             display: block;
-            margin-top: 0.5rem; /* Space below inputs */
+            margin-top: 0.5rem;
             padding-top: 0.5rem;
-            border-top: 1px solid #4b5563; /* Separator line */
+            border-top: 1px solid #4b5563;
         }
         
-        /* NEW: Style for timer exercise images */
         .timer-exercise-image {
             max-height: 120px;
             width: auto;
             max-width: 90%;
             border-radius: 0.5rem;
             object-fit: cover;
-            display: none; /* Hidden by default, shown by JS */
+            display: none;
         }
         
-        /* NEW: Styles for history filter dropdown */
         .history-filter-container {
             display: flex;
             justify-content: flex-end;
@@ -638,12 +599,10 @@
             background-color: #5a6578;
         }
         
-        /* NEW: Styles for the extras button and modal */
-        /* MODIFIED: The button style has been changed to a small icon button */
         .extras-button {
             background: none;
             border: none;
-            color: #3b82f6; /* A nice blue */
+            color: #3b82f6;
             padding: 0;
             margin: 0;
             display: inline-flex;
@@ -676,7 +635,6 @@
             width: 20px;
             text-align: center;
         }
-        /* NEW: Style for the extras form */
         #extrasFormModal .modal-content {
             background-color: #1f2937;
             border: 2px solid #3b82f6;
@@ -705,8 +663,7 @@
             margin-bottom: 0.5rem;
             font-weight: 500;
         }
-        /* Style for file input label */
-        #extrasFormModal .custom-file-input {
+        .custom-file-input {
             display: block;
             width: 100%;
             background-color: #2d3748;
@@ -719,6 +676,7 @@
         }
         #extrasFormModal .custom-file-input:hover {
             background-color: #4a5568;
+            border-color: #facc15;
         }
         #extrasFormModal .file-name {
             display: block;
@@ -757,9 +715,8 @@
             border: 1px solid #4a5568;
         }
         
-        /* MODIFIED: Added distinct button styles */
         #registerExtraActivityButton {
-            background-color: #22c55e; /* Green color for positive action */
+            background-color: #22c55e;
             color: #fff;
             font-weight: bold;
             padding: 0.75rem 1.5rem;
@@ -771,7 +728,7 @@
             background-color: #16a34a;
         }
         #cancelExtraActivityButton {
-            background-color: #ef4444; /* Red color for negative action */
+            background-color: #ef4444;
             color: #fff;
             font-weight: bold;
             padding: 0.75rem 1.5rem;
@@ -783,17 +740,6 @@
             background-color: #dc2626;
         }
 
-        /* NEW: Styles for the upload file label */
-        #extrasFormModal .custom-file-input {
-            border: 1px solid #4a5568;
-            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-        }
-        #extrasFormModal .custom-file-input:hover {
-            background-color: #4a5568;
-            border-color: #facc15;
-        }
-
-        /* NEW: EMOM and Circuit First View Styles */
         .timer-modal-welcome-card {
             display: flex;
             flex-direction: column;
@@ -833,6 +779,51 @@
             background-color: #16a34a;
         }
 
+        #numericKeypadModal .modal-content {
+            background-color: rgba(31, 41, 55, 0.95);
+            border-color: #facc15;
+            padding: 1rem;
+            width: 95%;
+            max-width: 400px;
+        }
+        #keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        #keypad button {
+            background-color: #4a5568;
+            color: #e5e7eb;
+            font-size: 2rem;
+            padding: 1.25rem 0;
+            border-radius: 0.5rem;
+            border: 1px solid #718096;
+            transition: background-color 0.2s ease-in-out;
+        }
+        #keypad button:hover {
+            background-color: #616e80;
+        }
+        #keypad button.keypad-action-btn {
+            background-color: #facc15;
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        #keypad button.keypad-action-btn:hover {
+            background-color: #eab308;
+        }
+        #keypad button.keypad-close-btn {
+            background-color: #ef4444;
+            color: #fff;
+        }
+        #keypad button.keypad-close-btn:hover {
+            background-color: #dc2626;
+        }
+        #keypad button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #4a5568;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
@@ -845,17 +836,14 @@
         </header>
 
         <main class="bg-gray-800/85 backdrop-blur-md shadow-xl rounded-b-xl p-3 sm:p-4 md:p-6">
-            <!-- Main Menu Button -->
             <div class="mb-4">
                 <a id="mainMenuButton" href="#" class="w-full block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors">
                     <i class="fas fa-home mr-2"></i>Menú Principal
                 </a>
             </div>
 
-            <!-- Workout Content -->
             <div id="workoutSection" class="tab-content active">
                 <section id="mainControlsSection" class="mb-4 sm:mb-6">
-                    <!-- MODIFIED: Flex container for the title and the new small button -->
                     <div class="flex justify-center items-center gap-2 mb-2 sm:mb-3">
                         <h2 class="text-md sm:text-lg font-semibold text-yellow-400 text-center">SELECCIONA TU ENTRENAMIENTO</h2>
                         <button id="addExtrasButton" class="extras-button" title="Añadir Actividad Extra">
@@ -869,7 +857,6 @@
                             <p class="text-gray-400 text-center">Selecciona un día para ver la vista previa.</p>
                         </div>
                     </div>
-                    <!-- MODIFIED: Changed to grid-cols-1 and added new button -->
                     <div class="grid grid-cols-1 gap-4 mt-4">
                         <button id="viewWorkoutHistoryButton" class="main-action-button">
                             <i class="fas fa-history mr-2"></i>Histórico Entrenamientos
@@ -886,9 +873,6 @@
         </main>
     </div>
 
-    <!-- MODALS (Workout Specific) -->
-    
-    <!-- Workout History Modal (Now a calendar view) -->
     <div id="mainHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div id="calendarModal" class="modal-content transform scale-95">
             <div class="flex justify-between items-center px-4 py-2">
@@ -910,11 +894,9 @@
         </div>
     </div>
 
-    <!-- Detailed Exercise History Modal (for individual exercise history) -->
     <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[55] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             
-            <!-- View 1: List View -->
             <div id="exerciseHistoryListView">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg sm:text-xl font-semibold text-yellow-400">Historial de Ejercicios</h3>
@@ -929,19 +911,15 @@
                 </div>
             </div>
 
-            <!-- View 2: Detail View (Initially hidden) -->
             <div id="exerciseHistoryDetailView" style="display: none;">
-                 <!-- MODIFIED: Restructured header for buttons and title -->
                  <div class="flex justify-between items-center mb-2">
                     <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
-                    <!-- NEW: Close button for this view -->
                     <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
                 <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-center mb-4 truncate"></h3>
                 <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
-                    <!-- Historical 1RM will be injected here -->
                 </div>
                 <div class="mb-6">
                     <canvas id="rmEvolutionChart"></canvas>
@@ -952,7 +930,6 @@
         </div>
     </div>
 
-    <!-- Full Workout Log Modal -->
     <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[56] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
@@ -960,7 +937,6 @@
                 <button onclick="closeModalElement(fullWorkoutLogModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de entrenamiento completo">×</button>
             </div>
             <div id="fullWorkoutLogContent" class="max-h-[70vh] overflow-y-auto pr-2 text-sm text-gray-300 space-y-4">
-                <!-- Workout details will be loaded here -->
             </div>
             <button onclick="closeModalElement(fullWorkoutLogModal)" class="mt-6 w-full bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">
                 Cerrar
@@ -968,7 +944,6 @@
         </div>
     </div>
 
-    <!-- NEW: Extras Modal -->
     <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
             <div class="flex justify-between items-center mb-6">
@@ -997,13 +972,11 @@
                 </div>
 
                 <div class="form-group">
-                    <!-- MODIFIED: Placeholder and oninput for hh:mm format validation -->
                     <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
                     <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
                 </div>
 
                 <div class="form-group">
-                    <!-- MODIFIED: Placeholder and oninput for number-only validation -->
                     <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
                     <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 </div>
@@ -1019,7 +992,6 @@
             </div>
             
             <div class="modal-actions">
-                <!-- MODIFIED: Added distinct button styles -->
                 <button id="cancelExtraActivityButton" class="cancel-button">Cancelar</button>
                 <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
             </div>
@@ -1030,7 +1002,6 @@
         <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h3 id="quickModeWorkoutModalTitle" class="text-xl sm:text-2xl font-bold text-yellow-500 text-left"></h3>
-                <!-- MODIFIED: Removed seconds from the display time -->
                 <span id="workoutDuration" class="text-lg font-mono text-white">00:00</span>
             </div>
             <div id="quickModeExerciseList" class="space-y-4 sm:space-y-6"></div>
@@ -1054,24 +1025,21 @@
         </div>
     </div>
 
-    <!-- MODIFIED: Rest Timer Modal HTML to include an image and to update the display text -->
     <div id="restTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[70] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
                 <div class="timer-card-header">
                     <h3 id="restTimerTitle">TIEMPO DE DESCANSO</h3>
-                    <p id="restOverallProgress"></p> <!-- Not used for rest, but keeping structure -->
+                    <p id="restOverallProgress"></p>
                 </div>
                 <div class="timer-card-body">
                     <div id="restTimerDisplay" class="timer-card-main-time">00:00</div>
                     <div class="timer-card-info">
-                         <!-- NEW: Image for the next exercise -->
                         <img id="restCurrentImage" src="" alt="Siguiente ejercicio" class="timer-exercise-image">
                         <div id="restStateLabel" class="state-label rest">DESCANSO</div>
                         <p id="restExerciseName" class="exercise-name">Siguiente: </p>
                         <p id="restExerciseDetails" class="exercise-details">Objetivo: </p>
                     </div>
-                    <!-- NEW: Minimize Button -->
                     <button onclick="toggleRestTimerMinimize()" class="minimize-button">MINIMIZAR</button>
                 </div>
                 <div class="timer-card-actions">
@@ -1083,13 +1051,11 @@
         </div>
     </div>
 
-    <!-- NEW: Minimized Rest Timer Display -->
     <div id="minimizedRestTimer" class="fixed top-4 left-4 z-[100] hidden" onclick="toggleRestTimerMinimize()">
         <span id="minimizedTimerDisplay" class="min-time">00:00</span>
         <span id="minimizedNextExercise" class="min-next-exercise"></span>
     </div>
 
-    <!-- MODIFIED: Work Timer Modal HTML -->
     <div id="workTimerModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[71] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
              <div class="timer-card">
@@ -1113,17 +1079,14 @@
         </div>
     </div>
 
-    <!-- MODIFIED: EMOM and Circuit Timer Modal HTML with initial welcome view -->
     <div id="circuitTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[76] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
-             <!-- Welcome View -->
             <div id="circuitWelcomeView" class="timer-modal-welcome-card" style="display: none;">
                 <h3 id="circuitWelcomeTitle"></h3>
                 <p id="circuitWelcomeDetails"></p>
                 <img id="circuitWelcomeImage" src="" alt="Ejercicio de Circuito" class="timer-exercise-image" style="display: none;">
                 <button onclick="runNextCircuitInterval()" class="start-button">EMPEZAR</button>
             </div>
-             <!-- Active Timer View -->
              <div id="circuitActiveView" class="timer-card" style="display: none;">
                 <div class="timer-card-header">
                     <h3 id="circuitTimerTitle"></h3>
@@ -1161,14 +1124,12 @@
     
     <div id="emomTimerModal" class="modal timer-modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[75] opacity-0 pointer-events-none">
         <div class="modal-content transform scale-95">
-            <!-- Welcome View -->
             <div id="emomWelcomeView" class="timer-modal-welcome-card" style="display: none;">
                 <h3 id="emomWelcomeTitle"></h3>
                 <p id="emomWelcomeDetails"></p>
                 <img id="emomWelcomeImage" src="" alt="Ejercicio de EMOM" class="timer-exercise-image" style="display: none;">
                 <button onclick="runNextEmomInterval()" class="start-button">EMPEZAR</button>
             </div>
-            <!-- Active Timer View -->
             <div id="emomActiveView" class="timer-card" style="display: none;">
                 <div class="timer-card-header">
                     <h3 id="emomTimerTitle"></h3>
@@ -1197,7 +1158,6 @@
                 <h3 class="text-xl font-semibold text-yellow-400">Resumen del Entrenamiento</h3>
                 <button onclick="closeModalElement(workoutSummaryModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar resumen">×</button>
             </div>
-            <!-- MODIFIED: Removed seconds from the display time -->
             <p class="text-gray-300 text-lg mb-2">Tiempo Total: <span id="workoutSummaryTotalTime" class="font-bold text-white">00:00</span></p>
             <p class="text-gray-300 text-lg mb-4">Volumen Total: <span id="workoutSummaryTotalVolume" class="font-bold text-white">0 Kg</span></p>
             
@@ -1230,7 +1190,6 @@
     <div id="shareModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[98] opacity-0 pointer-events-none">
         <div class="modal-content">
             <div id="shareCard">
-                <!-- Content will be injected by JS -->
             </div>
             <div class="flex justify-center gap-4 mt-4">
                 <button onclick="downloadShareableImage()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded-lg">Descargar</button>
@@ -1239,9 +1198,6 @@
         </div>
     </div>
 
-    <!-- REMOVED: Video Submission Prompt Modal -->
-    
-    <!-- Weekday Notice Modal -->
     <div id="weekdayNoticeModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-xl p-6 w-full max-w-sm text-center transform scale-95">
             <h3 class="text-xl font-semibold text-yellow-400">Función No Disponible</h3>
@@ -1249,41 +1205,56 @@
             <button onclick="closeModalElement(weekdayNoticeModal)" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
         </div>
     </div>
+    
+    <!-- Numeric Keypad Modal -->
+    <div id="numericKeypadModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-end justify-center z-[100] opacity-0 pointer-events-none">
+        <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-t-xl shadow-xl p-4 w-full transform scale-95">
+            <div class="text-center mb-2">
+                <span id="keypadTitle" class="text-lg text-yellow-400 font-bold"></span>
+            </div>
+            
+            <!-- New Display and Check Button -->
+            <div class="flex items-center justify-between mb-4 mt-2">
+                <div id="keypadDisplay" class="bg-gray-700/50 flex-grow text-center text-3xl font-bold p-3 rounded-lg border-2 border-gray-600 min-h-[50px] overflow-hidden">0</div>
+                <button onclick="handleKeypadCheck()" class="ml-4 w-16 h-12 bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold rounded-lg flex items-center justify-center transition-colors">
+                    <i class="fas fa-check text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="keypad">
+                <button onclick="handleKeypadClick('1')">1</button>
+                <button onclick="handleKeypadClick('2')">2</button>
+                <button onclick="handleKeypadClick('3')">3</button>
+                <button onclick="handleKeypadClick('4')">4</button>
+                <button onclick="handleKeypadClick('5')">5</button>
+                <button onclick="handleKeypadClick('6')">6</button>
+                <button onclick="handleKeypadClick('7')">7</button>
+                <button onclick="handleKeypadClick('8')">8</button>
+                <button onclick="handleKeypadClick('9')">9</button>
+                <button onclick="handleKeypadClick('.')">.</button>
+                <button onclick="handleKeypadClick('0')">0</button>
+                <button onclick="handleKeypadClick('backspace')" class="keypad-action-btn col-span-1"><i class="fas fa-backspace"></i></button>
+            </div>
+        </div>
+    </div>
+    <!-- End Numeric Keypad Modal -->
 
     <script>
-        // =================================================================
-        // =================== APP CONFIGURATION =========================
-        // =================================================================
         const APP_CONFIG = {
             urls: {
-                // MODIFIED: The workoutData URL is now generated dynamically based on the user identifier in the URL.
                 workoutSubmission: 'https://aceleratumetabolismo.es/registro-entrenos',
                 progressExternalUrl: 'https://aceleratumetabolismo.es/registro_', 
-                mainPanelUrl: 'https://www.aceleratumetabolismo.es/panel_', // Base URL for the main panel
+                mainPanelUrl: 'https://www.aceleratumetabolismo.es/panel_',
                 videoUploadUrl: 'https://forms.gle/FSmmciaUWurD4A2g6'
             },
         };
 
-        // MODIFIED: This is now a 'let' and will be updated dynamically from the client's JS file.
-        // The default is 'all' (always active), which will be used if no specific config is found in the remote file.
         let VIDEO_PROMPT_CONFIG = {
-            // Options:
-            // 'all'    - Show every week.
-            // 'even'   - Show on even-numbered weeks (2, 4, 6...).
-            // 'odd'   - Show on odd-numbered weeks (1, 3, 5...).
-            // 'none'   - Never show the prompt.
-            // [30, 32] - Show only on specific week numbers (e.g., week 30 and 32).
-            activeWeeks: 'none' // MODIFIED: Default to 'none' if no config is found
+            activeWeeks: 'none'
         };
-        // =================================================================
-        // =================== END OF CONFIGURATION ======================
-        // =================================================================
 
-
-        // --- GLOBAL APP STATE & VARIABLES ---
-        let individualExerciseLogs = []; // Stores individual exercise logs for history and pre-filling
-        let workoutSessionSummaries = []; // Stores full workout session summaries
-        // NEW: Array for extra activities
+        let individualExerciseLogs = [];
+        let workoutSessionSummaries = [];
         let extraActivities = [];
         let allHistoryItems = [];
         let currentActiveDayKey = null;
@@ -1295,50 +1266,94 @@
         let emomIntervalTimer = null, currentEmomIntervalNumber = 0, currentEmomExerciseIndex = 0, emomExercisesArray = [], totalEmomIntervals = 0, emomWorkIntervalSeconds = 60, currentEmomMainOrder = null; 
         let circuitTimerInterval = null, currentCircuitPhase = 'idle', currentCircuitRound = 0, currentCircuitExerciseIndexInRound = 0, currentCircuitTimeLeft = 0, circuitExercisesArray = [], circuitDetailsGlobal = null, currentCircuitMainOrder = null;
         let toneSynth = null;
-        let currentWorkoutSummaryData = []; // Data for the current workout session before registration
-        let currentSessionId = null; // Unique ID for the current workout session being performed
-        let rmChartInstance = null; // Corrected: Declared with let here
-        let workoutData = null; // Will be loaded from URL
-        let exerciseAlternatives = null; // Will be loaded from URL
-        let wakeLock = null; // NEW: For Screen Wake Lock API
-        // MODIFIED: Variable to store the next rest timer title
+        let currentWorkoutSummaryData = [];
+        let currentSessionId = null;
+        let rmChartInstance = null;
+        let workoutData = null;
+        let exerciseAlternatives = null;
+        let wakeLock = null;
         let nextRestTimerTitle = '';
-
-
-        // NEW: Global variables for time-based exercise sequence
         let currentTimedExerciseCardId = null;
         let currentTimedExerciseSetNumber = 0;
         let totalSetsForCurrentTimedExercise = 0;
-        let currentRestDurationForTimedExercise = 0; // Rest duration for the current timed exercise
-        let timedExerciseSetsLogged = []; // To store sets logged automatically by the timer
-
-        // NEW: Flag for unsaved changes in fullLogModal (now for in-card view)
+        let currentRestDurationForTimedExercise = 0;
+        let timedExerciseSetsLogged = [];
         let hasUnsavedFullLogChanges = false;
-        
-        // NEW: Global variable for storing the uploaded image file
         let uploadedCaptureFile = null;
-
-        // MODIFIED: Map to track progress of each exercise step-by-step.
         let exerciseProgressMap = new Map();
-
-        // NEW: Calendar state variables
         let currentDate = new Date();
         const daysOfWeek = ['Dom', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
         const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let groupedHistory = {};
-
-
-        // --- Supabase Setup ---
         let supabase = null;
-        let userIdentifier = null; // This will store the client_id from the URL
+        let userIdentifier = null;
         const SUPABASE_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU';
 
-        // --- UTILITY FUNCTIONS (SHARED) ---
+        // Numeric Keypad Variables
+        let activeInput = null;
+        let keypadDisplayValue = '';
+        const keypadDisplay = document.getElementById('keypadDisplay');
+
+        function openNumericPad(input) {
+            if (!isWorkoutInProgress) {
+                // If not in workout, use the default keyboard.
+                return;
+            }
+            activeInput = input;
+            const keypadModal = document.getElementById('numericKeypadModal');
+            const keypadTitle = document.getElementById('keypadTitle');
+            const decimalButton = keypadModal.querySelector('button[onclick*="handleKeypadClick(\'.\')"]');
+            
+            if (input.dataset.fieldType === 'kg') {
+                keypadTitle.textContent = 'Ingresar Peso (kg)';
+                decimalButton.disabled = false;
+            } else {
+                keypadTitle.textContent = 'Ingresar Reps';
+                decimalButton.disabled = true;
+            }
+            
+            // Initialize display value based on current input value
+            keypadDisplayValue = input.value;
+            if (keypadDisplayValue === '') {
+                keypadDisplayValue = '0';
+            }
+            keypadDisplay.textContent = keypadDisplayValue;
+
+            openModal(keypadModal);
+            // Hide the default keyboard on mobile
+            input.blur();
+        }
+
+        function handleKeypadClick(value) {
+            if (!activeInput) return;
+
+            if (keypadDisplayValue === '0' && value !== '.') {
+                keypadDisplayValue = value;
+            } else if (value === 'backspace') {
+                keypadDisplayValue = keypadDisplayValue.slice(0, -1);
+                if (keypadDisplayValue === '') {
+                    keypadDisplayValue = '0';
+                }
+            } else if (value === '.' && keypadDisplayValue.includes('.')) {
+                return; // Prevent multiple decimal points
+            } else {
+                keypadDisplayValue += value;
+            }
+            
+            keypadDisplay.textContent = keypadDisplayValue;
+        }
+
+        function handleKeypadCheck() {
+            if (!activeInput) return;
+            activeInput.value = keypadDisplayValue;
+            closeModalElement(numericKeypadModal);
+        }
+
         function openModal(modalElement) {
             if (!modalElement) return;
             modalElement.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
             modalElement.classList.add('opacity-100');
-            const content = modalElement.querySelector('.modal-content, .relative'); // Added .relative for photo modal
+            const content = modalElement.querySelector('.modal-content, .relative');
             if (content) {
                 content.classList.remove('scale-95');
                 content.classList.add('scale-100');
@@ -1347,7 +1362,7 @@
 
         function closeModalElement(modalElement) {
             if (!modalElement) return;
-            const content = modalElement.querySelector('.modal-content, .relative'); // Added .relative for photo modal
+            const content = modalElement.querySelector('.modal-content, .relative');
             if (content) {
                 content.classList.remove('scale-100');
                 content.classList.add('scale-95');
@@ -1397,10 +1412,7 @@
             document.getElementById('confirmCancelBtn').onclick = () => { confirmContainer.remove(); };
         }
 
-        // --- APP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            // MODIFIED: More robust audio initialization for mobile devices (especially iOS).
-            // The audio context must be started by a direct user gesture.
             const initAudio = async () => {
                 try {
                     if (Tone.context.state !== 'running') {
@@ -1408,13 +1420,11 @@
                         console.log('Audio context started successfully.');
                     }
                     
-                    // Create the synth instance if it's not already there
                     if (!toneSynth) {
                         toneSynth = new Tone.Synth().toDestination();
                         console.log('Tone.Synth created.');
                     }
 
-                    // Play a silent note to "prime" the synth.
                     toneSynth.volume.value = -Infinity;
                     toneSynth.triggerAttackRelease("C4", "32n", Tone.now());
                     toneSynth.volume.value = 0;
@@ -1426,16 +1436,13 @@
                     console.error('Could not initialize or prime audio:', e);
                     showCustomAlert('Error al activar el sonido.', 'error');
                 } finally {
-                    // Remove the event listeners after the first interaction.
                     document.body.removeEventListener('click', initAudio);
                     document.body.removeEventListener('touchstart', initAudio);
                 }
             };
-            // Add listeners that will trigger the audio initialization on the first user tap/click.
             document.body.addEventListener('click', initAudio, { once: true });
             document.body.addEventListener('touchstart', initAudio, { once: true });
             
-            // NEW: Global event listener to close any open settings menus on outside click
             document.addEventListener('click', (event) => {
                 document.querySelectorAll('.quick-mode-header-buttons.is-active').forEach(menu => {
                     const card = menu.closest('.quick-mode-exercise-item');
@@ -1451,13 +1458,9 @@
                 });
             });
 
-            // Initialize Supabase and userIdentifier first
             initializeSupabaseClient();
-            
-            // Initialize the workout app logic
             initializeWorkoutApp();
             
-            // NEW: Add event listener for the new extras button
             const addExtrasButton = document.getElementById('addExtrasButton');
             if(addExtrasButton) {
                 addExtrasButton.addEventListener('click', () => {
@@ -1466,7 +1469,6 @@
                 });
             }
             
-            // NEW: Added event listener for the new Cancel button
             const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
             if(cancelExtraActivityButton) {
                 cancelExtraActivityButton.addEventListener('click', () => {
@@ -1474,27 +1476,27 @@
                 });
             }
 
-            // Set the href for the main menu button
             const mainMenuButton = document.getElementById('mainMenuButton');
             if (mainMenuButton && userIdentifier) {
-                // MODIFIED: Changed the link to point to index.html with the `usuario` parameter
                 mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userIdentifier}`;
             } else if (mainMenuButton) {
                 mainMenuButton.href = `/mi-webapp-pwa/index.html`;
                 console.warn("User identifier not found for main menu button. Using default link.");
             }
 
-            // NEW: Add listener for page visibility to manage wake lock
             document.addEventListener('visibilitychange', handleVisibilityChange);
-
+            
+            document.querySelectorAll('.quick-mode-input').forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.value = '';
+                });
+            });
         });
 
-        // Function to initialize Supabase client and get user identifier
         function initializeSupabaseClient() {
             const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
             
             try {
-                // MODIFIED: Use the provided Supabase API key
                 supabase = window.supabase.createClient(supabaseUrl, SUPABASE_API_KEY);
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
@@ -1502,7 +1504,6 @@
                 return;
             }
 
-            // MODIFIED: Updated to check for 'usuario' parameter first
             function obtenerParametroUrl(nombre) {
                 nombre = nombre.replace(/[\[\]]/g, '\\$&');
                 var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
@@ -1528,17 +1529,12 @@
                     userIdentifier = userFromQuery;
                 } else {
                     console.warn("User identifier not found in URL. Using a default/placeholder. Data might not be isolated correctly.");
-                    userIdentifier = "default-user-id"; // Placeholder for development
+                    userIdentifier = "default-user-id";
                     showCustomAlert("Advertencia: Usuario no identificado en la URL. Los datos pueden no guardarse correctamente.", "warning");
                 }
             }
         }
 
-        // #############################################################
-        // #                 SCREEN WAKE LOCK LOGIC                    #
-        // #############################################################
-        
-        // NEW: Function to request a screen wake lock
         const requestWakeLock = async () => {
             if ('wakeLock' in navigator) {
                 try {
@@ -1556,7 +1552,6 @@
             }
         };
 
-        // NEW: Function to release the screen wake lock
         const releaseWakeLock = async () => {
             if (wakeLock !== null) {
                 await wakeLock.release();
@@ -1564,7 +1559,6 @@
             }
         };
 
-        // NEW: Handle visibility changes to re-acquire the lock if needed
         const handleVisibilityChange = async () => {
             if (wakeLock !== null && document.visibilityState === 'visible' && isWorkoutInProgress) {
                 await requestWakeLock();
@@ -1572,21 +1566,16 @@
         };
 
 
-        // #############################################################
-        // #                    WORKOUT APP LOGIC                      #
-        // #############################################################
         const daySelectionTabsContainer = document.getElementById('daySelectionTabs'); 
         const workoutPreviewContainer = document.getElementById('workoutPreviewContainer'); 
         const viewWorkoutHistoryButton = document.getElementById('viewWorkoutHistoryButton');
         const viewExerciseHistoryButton = document.getElementById('viewExerciseHistoryButton');
         const mainHistoryModal = document.getElementById('mainHistoryModal');
-        // MODIFIED: calendar elements
         const calendarModal = document.getElementById('calendarModal');
         const currentMonthYear = document.getElementById('currentMonthYear');
         const calendarDaysContainer = document.getElementById('calendarDaysContainer');
         const detailedDayModal = document.getElementById('detailedDayModal');
         const detailedDayContent = document.getElementById('detailedDayContent');
-
         const historySearchInput = document.getElementById('historySearchInput');
         const mainHistoryResults = document.getElementById('mainHistoryResults');
         const detailedHistoryModal = document.getElementById('detailedHistoryModal');
@@ -1612,11 +1601,10 @@
         const restStateLabel = document.getElementById('restStateLabel');
         const restExerciseName = document.getElementById('restExerciseName');
         const restExerciseDetails = document.getElementById('restExerciseDetails');
-        const restCurrentImage = document.getElementById('restCurrentImage'); // NEW: Added this element
+        const restCurrentImage = document.getElementById('restCurrentImage');
         const minimizedRestTimer = document.getElementById('minimizedRestTimer');
         const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
         const minimizedNextExercise = document.getElementById('minimizedNextExercise');
-        // MODIFIED: Extras modal has been simplified to a single modal
         const extrasModal = document.getElementById('extrasModal');
         const extraActivitySelect = document.getElementById('extraActivitySelect');
         const otherActivityInputGroup = document.getElementById('otherActivityInputGroup');
@@ -1627,9 +1615,6 @@
         const extraCaptureFileName = document.getElementById('extraCaptureFileName');
         const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
         const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
-
-
-        // MODIFIED: Element selectors for the new work timer modal
         const workTimerModal = document.getElementById('workTimerModal'); 
         const workTimerTitle = document.getElementById('workTimerTitle');
         const workOverallProgress = document.getElementById('workOverallProgress');
@@ -1638,7 +1623,6 @@
         const workExerciseName = document.getElementById('workExerciseName');
         const workExerciseDetails = document.getElementById('workExerciseDetails');
         const workCurrentImage = document.getElementById('workCurrentImage');
-        
         const circuitTimerModal = document.getElementById('circuitTimerModal'); 
         const circuitWelcomeView = document.getElementById('circuitWelcomeView');
         const circuitWelcomeTitle = document.getElementById('circuitWelcomeTitle');
@@ -1677,17 +1661,11 @@
         const warmupModal = document.getElementById('warmupModal');
         const shareModal = document.getElementById('shareModal');
         
-        // NEW: Helper function to get the ISO week number of the year.
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            // Set to nearest Thursday: current date + 4 - current day number
-            // Make Sunday's day number 7
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            // Get first day of year
             var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            // Calculate full weeks to nearest Thursday
             var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            // Return array of week number and year
             return weekNo;
         }
 
@@ -1715,7 +1693,6 @@
             } 
         }
         
-        // MODIFIED: This function now gets the last recorded data for a *specific set number*
         function getLastLoggedDataForSet(exerciseName, setNumber) {
             const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a,b) => new Date(b.raw_date) - new Date(a.raw_date));
             if (entries.length > 0) {
@@ -1726,11 +1703,9 @@
             return { kg: "", reps: "" };
         }
         
-        // NEW: Function to get the latest registered weight for an exercise
         function getLastLoggedWeightForExercise(exerciseName) {
             const entry = getLastWorkoutEntry(exerciseName);
             if (entry && entry.sets_performed && entry.sets_performed.length > 0) {
-                // Find the last set with a valid weight
                 for (let i = entry.sets_performed.length - 1; i >= 0; i--) {
                     const set = entry.sets_performed[i];
                     if (set.kg && !isNaN(parseFloat(set.kg))) {
@@ -1758,12 +1733,10 @@
             exerciseHistoryDetailView.style.display = 'none';
         }
 
-        // MODIFIED: Changed sorting order to be descending (most recent first)
         function showExerciseDetailView(exerciseName) {
             exerciseHistoryListView.style.display = 'none';
             exerciseHistoryDetailView.style.display = 'block';
             detailedHistoryExerciseName.textContent = exerciseName;
-            // CHANGE 2: Sort the history chronologically (oldest to newest) for the chart
             const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(a.raw_date) - new Date(b.raw_date));
             detailedHistoryContent.innerHTML = '';
             const chartLabels = [], chartData = [];
@@ -1839,7 +1812,6 @@
         if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
         if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
         
-        // MODIFIED: renderWorkoutHistoryList to now be the calendar renderer
         function renderCalendar() {
             const startOfWeek = getStartOfWeek(currentDate);
             const endOfWeek = new Date(startOfWeek);
@@ -1890,7 +1862,7 @@
         
         function getStartOfWeek(date) {
             const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday-start week
+            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
             return new Date(date.setDate(diff));
         }
 
@@ -1910,7 +1882,6 @@
             items.sort((a,b) => new Date(a.raw_date) - new Date(b.raw_date)).forEach(item => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'expanded-item';
-                // MODIFIED: Display total_time_session instead of item.time
                 const duration = item.total_time_session ? `Duración: ${item.total_time_session}` : `Hora: ${item.time}`;
                 itemDiv.innerHTML = `<div class="item-name">${item.name_workout}</div><div class="item-time">${duration}</div>`;
                 itemDiv.onclick = () => {
@@ -1923,11 +1894,9 @@
                 detailedContent.appendChild(itemDiv);
             });
             
-            // Re-render the calendar view with the expanded content
             calendarDaysContainer.innerHTML = '';
             calendarDaysContainer.appendChild(detailedContent);
 
-            // Add a back button
             const backButton = document.createElement('button');
             backButton.className = 'main-action-button mt-4';
             backButton.innerHTML = '<i class="fas fa-arrow-left mr-2"></i>Volver';
@@ -1962,7 +1931,46 @@
             }); 
         }
         
-        // MODIFIED: Timer sound logic
+        function viewExerciseHistoryFromLog(exerciseName) {
+            showExerciseDetailView(exerciseName);
+            openModal(detailedHistoryModal);
+        }
+
+        function handleExerciseHistorySearch() {
+            const query = historySearchInput.value.toLowerCase().trim();
+            exerciseHistoryList.innerHTML = '';
+            const uniqueExercises = [...new Set(individualExerciseLogs.map(item => item.exercise_name))].sort();
+            const filteredExercises = uniqueExercises.filter(name => name.toLowerCase().includes(query));
+            if (filteredExercises.length === 0) {
+                exerciseHistoryList.innerHTML = '<p class="text-gray-400 text-center py-4">No se encontraron ejercicios.</p>';
+                return;
+            }
+            filteredExercises.forEach(exerciseName => {
+                const button = document.createElement('button');
+                button.className = 'main-history-item';
+                button.textContent = exerciseName;
+                const escapedName = exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
+                button.onclick = () => showExerciseDetailView(escapedName);
+                exerciseHistoryList.appendChild(button);
+            });
+        }
+
+        function closeDetailedHistoryModal() {
+            if (rmChartInstance) {
+                rmChartInstance.destroy();
+                rmChartInstance = null;
+            }
+            closeModalElement(detailedHistoryModal);
+        }
+
+        if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
+            renderCalendar();
+            openModal(mainHistoryModal); 
+        });
+        if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
+        if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
+        if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
+        
         function playTimerSound(note, duration) {
             if (toneSynth && Tone.context.state === 'running') {
                 try {
@@ -1975,7 +1983,6 @@
             }
         }
 
-        // MODIFIED: startRestTimer to display image of next exercise
         function startRestTimer(durationSeconds, nextExerciseData = null) {
             currentRestDuration = durationSeconds;
             clearInterval(restTimerInterval);
@@ -1983,13 +1990,11 @@
             restStateLabel.textContent = 'DESCANSO';
             restStateLabel.className = 'state-label rest';
             
-            // NEW: Added image element and hide it by default
             if(restCurrentImage) {
                 restCurrentImage.style.display = 'none';
                 restCurrentImage.src = '';
             }
             
-           // MODIFIED: Dynamic display based on the type of next item
             if (nextExerciseData) {
                 if (nextExerciseData.type === 'nextSet') {
                     restExerciseName.textContent = `Siguiente: Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
@@ -2000,7 +2005,6 @@
                     restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps || ''} con ${nextExerciseData.kg || '--'} Kg`;
                     nextRestTimerTitle = `Siguiente: ${nextExerciseData.name || ''}`;
                 }
-                // NEW: Set the image for the next exercise
                 if(nextExerciseData.imageUrl && restCurrentImage) {
                     restCurrentImage.src = nextExerciseData.imageUrl;
                     restCurrentImage.style.display = 'block';
@@ -2047,7 +2051,6 @@
             const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
             restTimerDisplay.textContent = formattedTime;
             minimizedTimerDisplay.textContent = formattedTime;
-            // MODIFIED: Use the global variable for the next exercise name
             minimizedNextExercise.textContent = nextRestTimerTitle;
         }
 
@@ -2058,7 +2061,6 @@
             minimizedNextExercise.textContent = '';
             minimizedRestTimer.classList.remove('is-active');
             closeModalElement(restTimerModal); 
-            // NEW: Hide the image when the modal is closed
             if(restCurrentImage) {
                 restCurrentImage.style.display = 'none';
                 restCurrentImage.src = '';
@@ -2075,13 +2077,10 @@
             }
         }
 
-        // MODIFIED: Updated `openSwapExerciseModal` and `performExerciseSwap` to fix the issues
         function openSwapExerciseModal(cardId) {
             const card = document.getElementById(cardId);
             if (!card) return;
-            // Get original data from the `originalExerciseData` dataset, which is never overwritten
             const originalExerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            // Get current data from the `primordialExerciseData` dataset, which holds the original, pre-swapped data
             const primordialExerciseData = JSON.parse(card.dataset.primordialExerciseData || '{}');
 
             swapExerciseModalTitle.textContent = `Alternativas para: ${primordialExerciseData.name}`;
@@ -2089,7 +2088,6 @@
 
             const alternatives = exerciseAlternatives[primordialExerciseData.name] || [];
             
-            // 1. Check if there's an active swap to allow reverting
             const isSwapped = card.dataset.isSwapped === "true";
             if (isSwapped) {
                 const revertButton = document.createElement('button');
@@ -2099,23 +2097,19 @@
                 swapExerciseModalContent.appendChild(revertButton);
             }
 
-            // 2. Add alternative exercises
             let hasAlternatives = false;
             if (alternatives.length > 0) {
                 alternatives.forEach(alt => {
-                    // Prevent showing the current exercise in the alternatives list
                     if (alt.name === card.dataset.currentName) return; 
                     hasAlternatives = true;
                     const button = document.createElement('button');
                     button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
                     button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
-                    // MODIFIED: Pass imageUrl along with other alternative data
                     button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
                     swapExerciseModalContent.appendChild(button);
                 });
             }
 
-            // 3. Display message if no alternatives exist
             if (!hasAlternatives && !isSwapped) {
                 swapExerciseModalContent.innerHTML = '<p class="text-gray-400 text-center">No hay alternativas disponibles para este ejercicio.</p>';
             }
@@ -2137,7 +2131,6 @@
                     else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } 
                 } 
             } 
-            // FIXED: Always use the original data from the `originalExerciseData` dataset, not the `primordial` one
             const exerciseInput = newExerciseData;
             const originalData = exerciseInput.originalExerciseData || exerciseInput;
             const exerciseToCreate = { ...newExerciseData, originalExerciseData: originalData }; 
@@ -2146,23 +2139,21 @@
             updateAllExerciseCardInputStates(); 
         }
 
-        function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); /* NEW: Release lock on close */ closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
+        function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; releaseWakeLock(); closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
         
-        // MODIFIED: toggleWorkoutState to include Wake Lock
         function toggleWorkoutState() { 
             if (isWorkoutInProgress) { 
                 openWorkoutSummaryModal(); 
-                releaseWakeLock(); // NEW: Release lock when finishing workout
+                releaseWakeLock();
             } else { 
                 isWorkoutInProgress = true; 
                 workoutStartTime = Date.now(); 
                 workoutTimerInterval = setInterval(updateWorkoutDuration, 1000); 
                 currentSessionId = crypto.randomUUID();
                 updateAllExerciseCardInputStates(); 
-                requestWakeLock(); // NEW: Request lock when starting workout
+                requestWakeLock();
             } 
         }
-        // MODIFIED: Update workout duration to HH:MM format
         function updateWorkoutDuration() { 
             if (!isWorkoutInProgress || !workoutStartTime) return; 
             const elapsed = Math.floor((Date.now() - workoutStartTime) / 1000); 
@@ -2191,7 +2182,6 @@
             return maxRm;
         }
 
-        // NEW: Function to get the historical max RM, excluding the current session being registered
         function getHistoricalMaxRmExcludingSession(exerciseName, sessionId) {
             let maxRm = 0;
             const historyForExercise = individualExerciseLogs.filter(e => 
@@ -2216,7 +2206,6 @@
         function showNewRecordAlert(newRm) { newRecordText.textContent = `¡Has alcanzado un 1RM estimado de ${newRm.toFixed(1)}kg!`; openModal(newRecordModal); }
         function closeQuickModeWorkoutModal() { confirmBeforeClosingWorkoutModal(quickModeWorkoutModal, () => { releaseWakeLock(); }); }
 
-        // MODIFIED: Simplified `updateAllExerciseCardInputStates` for the single-view mode.
         function updateAllExerciseCardInputStates() {
             document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item').forEach(card => {
                 const exerciseName = card.dataset.currentName;
@@ -2227,13 +2216,12 @@
                 const isFinalized = setsLoggedCount >= totalSets;
 
                 const quickViewBody = document.getElementById(`quickViewBody-${cardId}`);
-                if (!quickViewBody) return; // Skip if the body isn't there (e.g., superset containers)
+                if (!quickViewBody) return;
 
                 const kgInput = quickViewBody.querySelector('input[aria-label*="Peso"]');
                 const repsInput = quickViewBody.querySelector('input[aria-label*="Repeticiones"]');
                 const registerBtn = quickViewBody.querySelector('.quick-mode-register-button');
                 
-                // NEW: Update progress display and series logged list
                 const progressDisplayContainer = document.getElementById(`progressDisplay-${cardId}`);
                 if (progressDisplayContainer) {
                     let seriesHtml = `
@@ -2267,7 +2255,6 @@
                     progressDisplayContainer.innerHTML = seriesHtml + registeredSetsListHtml;
                 }
 
-                // Disable inputs and button if finalized
                 kgInput.disabled = isFinalized;
                 repsInput.disabled = isFinalized;
                 registerBtn.disabled = isFinalized;
@@ -2286,7 +2273,6 @@
             });
         }
         
-        // Modified createQuickModeExerciseCard to use specific placeholders
         function createQuickModeExerciseCard(dayKey, mainOrder, exerciseInput, isSubItem, specialData = null) { 
             const card = document.createElement('div'); 
             const cardId = isSubItem ? `qm-ex-${dayKey}-${mainOrder}-${exerciseInput.subOrder}` : `qm-ex-${dayKey}-${mainOrder}`; 
@@ -2296,18 +2282,13 @@
             card.dataset.mainOrder = String(mainOrder); 
             card.dataset.subOrder = exerciseInput.subOrder !== undefined ? String(exerciseInput.subOrder) : ''; 
             card.dataset.currentName = exerciseInput.name; 
-            // FIXED: Store the original data in a separate dataset to always be able to revert.
             const originalData = exerciseInput.originalExerciseData || exerciseInput;
             card.dataset.originalExerciseData = JSON.stringify(originalData); 
-            // FIXED: Keep track of the first-ever version of the exercise for alternatives.
             card.dataset.primordialExerciseData = JSON.stringify(exerciseInput.primordialExerciseData || originalData);
             card.dataset.isSwapped = (exerciseInput.name !== originalData.name).toString(); 
             const isTimeBasedExercise = isTimeBased(exerciseInput.reps);
-            const inputType = isTimeBasedExercise ? 'text' : 'number';
-
-            // MODIFIED: Use the exact target reps as the placeholder
+            
             const repsPlaceholder = Array.isArray(exerciseInput.reps) ? exerciseInput.reps.join(', ') : exerciseInput.reps;
-            // MODIFIED: Hardcode kg placeholder to 'kg'
             const kgPlaceholder = 'kg';
 
             const lastData = getLastLoggedDataForSet(exerciseInput.name, 1);
@@ -2322,19 +2303,15 @@
             } 
             let seriesText = `Series: ${totalSets}`; 
             
-            // NEW: Create the settings dropdown and icon button
             let settingsButtonHtml = '';
             let settingsDropdownHtml = '';
             const originalEscapedName = (originalData.name || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
             
-            // MODIFIED: Changed the settings button to the new gray, small one
             settingsButtonHtml = `<button class="quick-mode-settings-button" onclick="toggleSettingsMenu(this, '${cardId}')" aria-label="Opciones de ejercicio"><i class="fas fa-cog"></i></button>`;
 
-            // MODIFIED: Add conditional visibility for "Calc. Aproximación"
             const showWarmupButton = !isSubItem && !isTimeBased(exerciseInput.reps) && !isTimeBased(repsPlaceholder);
             const warmupButtonHtml = showWarmupButton ? `<button onclick="openWarmupModal()" class="quick-action-btn"><i class="fas fa-fire w-5 text-center"></i> Calc. Aproximación</button>` : '';
 
-            // FIXED: "Cambiar Ejercicio" button now appears if alternatives exist for the primordial exercise OR it's a swapped exercise
             const primordialExerciseName = (JSON.parse(card.dataset.primordialExerciseData || '{}').name);
             const showSwapButton = (exerciseAlternatives[primordialExerciseName] || []).length > 0 || card.dataset.isSwapped === "true";
             const swapButtonHtml = showSwapButton ? 
@@ -2363,7 +2340,6 @@
                     imageHtml = `<div class="flex-shrink-0">${imageTag}</div>`;
                 }
             }
-            // MODIFIED: Simplified the card's inner HTML for the unified view
             card.innerHTML = ` 
                 <div class="quick-mode-exercise-header"> 
                     <div class="flex-top-row">
@@ -2381,9 +2357,8 @@
                     </div>
                 </div> 
                 <div id="quickViewBody-${cardId}" class="quick-mode-input-row"> 
-                    <!-- CHANGE 1: Modified oninput handler to allow commas and periods for decimals -->
-                    <input type="text" oninput="this.value=this.value.replace(/[^0-9.,]/g,'')" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
-                    <input type="${inputType}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
+                    <input type="text" pattern="[0-9]*[.,]?[0-9]*" inputmode="none" onfocus="openNumericPad(this)" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}" data-field-type="kg"> 
+                    <input type="text" pattern="[0-9]*" inputmode="none" onfocus="openNumericPad(this)" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased} data-field-type="reps"> 
                     <button class="quick-mode-register-button" onclick="logSingleSetStepByStep(this, '${cardId}')" aria-label="Registrar set"> 
                         <i class="fas fa-check"></i> 
                     </button> 
@@ -2435,10 +2410,6 @@
             return card; 
         }
         
-        // REMOVED: `toggleExerciseCardView` and `renderFullLogViewContent` functions as they are no longer needed.
-        
-        // MODIFIED: `logQuickModeSetFromCard` is now `logSingleSetStepByStep`
-        // NEW: Unifies the logging experience into a single step-by-step view
         async function logSingleSetStepByStep(button, cardId) {
             if (!isWorkoutInProgress) {
                 showCustomAlert("Inicia el entrenamiento primero para registrar series.", "warning");
@@ -2447,7 +2418,6 @@
 
             const card = document.getElementById(cardId);
             if (!card || card.querySelector('.quick-mode-register-button').disabled) {
-                // If button is disabled, it means the exercise is already completed
                 return;
             }
 
@@ -2455,19 +2425,16 @@
             const repsInput = card.querySelector('.quick-mode-input-row input[aria-label*="Repeticiones"]');
             const progressSpan = document.getElementById(`progressDisplay-${cardId}`);
             
-            // CHANGE 1: Normalize the weight input to use a dot for decimals
             const kg = kgInput.value.trim().replace(',', '.');
             const reps = repsInput.value.trim();
             const totalSets = parseInt(card.dataset.totalSets, 10);
 
-            // Handle time-based and number-based exercises
             const isTimeBasedExercise = isTimeBased(repsInput.placeholder);
             if (!isTimeBasedExercise && (kg === '' || reps === '')) {
                 showCustomAlert("Por favor, introduce el peso y las repeticiones.", "warning");
                 return;
             }
 
-            // Visual confirmation
             const originalButtonContent = button.innerHTML;
             button.innerHTML = '<i class="fas fa-check-circle text-xl animate-pulse"></i>';
             button.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
@@ -2485,23 +2452,18 @@
             const targetReps = isTimeBasedExercise ? exerciseData.reps : (Array.isArray(exerciseData.reps) && exerciseData.reps.length >= currentSet ? exerciseData.reps[currentSet - 1] : exerciseData.reps);
             const completionState = getRepCompletionState(reps, targetReps);
 
-            // MODIFIED: Check for new PR before creating the log entry
             let newPrValue = null;
             if (!isTimeBasedExercise && parseFloat(kg) > 0 && parseInt(reps) > 0) {
                 const currentRm = calculateEpley1RM(kg, reps);
-                // MODIFIED: Use the new function to get historical max RM, excluding the current session
                 const historicalMaxRm = getHistoricalMaxRmExcludingSession(exerciseData.name, currentSessionId);
-                // MODIFIED: Condition to show new record alert only if current RM is greater than historical max
                 if (historicalMaxRm > 0 && currentRm > historicalMaxRm) {
                     showNewRecordAlert(currentRm);
                     newPrValue = currentRm.toFixed(1);
                 } else if (historicalMaxRm === 0 && currentRm > 0) {
-                    // This is the first record, don't show the alert, but track the PR for the log
                     newPrValue = currentRm.toFixed(1);
                 }
             }
 
-            // Create or update log entry
             let logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseData.name);
             if (!logEntry) {
                 logEntry = {
@@ -2518,11 +2480,9 @@
             }
             logEntry.setsPerformed.push({ serie: currentSet, kg, reps, completionState });
 
-            // Update overall completion state
             let overallCompletion = 'good';
-            // MODIFIED: Check all sets logged so far for completion state
             for(const set of logEntry.setsPerformed) {
-                const setCompletionState = getRepCompletionState(set.reps, targetReps); // Use the same target for all sets for simplicity
+                const setCompletionState = getRepCompletionState(set.reps, targetReps);
                 if(setCompletionState === 'bad') {
                     overallCompletion = 'bad';
                     break;
@@ -2533,22 +2493,17 @@
             }
             logEntry.completionState = overallCompletion;
             
-            // Check if the new set has a PR and if it's the highest so far in this session.
             if (newPrValue && (!logEntry.personalRecord || parseFloat(newPrValue) > parseFloat(logEntry.personalRecord))) {
                 logEntry.personalRecord = newPrValue;
             }
 
-            // Check if all sets are completed
             if (currentSet >= totalSets) {
-                // Finalize the exercise
                 exerciseProgressMap.delete(cardId);
                 updateAllExerciseCardInputStates();
                 showCustomAlert(`¡Ejercicio "${exerciseData.name}" completado!`, "info");
             } else {
-                // Prepare for the next set
                 exerciseProgressMap.set(cardId, currentSet + 1);
                 
-                // NEW: After a set is logged, pre-fill the inputs for the next set
                 const nextSetData = getLastLoggedDataForSet(exerciseData.name, currentSet + 1);
                 if (nextSetData.kg) {
                     kgInput.value = nextSetData.kg;
@@ -2561,31 +2516,24 @@
                     repsInput.value = '';
                 }
                 
-                // Start rest timer
                 const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
                 if (restDurationMatch) {
                     const restSeconds = parseInt(restDurationMatch[1], 10);
                     if (restSeconds > 0) {
-                        // MODIFIED: Determine if the next item is a new exercise or the next set
                         let nextExerciseForRest = null;
                         
-                        // Check if it's a superset and if there's a next item in the sequence
                         const allExerciseCards = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item'));
                         const currentCardIndex = allExerciseCards.findIndex(el => el.id === cardId);
                         
-                        // Check if the current card is part of a superset
                         const currentSupersetContainer = card.closest('.quick-mode-superset-container');
                         
                         if (currentSupersetContainer && currentSet < totalSets) {
-                            // If we are in a superset and there are still sets to do
                             const supersetItems = Array.from(currentSupersetContainer.querySelectorAll('.quick-mode-exercise-item'));
                             const currentSubIndex = supersetItems.findIndex(el => el.id === cardId);
                             
-                            // Get the next exercise card within the same set
                             const nextSubExerciseCard = supersetItems[currentSubIndex + 1];
                             
                             if (nextSubExerciseCard) {
-                                // We are resting to go to the next exercise within the superset
                                 const nextExerciseData = JSON.parse(nextSubExerciseCard.dataset.originalExerciseData || '{}');
                                 nextExerciseForRest = {
                                     type: 'nextExercise',
@@ -2595,7 +2543,6 @@
                                     imageUrl: nextExerciseData.imageUrl
                                 };
                             } else {
-                                // We finished a round of the superset, going back to the first exercise
                                 const firstSubExerciseCard = supersetItems[0];
                                 if (firstSubExerciseCard) {
                                     const nextExerciseData = JSON.parse(firstSubExerciseCard.dataset.originalExerciseData || '{}');
@@ -2609,7 +2556,6 @@
                                 }
                             }
                         } else {
-                            // Standard rest for next set or next exercise
                             if (currentSet < totalSets) {
                                 const nextSetNumber = currentSet + 1;
                                 const nextKg = getLastLoggedDataForSet(exerciseData.name, nextSetNumber).kg || '--';
@@ -2621,7 +2567,6 @@
                                     kg: nextKg,
                                     setNumber: nextSetNumber,
                                     totalSets: totalSets,
-                                    // NEW: Add image URL to the next set data
                                     imageUrl: exerciseData.imageUrl
                                 };
                             } else {
@@ -2649,7 +2594,6 @@
                                             name: nextCard.dataset.currentName,
                                             reps: nextCard.querySelector('input[aria-label*="Repeticiones"]')?.placeholder || 'N/A',
                                             kg: nextCard.querySelector('input[aria-label*="Peso"]')?.placeholder || '--',
-                                            // NEW: Add image URL to the next exercise data
                                             imageUrl: nextExerciseData.imageUrl
                                         };
                                     }
@@ -2661,14 +2605,12 @@
                 }
             }
 
-            // Update UI state for all cards
             updateAllExerciseCardInputStates();
         }
 
         function openWorkoutSummaryModal() {
             const elapsed = workoutStartTime > 0 ? Math.floor((Date.now() - workoutStartTime) / 1000) : 0;
             const h = Math.floor(elapsed / 3600), m = Math.floor((elapsed % 3600) / 60);
-            // MODIFIED: Format to HH:MM
             workoutSummaryTotalTime.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             let totalVolume = 0;
             currentWorkoutSummaryData.forEach(entry => {
@@ -2694,7 +2636,7 @@
             registerWorkoutButton.onclick = async () => {
                 registerWorkoutButton.innerHTML = 'Procesando...';
                 registerWorkoutButton.disabled = true;
-                releaseWakeLock(); // NEW: Release lock on registration
+                releaseWakeLock();
                 try {
                     const individualLogsToInsert = currentWorkoutSummaryData.map(entry => ({
                         client_id: userIdentifier,
@@ -2721,7 +2663,6 @@
                         time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                         raw_date: new Date().toISOString(),
                         exercise_name: "Workout Session Summary",
-                        // MODIFIED: Add workout name to the summary log
                         name_workout: workoutData[currentActiveDayKey].name,
                         sets_performed: JSON.stringify(currentWorkoutSummaryData),
                         completion_state: "completed",
@@ -2740,7 +2681,6 @@
                     isWorkoutInProgress = false;
                     registerWorkoutButton.innerHTML = '¡Registrado!';
                     
-                    // MODIFIED: Removed video prompt logic, now just closes modals
                     setTimeout(() => {
                         closeModalElement(workoutSummaryModal);
                         closeModalElement(quickModeWorkoutModal);
@@ -2762,7 +2702,6 @@
 
         function closeWorkoutSummaryModal(registered = false) { closeModalElement(workoutSummaryModal); if (registered) { currentWorkoutSummaryData = []; closeModalElement(quickModeWorkoutModal); } }
         
-        // MODIFIED: Updated parsing logic to handle hh:mm format
         function parseDurationToSeconds(durationInput) {
             if (durationInput === null || typeof durationInput === 'undefined' || durationInput === '') { return 0; }
             const durationString = String(durationInput).trim().toLowerCase();
@@ -2776,7 +2715,6 @@
                  if(hmMatch) {
                     totalSeconds = parseInt(hmMatch[1], 10) * 3600 + parseInt(hmMatch[2], 10) * 60;
                  } else {
-                    // Fallback for simple numbers or original format
                     const minutesMatch = durationString.match(/(\d+)\s*(min|minute|minutes|m)/);
                     const secondsMatch = durationString.match(/(\d+)\s*(s|sec|second|seconds)/);
                     const justNumberMatch = durationString.match(/^(\d+)$/);
@@ -2801,7 +2739,6 @@
                 return; 
             } 
             
-            // MODIFIED: Calculation now based on a target of 6 reps
             const sets = [ 
                 { weight: workingWeight * 0.5, reps: '8', label: 'Serie 1' }, 
                 { weight: workingWeight * 0.7, reps: '6', label: 'Serie 2' }, 
@@ -2822,7 +2759,6 @@
         function prepareShareableCard() { const cardContent = document.getElementById('shareCard'); const dayData = workoutData[currentActiveDayKey]; const totalVolume = workoutSummaryTotalVolume.textContent; const totalTime = workoutSummaryTotalTime.textContent; cardContent.innerHTML = ` <h4>${dayData.name.toUpperCase()}</h4> <img src="https://storage.googleapis.com/msgsndr/dikOTQ4DE3OClw85d5oB/media/6821cea25072096f7d31d5c1.png" class="logo" alt="Logo"> <p><strong><i class="fas fa-clock mr-2"></i>Tiempo:</strong> ${totalTime}</p> <p><strong><i class="fas fa-weight-hanging mr-2"></i>Volumen:</strong> ${totalVolume}</p> <p class="text-center text-xs mt-4">¡Entrenamiento completado!</p> `; openModal(shareModal); }
         function downloadShareableImage() { const cardToCapture = document.getElementById('shareCard'); html2canvas(cardToCapture, { backgroundColor: null, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = 'resumen-entrenamiento.png'; link.href = canvas.toDataURL('image/png'); link.click(); }); }
         
-        // MODIFIED: startEmom to show welcome screen first
         function startEmom(dayKey, mainOrder) {
             const emomBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.isEMOM);
             if (!emomBlock || !emomBlock.emomDetails || !emomBlock.items) {
@@ -2840,12 +2776,10 @@
             currentEmomIntervalNumber = 0;
             currentEmomExerciseIndex = 0;
             
-            // Show welcome view
             emomActiveView.style.display = 'none';
             emomWelcomeView.style.display = 'flex';
             emomWelcomeTitle.textContent = 'EMOM';
             const totalMinutes = Math.floor(totalEmomIntervals * emomWorkIntervalSeconds / 60);
-            // MODIFIED: Conciser summary for EMOM
             emomWelcomeDetails.innerHTML = `Tendrás que completar <strong>${totalEmomIntervals} intervalos de 1 minuto</strong>. <br>Ejercicios: ${emomExercisesArray.map(e => e.name).join(', ')}.`;
             const firstExerciseImage = emomExercisesArray[0].imageUrl;
             if (emomWelcomeImage && firstExerciseImage) {
@@ -2859,7 +2793,6 @@
         }
 
         function runNextEmomInterval() {
-            // Hide welcome and show active view
             emomWelcomeView.style.display = 'none';
             emomActiveView.style.display = 'flex';
             clearInterval(emomIntervalTimer);
@@ -2873,11 +2806,9 @@
             let timeLeftInInterval = emomWorkIntervalSeconds;
             emomStateLabel.textContent = 'TRABAJO';
             emomStateLabel.className = 'state-label work';
-            // MODIFIED: Format to HH:MM:SS
             emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
             emomIntervalTimer = setInterval(() => {
                 timeLeftInInterval--;
-                // MODIFIED: Format to HH:MM:SS
                 emomIntervalTimerDisplay.textContent = formatTime(timeLeftInInterval);
                 if (timeLeftInInterval <= 3 && timeLeftInInterval > 0) {
                     playTimerSound("C4", "16n");
@@ -2920,7 +2851,6 @@
             runNextEmomInterval();
         }
 
-        // MODIFIED: Circuit timer logic with welcome screen
         function startCircuit(dayKey, mainOrder) {
             const circuitBlock = workoutData[dayKey].exercises.find(ex => ex.order === mainOrder && ex.circuitDetails);
             if (!circuitBlock || !circuitBlock.circuitDetails || !circuitBlock.items) {
@@ -2932,12 +2862,11 @@
             if (isNaN(circuitDetailsGlobal.totalRounds) || circuitDetailsGlobal.totalRounds <= 0) {
                 showCustomAlert("Configuración de Circuito inválida.", "error"); return;
             }
-            currentCircuitRound = 1; // Start at round 1
+            currentCircuitRound = 1;
             currentCircuitExerciseIndexInRound = 0;
-            currentCircuitPhase = 'countdown'; 
+            currentCircuitPhase = 'countdown';
             currentCircuitTimeLeft = 5;
             
-            // Show welcome view
             circuitActiveView.style.display = 'none';
             circuitWelcomeView.style.display = 'flex';
             circuitWelcomeTitle.textContent = 'CIRCUITO';
@@ -2951,7 +2880,6 @@
 
             const formattedTotalDuration = formatTime(totalCircuitDuration);
 
-            // MODIFIED: Conciser summary for Circuit
             circuitWelcomeDetails.innerHTML = `Consta de <strong>${circuitDetailsGlobal.totalRounds} rondas</strong> con una duración total de ${formattedTotalDuration}. <br>Ejercicios: ${circuitExercisesArray.map(e => e.name).join(', ')}.`;
             const firstExerciseImage = circuitExercisesArray[0].imageUrl;
             if (circuitWelcomeImage && firstExerciseImage) {
@@ -2966,19 +2894,16 @@
         }
 
         function runNextCircuitInterval() {
-            // Hide welcome and show active view
             circuitWelcomeView.style.display = 'none';
             circuitActiveView.style.display = 'flex';
 
             clearInterval(circuitTimerInterval);
 
-            // Determine next phase
             if (currentCircuitPhase === 'countdown') {
                 currentCircuitPhase = 'working';
             } else if (currentCircuitPhase === 'working') {
                 currentCircuitExerciseIndexInRound++;
                 if (currentCircuitExerciseIndexInRound >= circuitExercisesArray.length) {
-                    // End of a round
                     if (currentCircuitRound < circuitDetailsGlobal.totalRounds) {
                         currentCircuitPhase = 'resting_round';
                     } else {
@@ -2986,7 +2911,6 @@
                         return;
                     }
                 } else {
-                    // Rest between exercises
                     currentCircuitPhase = 'resting_exercise';
                 }
             } else if (currentCircuitPhase === 'resting_exercise') {
@@ -2997,14 +2921,13 @@
                 currentCircuitPhase = 'working';
             }
             
-            // Set time for the new phase
             switch(currentCircuitPhase) {
                 case 'working':
                     const currentExercise = circuitExercisesArray[currentCircuitExerciseIndexInRound];
                     currentCircuitTimeLeft = parseDurationToSeconds(currentExercise.reps);
                     if (currentCircuitTimeLeft === 0 && isTimeBased(currentExercise.reps)) {
                          showCustomAlert(`Ejercicio ${currentExercise.name} no tiene duración definida. Saltando.`, "warning");
-                         runNextCircuitInterval(); // Skip to next interval
+                         runNextCircuitInterval();
                          return;
                     }
                     break;
@@ -3018,11 +2941,9 @@
 
             updateCircuitModalDisplay();
 
-            // Start the timer if the phase has a duration
             if (currentCircuitTimeLeft > 0) {
                 circuitTimerInterval = setInterval(() => {
                     currentCircuitTimeLeft--;
-                    // MODIFIED: Format to HH:MM:SS
                     circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
                     if (currentCircuitTimeLeft <= 3 && currentCircuitTimeLeft > 0) {
                         playTimerSound("C4", "16n");
@@ -3034,17 +2955,14 @@
                     }
                 }, 1000);
             } else {
-                // If there's no duration (e.g., rep-based exercise), move to the next interval immediately
                 runNextCircuitInterval();
             }
         }
 
         function updateCircuitModalDisplay() {
-            // MODIFIED: Change to show round number and total rounds in yellow title
             circuitTimerTitle.innerHTML = `<span class="text-yellow-400">Ronda ${currentCircuitRound} de ${circuitDetailsGlobal.totalRounds}</span>`;
             
-            circuitOverallProgress.textContent = ''; // Removed from here
-            // MODIFIED: Format to HH:MM:SS
+            circuitOverallProgress.textContent = '';
             circuitTimerDisplay.textContent = formatTime(currentCircuitTimeLeft);
             let exerciseForDisplay = null;
             switch (currentCircuitPhase) {
@@ -3099,10 +3017,9 @@
         function skipCircuitInterval() {
             clearInterval(circuitTimerInterval);
             playTimerSound("A4", "8n");
-            runNextCircuitInterval(); // The main function now handles all state transitions correctly
+            runNextCircuitInterval();
         }
 
-        // MODIFIED: Updated formatTime to HH:MM:SS
         function formatTime(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -3113,7 +3030,6 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
         
-        // NEW: Format time to HH:MM only
         function formatTimeHHMM(totalSeconds) {
             const hours = Math.floor(totalSeconds / 3600);
             const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -3125,7 +3041,6 @@
         let countdownCallback = null;
         let countdownType = '';
 
-        // MODIFIED: startCountdownTimer to handle the new work timer UI
         function startCountdownTimer(type, duration = 5, callback = null) {
             countdownType = type;
             countdownTimeLeft = duration;
@@ -3154,7 +3069,6 @@
                 openModal(circuitTimerModal);
             }
             
-            // MODIFIED: Do not show PREPÁRATE title anymore
             if (type === 'work') {
                 if (modalTitleEl) modalTitleEl.textContent = 'TIEMPO DE TRABAJO';
             } else if (type === 'emom') {
@@ -3282,7 +3196,6 @@
             startCountdownTimer('work', 5);
         }
 
-        // MODIFIED: runWorkTimerForTimedExercise to populate the new UI
         function runWorkTimerForTimedExercise(durationSeconds) {
             clearInterval(workTimerInterval);
             const card = document.getElementById(currentTimedExerciseCardId);
@@ -3339,7 +3252,6 @@
             }, 1000);
         }
 
-        // MODIFIED: startRestTimerForTimedExercise to correctly pass image URL and next exercise info
         function startRestTimerForTimedExercise() {
             clearInterval(restTimerInterval);
             const card = document.getElementById(currentTimedExerciseCardId);
@@ -3396,7 +3308,6 @@
             restStateLabel.textContent = 'DESCANSO';
             restStateLabel.className = 'state-label rest';
             
-            // NEW: Set the image and text based on the next exercise data
             if (nextExerciseForRest) {
                 restExerciseName.textContent = `Siguiente: ${nextExerciseForRest.name || ''}`;
                 restExerciseDetails.textContent = `Objetivo: ${nextExerciseForRest.reps || ''} con ${nextExerciseForRest.kg || '--'} Kg`;
@@ -3469,9 +3380,7 @@
             timedExerciseSetsLogged = [];
         }
 
-        // NEW: Function to set up the extras form modal
         function setupExtrasForm() {
-            // Reset form fields
             extraActivitySelect.value = 'Pádel';
             otherActivityInputGroup.style.display = 'none';
             otherActivityNameInput.value = '';
@@ -3481,7 +3390,6 @@
             extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
             uploadedCaptureFile = null;
 
-            // Handle "Otros" option visibility
             extraActivitySelect.onchange = () => {
                 if (extraActivitySelect.value === 'Otros') {
                     otherActivityInputGroup.style.display = 'block';
@@ -3490,7 +3398,6 @@
                 }
             };
 
-            // Display selected file name
             extraCaptureInput.onchange = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -3502,7 +3409,6 @@
                 }
             };
             
-            // Set up the register button
             registerExtraActivityButton.onclick = () => {
                 const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
                 if (activityName === '') {
@@ -3513,7 +3419,6 @@
             };
         }
 
-        // NEW: Function to upload file and register the extra activity
         async function registerExtraActivity(activityName, time, volume, captureFile) {
             if (!supabase || !userIdentifier) {
                 showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
@@ -3538,7 +3443,6 @@
                         throw new Error(`Error uploading image: ${error.message}`);
                     }
                     
-                    // Construct the public URL
                     const publicUrl = supabase.storage
                         .from('workout-captures')
                         .getPublicUrl(filePath).data.publicUrl;
@@ -3549,7 +3453,6 @@
                 }
             }
             
-            // MODIFIED: total_time_session is formatted to HH:MM before sending
             const [hoursStr = '0', minutesStr = '0'] = time.split(':');
             const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
 
@@ -3558,9 +3461,9 @@
                 date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                 time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                 raw_date: new Date().toISOString(),
-                exercise_name: "Extra Activity", // Unique identifier for extra activities
+                exercise_name: "Extra Activity",
                 name_workout: activityName,
-                sets_performed: '[]', // Placeholder to maintain schema consistency
+                sets_performed: '[]',
                 completion_state: "completed",
                 session_id: crypto.randomUUID(),
                 total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
@@ -3578,8 +3481,8 @@
                 }
                 
                 showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
-                await loadWorkoutLogs(); // Reload logs to show the new entry in history
-                renderCalendar(); // Re-render the history calendar
+                await loadWorkoutLogs();
+                renderCalendar();
             } catch (error) {
                 console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
@@ -3588,7 +3491,6 @@
 
         async function initializeWorkoutApp() {
             try {
-                // Dynamically construct the workout data URL from the user identifier in the page URL.
                 const workoutDataUrl = `https://raw.githubusercontent.com/hombresenforma/ivan-data/main/${userIdentifier || 'default-user'}.js`;
                 console.log(`Fetching workout data from: ${workoutDataUrl}`);
 
@@ -3597,16 +3499,12 @@
                     throw new Error(`Network response for workout data was not ok: ${mainResponse.statusText} (URL: ${workoutDataUrl})`);
                 }
                 const mainDataText = await mainResponse.text();
-
-                // REMOVED: Old logic for extracting datosCliente from the JS file
                 
-                // Extract workout data
                 const workoutDataRegex = /const workoutData = ({[\s\S]*?});/;
                 const workoutDataMatch = mainDataText.match(workoutDataRegex);
                 if (!workoutDataMatch) throw new Error("Could not find 'workoutData' object in the main source file.");
                 workoutData = new Function(`return ${workoutDataMatch[1]}`)();
 
-                // Extract exercise alternatives
                 const alternativesRegex = /const exerciseAlternatives = ({[\s\S]*?});/;
                 const alternativesMatch = mainDataText.match(alternativesRegex);
                 if (!alternativesMatch) throw new Error("Could not find 'exerciseAlternatives' object in the main source file.");
@@ -3614,7 +3512,6 @@
                 
                 await loadWorkoutLogs();
                 setupDaySelectionTabs();
-                // MODIFIED: Call new function to get video config from Supabase
                 await fetchVideoConfigFromSupabase();
 
             } catch (error) {
@@ -3626,11 +3523,10 @@
             }
         }
         
-        // NEW: Function to fetch video config from Supabase
         async function fetchVideoConfigFromSupabase() {
             if (!supabase || !userIdentifier) {
                 console.warn("Supabase client or user identifier not available. Cannot fetch video config.");
-                setupVideoCorrectionsButton(); // Set up with default 'none'
+                setupVideoCorrectionsButton();
                 return;
             }
 
@@ -3641,7 +3537,7 @@
                     .eq('client_id', userIdentifier)
                     .single();
 
-                if (error && error.code !== 'PGRST116') { // PGRST116 means no row found, which is a valid case
+                if (error && error.code !== 'PGRST116') {
                     console.error("Error fetching video config from Supabase:", error);
                     showCustomAlert("Error al cargar la configuración de correcciones de vídeo.", "error");
                 }
@@ -3659,11 +3555,9 @@
                 showCustomAlert("Error inesperado al cargar la configuración de vídeo.", "error");
             }
 
-            // Always call the setup button function after attempting to fetch the config
             setupVideoCorrectionsButton();
         }
 
-        // NEW: Function to configure the new video corrections button
         function setupVideoCorrectionsButton() {
             const videoCorrectionsButton = document.getElementById('videoCorrectionsButton');
             if (!videoCorrectionsButton) return;
@@ -3735,7 +3629,6 @@
             }
         }
         
-        // NEW: Function to group all history items by day
         function groupHistoryByDay() {
             groupedHistory = allHistoryItems.reduce((acc, item) => {
                 const date = new Date(item.raw_date).toISOString().slice(0, 10);
@@ -3770,7 +3663,6 @@
                 fullWorkoutLogContent.innerHTML = '<p class="text-gray-400 text-center">No se registraron ejercicios en esta sesión.</p>';
             } else {
                 exercisesInSession.forEach(exerciseEntry => {
-                    // MODIFIED: Check for the personalRecord property
                     const isNewPR = exerciseEntry.personalRecord !== null && exerciseEntry.personalRecord !== undefined;
                     const prIcon = isNewPR ? `<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal! (${exerciseEntry.personalRecord} kg)"></i>` : '';
                     const escapedExerciseName = exerciseEntry.exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
@@ -3780,7 +3672,7 @@
                     exerciseHtml.innerHTML = `
                         <h4 onclick="viewExerciseHistoryFromLog('${escapedExerciseName}')" style="cursor: pointer;" title="Ver historial de este ejercicio">${exerciseEntry.exerciseName}${prIcon}</h4>
                         <ul>
-                            ${exerciseEntry.setsPerformed.map(set => { // Note: it's setsPerformed here
+                            ${exerciseEntry.setsPerformed.map(set => {
                                 const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
                                 const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
                                 return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
@@ -3802,7 +3694,6 @@
             dayKeys.forEach((dayKey) => { 
                 const tab = document.createElement('button'); 
                 tab.className = 'day-tab'; 
-                // Corrected: Access name from workoutData[dayKey]
                 tab.textContent = workoutData[dayKey].name.split(':')[0].trim(); 
                 tab.dataset.dayKey = dayKey; 
                 tab.onclick = () => displayWorkoutPreview(dayKey); 
@@ -3813,7 +3704,6 @@
             } 
         }
         
-        // Modified displayWorkoutPreview to use window.workoutData explicitly
         function displayWorkoutPreview(dayKey) { 
             currentActiveDayKey = dayKey; 
             if (typeof workoutData === 'undefined' || !workoutData[dayKey]) { 
@@ -3837,14 +3727,13 @@
             workoutPreviewContainer.innerHTML = previewHtml; 
         }
 
-        // NEW: Function to start quick mode workout
         function startQuickMode(dayKey) {
             if (isWorkoutInProgress) {
                 showCustomAlert("Ya hay un entrenamiento en curso. Por favor, termínalo antes de empezar uno nuevo.", "warning");
                 return;
             }
             
-            toggleWorkoutState(); // Start the workout session here
+            toggleWorkoutState();
             
             const dayData = workoutData[dayKey];
             quickModeWorkoutModalTitle.textContent = dayData.name;
@@ -3862,23 +3751,19 @@
             openModal(quickModeWorkoutModal);
         }
         
-        // NEW: Function to toggle the settings menu for an exercise card
         function toggleSettingsMenu(button, cardId) {
             const menu = document.getElementById(`settingsMenu-${cardId}`);
             button.classList.toggle('active');
             if (menu.classList.contains('is-active')) {
                 menu.classList.remove('is-active');
             } else {
-                // Close all other menus
                 document.querySelectorAll('.quick-mode-header-buttons').forEach(m => m.classList.remove('is-active'));
                 document.querySelectorAll('.quick-mode-settings-button').forEach(b => b.classList.remove('active'));
                 menu.classList.add('is-active');
             }
         }
 
-        // NEW: Function to set up the extras form modal
         function setupExtrasForm() {
-            // Reset form fields
             extraActivitySelect.value = 'Pádel';
             otherActivityInputGroup.style.display = 'none';
             otherActivityNameInput.value = '';
@@ -3888,7 +3773,6 @@
             extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
             uploadedCaptureFile = null;
 
-            // Handle "Otros" option visibility
             extraActivitySelect.onchange = () => {
                 if (extraActivitySelect.value === 'Otros') {
                     otherActivityInputGroup.style.display = 'block';
@@ -3897,7 +3781,6 @@
                 }
             };
 
-            // Display selected file name
             extraCaptureInput.onchange = (event) => {
                 const file = event.target.files[0];
                 if (file) {
@@ -3909,7 +3792,6 @@
                 }
             };
             
-            // Set up the register button
             registerExtraActivityButton.onclick = () => {
                 const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
                 if (activityName === '') {
@@ -3920,7 +3802,6 @@
             };
         }
 
-        // NEW: Function to upload file and register the extra activity
         async function registerExtraActivity(activityName, time, volume, captureFile) {
             if (!supabase || !userIdentifier) {
                 showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
@@ -3945,7 +3826,6 @@
                         throw new Error(`Error uploading image: ${error.message}`);
                     }
                     
-                    // Construct the public URL
                     const publicUrl = supabase.storage
                         .from('workout-captures')
                         .getPublicUrl(filePath).data.publicUrl;
@@ -3956,7 +3836,6 @@
                 }
             }
             
-            // MODIFIED: total_time_session is formatted to HH:MM before sending
             const [hoursStr = '0', minutesStr = '0'] = time.split(':');
             const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
 
@@ -3965,9 +3844,9 @@
                 date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
                 time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
                 raw_date: new Date().toISOString(),
-                exercise_name: "Extra Activity", // Unique identifier for extra activities
+                exercise_name: "Extra Activity",
                 name_workout: activityName,
-                sets_performed: '[]', // Placeholder to maintain schema consistency
+                sets_performed: '[]',
                 completion_state: "completed",
                 session_id: crypto.randomUUID(),
                 total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
@@ -3985,14 +3864,14 @@
                 }
                 
                 showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
-                await loadWorkoutLogs(); // Reload logs to show the new entry in history
-                renderCalendar(); // Re-render the history calendar
+                await loadWorkoutLogs();
+                renderCalendar();
             } catch (error) {
                 console.error("Error al registrar la actividad extra:", error);
                 showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
             }
         }
-
     </script>
 </body>
 </html>
+
