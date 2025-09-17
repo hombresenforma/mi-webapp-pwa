@@ -1323,7 +1323,7 @@
 
         // NEW: Calendar state variables
         let currentDate = new Date();
-        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        const daysOfWeek = ['Dom', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
         const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let groupedHistory = {};
 
@@ -1763,7 +1763,8 @@
             exerciseHistoryListView.style.display = 'none';
             exerciseHistoryDetailView.style.display = 'block';
             detailedHistoryExerciseName.textContent = exerciseName;
-            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
+            // CHANGE 2: Sort the history chronologically (oldest to newest) for the chart
+            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(a.raw_date) - new Date(b.raw_date));
             detailedHistoryContent.innerHTML = '';
             const chartLabels = [], chartData = [];
             let historicalMaxRm = 0;
@@ -2380,7 +2381,8 @@
                     </div>
                 </div> 
                 <div id="quickViewBody-${cardId}" class="quick-mode-input-row"> 
-                    <input type="number" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
+                    <!-- CHANGE 1: Modified oninput handler to allow commas and periods for decimals -->
+                    <input type="text" oninput="this.value=this.value.replace(/[^0-9.,]/g,'')" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}"> 
                     <input type="${inputType}" oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="${lastData.reps || ''}" placeholder="${repsPlaceholder}" class="quick-mode-input" aria-label="Repeticiones para ${exerciseInput.name}" ${repsOnClick} ${dataIsTimeBased}> 
                     <button class="quick-mode-register-button" onclick="logSingleSetStepByStep(this, '${cardId}')" aria-label="Registrar set"> 
                         <i class="fas fa-check"></i> 
@@ -2453,7 +2455,8 @@
             const repsInput = card.querySelector('.quick-mode-input-row input[aria-label*="Repeticiones"]');
             const progressSpan = document.getElementById(`progressDisplay-${cardId}`);
             
-            const kg = kgInput.value.trim();
+            // CHANGE 1: Normalize the weight input to use a dot for decimals
+            const kg = kgInput.value.trim().replace(',', '.');
             const reps = repsInput.value.trim();
             const totalSets = parseInt(card.dataset.totalSets, 10);
 
