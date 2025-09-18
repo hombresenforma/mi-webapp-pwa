@@ -1136,7 +1136,7 @@
                     <p id="emomOverallProgress"></p>
                 </div>
                 <div class="timer-card-body">
-                    <div id="emomIntervalTimerDisplay" class="timer-card-main-time">01:00</div>
+                    <div id="emomIntervalTimerDisplay" class="timer-card-main-time">00:00</div>
                     <div class="timer-card-info">
                         <img id="emomCurrentImage" src="" alt="Ejercicio actual" class="timer-exercise-image">
                         <div id="emomStateLabel" class="state-label work">TRABAJO</div>
@@ -1293,6 +1293,7 @@
         let activeInput = null;
         let keypadDisplayValue = '';
         const keypadDisplay = document.getElementById('keypadDisplay');
+        let isNewInput = false;
 
         function openNumericPad(input) {
             if (!isWorkoutInProgress) {
@@ -1318,6 +1319,7 @@
                 keypadDisplayValue = '0';
             }
             keypadDisplay.textContent = keypadDisplayValue;
+            isNewInput = true;
 
             openModal(keypadModal);
             // Hide the default keyboard on mobile
@@ -1326,18 +1328,22 @@
 
         function handleKeypadClick(value) {
             if (!activeInput) return;
-
-            if (keypadDisplayValue === '0' && value !== '.') {
-                keypadDisplayValue = value;
-            } else if (value === 'backspace') {
+            if (value === 'backspace') {
                 keypadDisplayValue = keypadDisplayValue.slice(0, -1);
                 if (keypadDisplayValue === '') {
                     keypadDisplayValue = '0';
                 }
+            } else if (isNewInput && value !== '.') {
+                keypadDisplayValue = value;
+                isNewInput = false;
             } else if (value === '.' && keypadDisplayValue.includes('.')) {
                 return; // Prevent multiple decimal points
             } else {
-                keypadDisplayValue += value;
+                if (keypadDisplayValue === '0' && value !== '.') {
+                    keypadDisplayValue = value;
+                } else {
+                    keypadDisplayValue += value;
+                }
             }
             
             keypadDisplay.textContent = keypadDisplayValue;
@@ -1347,6 +1353,7 @@
             if (!activeInput) return;
             activeInput.value = keypadDisplayValue;
             closeModalElement(numericKeypadModal);
+            isNewInput = false;
         }
 
         function openModal(modalElement) {
@@ -1828,7 +1835,7 @@
 
             for (let i = 0; i < 7; i++) {
                 const day = new Date(startOfWeek);
-                day.setDate(startOfWeek.getDate() + i);
+                day.setDate(day.getDate() + i);
                 
                 const dayKey = day.toISOString().slice(0, 10);
                 const isCurrentDay = day.toDateString() === today.toDateString();
