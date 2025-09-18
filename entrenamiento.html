@@ -824,6 +824,16 @@
             cursor: not-allowed;
             background-color: #4a5568;
         }
+
+        #videoConfirmModal .modal-content {
+            background-color: #1f2937;
+            border: 2px solid #facc15;
+            color: #e5e7eb;
+            padding: 1.5rem;
+            width: 95%;
+            max-width: 450px;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
@@ -1205,7 +1215,20 @@
             <button onclick="closeModalElement(weekdayNoticeModal)" class="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-md">Entendido</button>
         </div>
     </div>
-    
+
+    <!-- Video Confirmation Modal -->
+    <div id="videoConfirmModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none">
+        <div class="modal-content relative bg-gray-800 border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
+            <h3 class="text-lg font-semibold text-yellow-400 mb-4">Abrir Vídeo</h3>
+            <p class="text-gray-300 mb-6">¿Quieres abrir el vídeo de este ejercicio en una nueva pestaña?</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeModalElement(videoConfirmModal)" class="bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2 px-4 rounded-lg">Cancelar</button>
+                <button id="confirmVideoOpen" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-2 px-4 rounded-lg">Abrir</button>
+            </div>
+        </div>
+    </div>
+    <!-- End Video Confirmation Modal -->
+
     <!-- Numeric Keypad Modal -->
     <div id="numericKeypadModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-end justify-center z-[100] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-t-xl shadow-xl p-4 w-full transform scale-95">
@@ -1282,12 +1305,14 @@
         let uploadedCaptureFile = null;
         let exerciseProgressMap = new Map();
         let currentDate = new Date();
-        const daysOfWeek = ['Dom', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         let groupedHistory = {};
         let supabase = null;
         let userIdentifier = null;
         const SUPABASE_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6b2NtdGFjdmRmb3J4eXdmeGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQzNDQsImV4cCI6MjA2NDI5MDM0NH0.aPqF71fIUas99K3TY2heedNdj-X2MflrndmYjtCOgNU';
+        let isKeypadOpen = false;
+        let ignoreNextKeypadClose = false;
 
         // Numeric Keypad Variables
         let activeInput = null;
@@ -1313,7 +1338,6 @@
                 decimalButton.disabled = true;
             }
             
-            // Initialize display value based on current input value
             keypadDisplayValue = input.value;
             if (keypadDisplayValue === '') {
                 keypadDisplayValue = '0';
@@ -1321,8 +1345,11 @@
             keypadDisplay.textContent = keypadDisplayValue;
             isNewInput = true;
 
+            // Mark the keypad as open and set the flag to ignore the next click
+            isKeypadOpen = true;
+            ignoreNextKeypadClose = true;
+
             openModal(keypadModal);
-            // Hide the default keyboard on mobile
             input.blur();
         }
 
@@ -1337,7 +1364,7 @@
                 keypadDisplayValue = value;
                 isNewInput = false;
             } else if (value === '.' && keypadDisplayValue.includes('.')) {
-                return; // Prevent multiple decimal points
+                return;
             } else {
                 if (keypadDisplayValue === '0' && value !== '.') {
                     keypadDisplayValue = value;
@@ -1353,6 +1380,7 @@
             if (!activeInput) return;
             activeInput.value = keypadDisplayValue;
             closeModalElement(numericKeypadModal);
+            isKeypadOpen = false;
             isNewInput = false;
         }
 
@@ -1465,6 +1493,26 @@
                 });
             });
 
+            // Fix for the numeric keypad closing immediately.
+            // This flag is set on open and checked here. The first click after
+            // opening will be ignored. Subsequent clicks will close the keypad
+            // if they are outside of it.
+            document.addEventListener('click', (event) => {
+                const keypadModal = document.getElementById('numericKeypadModal');
+                if (isKeypadOpen) {
+                    if (ignoreNextKeypadClose) {
+                        ignoreNextKeypadClose = false;
+                        return;
+                    }
+                    if (!keypadModal.contains(event.target)) {
+                        closeModalElement(keypadModal);
+                        isKeypadOpen = false;
+                        activeInput.blur();
+                        activeInput = null;
+                    }
+                }
+            });
+
             initializeSupabaseClient();
             initializeWorkoutApp();
             
@@ -1495,7 +1543,14 @@
             
             document.querySelectorAll('.quick-mode-input').forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.value = '';
+                    // This is to prevent the native keyboard from appearing on mobile
+                    // while the custom keypad is used.
+                    this.readOnly = true; 
+                    openNumericPad(this);
+                });
+                input.addEventListener('blur', function() {
+                    // Re-enable editing if the user manually focuses off it
+                    this.readOnly = false;
                 });
             });
         });
@@ -1667,6 +1722,8 @@
         const newRecordText = document.getElementById('newRecordText');
         const warmupModal = document.getElementById('warmupModal');
         const shareModal = document.getElementById('shareModal');
+        const videoConfirmModal = document.getElementById('videoConfirmModal');
+        const confirmVideoOpenBtn = document.getElementById('confirmVideoOpen');
         
         function getWeekNumber(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -1676,7 +1733,14 @@
             return weekNo;
         }
 
-        function openVideoLink(videoUrl) { if (videoUrl) { window.open(videoUrl, '_blank'); } }
+        function openVideoLink(videoUrl) {
+            if (!videoUrl) return;
+            openModal(videoConfirmModal);
+            confirmVideoOpenBtn.onclick = () => {
+                window.open(videoUrl, '_blank');
+                closeModalElement(videoConfirmModal);
+            };
+        }
         function calculateEpley1RM(weight, reps) { if (reps == 0 || weight == 0) return 0; if (reps == 1) return parseFloat(weight); return parseFloat(weight) * (1 + (parseFloat(reps) / 30)); }
         function isTimeBased(repsString) { return typeof repsString === 'string' && repsString.endsWith('s'); }
         function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific', target: Math.min(...reps) }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
@@ -1870,7 +1934,9 @@
         function getStartOfWeek(date) {
             const day = date.getDay();
             const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(date.setDate(diff));
+            const startOfWeek = new Date(date.setDate(diff));
+            startOfWeek.setHours(0, 0, 0, 0);
+            return startOfWeek;
         }
 
         function changeWeek(direction) {
@@ -2342,7 +2408,7 @@
             if (imageUrl) {
                 const imageTag = `<img src="${imageUrl}" alt="Preview de ${exerciseInput.name}" class="w-24 h-24 object-cover rounded-md mr-4" onerror="this.onerror=null;this.src='https://placehold.co/96x96/4A5568/FACC15?text=No+Img';">`;
                 if (videoUrl) {
-                    imageHtml = `<a href="${videoUrl}" target="_blank" class="flex-shrink-0" title="Ver vídeo">${imageTag}</a>`;
+                    imageHtml = `<a href="#" onclick="openVideoLink('${videoUrl}')" class="flex-shrink-0" title="Ver vídeo">${imageTag}</a>`;
                 } else {
                     imageHtml = `<div class="flex-shrink-0">${imageTag}</div>`;
                 }
@@ -3682,7 +3748,7 @@
                             ${exerciseEntry.setsPerformed.map(set => {
                                 const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
                                 const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
-                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
+                                                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
                             }).join('')}
                         </ul>
                     `;
@@ -3881,4 +3947,3 @@
     </script>
 </body>
 </html>
-
