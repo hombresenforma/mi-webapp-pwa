@@ -887,6 +887,11 @@
                             <i class="fas fa-video mr-2"></i>Correcciones de Ejercicios
                         </button>
                     </div>
+                    <div class="mt-3 text-center">
+                        <button id="forceUpdateButton" class="bg-transparent hover:bg-gray-700 text-gray-400 border border-gray-600 font-semibold py-2 px-4 rounded-lg shadow-sm transition-colors text-xs inline-block">
+                            <i class="fas fa-sync-alt mr-1"></i>Actualizar Datos
+                        </button>
+                    </div>
                 </section>
             </div>
         </main>
@@ -1570,6 +1575,11 @@
                 cancelExtraActivityButton.addEventListener('click', () => {
                     closeModalElement(document.getElementById('extrasModal'));
                 });
+            }
+
+            const forceUpdateButton = document.getElementById('forceUpdateButton');
+            if (forceUpdateButton) {
+                forceUpdateButton.addEventListener('click', forceUpdateWorkoutData);
             }
 
             const mainMenuButton = document.getElementById('mainMenuButton');
@@ -3636,450 +3646,25 @@
             };
         }
 
-        async function registerExtraActivity(activityName, time, volume, captureFile) {
-            if (!supabase || !userIdentifier) {
-                showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
-                return;
-            }
-            
-            closeModalElement(extrasModal);
-            showCustomAlert(`Registrando "${activityName}"...`, "info");
-            
-            let captureUrl = null;
-            if (captureFile) {
-                try {
-                    const filePath = `extra_captures/${userIdentifier}/${Date.now()}_${captureFile.name}`;
-                    const { data, error } = await supabase.storage
-                        .from('workout-captures')
-                        .upload(filePath, captureFile, {
-                            cacheControl: '3600',
-                            upsert: false
-                        });
-                    
-                    if (error) {
-                        throw new Error(`Error uploading image: ${error.message}`);
-                    }
-                    
-                    const publicUrl = supabase.storage
-                        .from('workout-captures')
-                        .getPublicUrl(filePath).data.publicUrl;
-                    captureUrl = publicUrl;
-                } catch (error) {
-                    console.error("Error al subir la imagen:", error);
-                    showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
-                }
-            }
-            
-            const [hoursStr = '0', minutesStr = '0'] = time.split(':');
-            const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
-
-            const logEntry = {
-                client_id: userIdentifier,
-                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                raw_date: new Date().toISOString(),
-                exercise_name: "Extra Activity",
-                name_workout: activityName,
-                sets_performed: '[]',
-                completion_state: "completed",
-                session_id: crypto.randomUUID(),
-                total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
-                total_volume_session: volume || null,
-                capture_url: captureUrl
-            };
-            
-            try {
-                const { error } = await supabase
-                    .from('workout_logs')
-                    .insert([logEntry]);
-                
-                if (error) {
-                    throw new Error(`Error inserting extra activity log: ${error.message}`);
-                }
-                
-                showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
-                await loadWorkoutLogs();
-                renderCalendar();
-            } catch (error) {
-                console.error("Error al registrar la actividad extra:", error);
-                showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
-            }
-        }
-
-        async function initializeWorkoutApp() {
-            try {
-                const workoutDataUrl = `https://raw.githubusercontent.com/hombresenforma/ivan-data/main/${userIdentifier || 'default-user'}.js?v=${Date.now()}`;
-                console.log(`Fetching workout data from: ${workoutDataUrl}`);
-
-                const mainResponse = await fetch(workoutDataUrl);
-                if (!mainResponse.ok) {
-                    throw new Error(`Network response for workout data was not ok: ${mainResponse.statusText} (URL: ${workoutDataUrl})`);
-                }
-                const mainDataText = await mainResponse.text();
-                
-                const workoutDataRegex = /const workoutData = ({[\s\S]*?});/;
-                const workoutDataMatch = mainDataText.match(workoutDataRegex);
-                if (!workoutDataMatch) throw new Error("Could not find 'workoutData' object in the main source file.");
-                workoutData = new Function(`return ${workoutDataMatch[1]}`)();
-
-                const alternativesRegex = /const exerciseAlternatives = ({[\s\S]*?});/;
-                const alternativesMatch = mainDataText.match(alternativesRegex);
-                if (!alternativesMatch) throw new Error("Could not find 'exerciseAlternatives' object in the main source file.");
-                exerciseAlternatives = new Function(`return ${alternativesMatch[1]}`)();
-                
-                await loadWorkoutLogs();
-                setupDaySelectionTabs();
-                await fetchVideoConfigFromSupabase();
-                await loadRealtimeProgress();
-
-            } catch (error) {
-                console.error("Error initializing workout app:", error);
-                const previewContainer = document.getElementById('workoutPreviewContainer');
-                if (previewContainer) {
-                    previewContainer.innerHTML = `<p class="text-center text-red-500 font-semibold">Error al cargar la rutina. Asegúrate de que el usuario en la URL ('${userIdentifier}') es correcto y tiene un plan asignado.</p>`;
-                }
-            }
-        }
-        
-        async function fetchVideoConfigFromSupabase() {
-            if (!supabase || !userIdentifier) {
-                console.warn("Supabase client or user identifier not available. Cannot fetch video config.");
-                setupVideoCorrectionsButton();
-                return;
+        async function forceUpdateWorkoutData() {
+            const button = document.getElementById('forceUpdateButton');
+            if(button) {
+                button.disabled = true;
+                button.innerHTML = `<i class="fas fa-spinner fa-spin mr-1"></i> Actualizando...`;
             }
 
             try {
-                const { data, error } = await supabase
-                    .from('user_configs')
-                    .select('exercises_data')
-                    .eq('client_id', userIdentifier)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    console.error("Error fetching video config from Supabase:", error);
-                    showCustomAlert("Error al cargar la configuración de correcciones de vídeo.", "error");
+                await initializeWorkoutApp();
+                showCustomAlert('Los datos del entrenamiento han sido actualizados.', 'info');
+            } catch(e) {
+                showCustomAlert('Error al actualizar los datos.', 'error');
+                console.error("Error on force update:", e);
+            } finally {
+                if(button) {
+                    button.disabled = false;
+                    button.innerHTML = `<i class="fas fa-sync-alt mr-1"></i> Actualizar Datos`;
                 }
-                
-                if (data && data.exercises_data && data.exercises_data.activeWeeks) {
-                    VIDEO_PROMPT_CONFIG.activeWeeks = data.exercises_data.activeWeeks;
-                    console.log(`Video activeWeeks configured from Supabase to: "${VIDEO_PROMPT_CONFIG.activeWeeks}"`);
-                } else {
-                    console.log('No video config found in Supabase for this user. Using default \'none\'.');
-                    VIDEO_PROMPT_CONFIG.activeWeeks = 'none';
-                }
-
-            } catch (e) {
-                console.error("Unexpected error fetching video config:", e);
-                showCustomAlert("Error inesperado al cargar la configuración de vídeo.", "error");
             }
-
-            setupVideoCorrectionsButton();
-        }
-
-        function setupVideoCorrectionsButton() {
-            const videoCorrectionsButton = document.getElementById('videoCorrectionsButton');
-            if (!videoCorrectionsButton) return;
-
-            const currentWeek = getWeekNumber(new Date());
-            const config = VIDEO_PROMPT_CONFIG.activeWeeks;
-            let isFeatureActive = false;
-
-            if (config === 'all') {
-                isFeatureActive = true;
-            } else if (config === 'none') {
-                isFeatureActive = false;
-            } else if (config === 'even') {
-                isFeatureActive = currentWeek % 2 === 0;
-            } else if (config === 'odd') {
-                isFeatureActive = currentWeek % 2 !== 0;
-            } else if (Array.isArray(config)) {
-                isFeatureActive = config.includes(currentWeek);
-            }
-
-            if (isFeatureActive) {
-                                videoCorrectionsButton.classList.remove('button-disabled');
-                videoCorrectionsButton.addEventListener('click', () => {
-                    window.open(APP_CONFIG.urls.videoUploadUrl, '_blank');
-                });
-            } else {
-                videoCorrectionsButton.classList.add('button-disabled');
-                videoCorrectionsButton.addEventListener('click', () => {
-                    openModal(document.getElementById('weekdayNoticeModal'));
-                });
-            }
-        }
-
-        async function loadWorkoutLogs() {
-            if (!supabase || !userIdentifier) {
-                console.warn("Supabase client or user identifier not available. Cannot load workout logs.");
-                individualExerciseLogs = [];
-                workoutSessionSummaries = [];
-                extraActivities = [];
-                return;
-            }
-            try {
-                const { data, error } = await supabase
-                    .from('workout_logs')
-                    .select('*')
-                   .eq('client_id', userIdentifier)
-                    .order('raw_date', { ascending: false });
-                if (error) {
-                    console.error("Error loading workout logs from Supabase:", error);
-                    showCustomAlert("No se pudo cargar el historial de entrenamientos.", "error");
-                    individualExerciseLogs = [];
-                    workoutSessionSummaries = [];
-                    extraActivities = [];
-                    return;
-                }
-                individualExerciseLogs = data.filter(log => log.exercise_name !== "Workout Session Summary" && log.exercise_name !== "Extra Activity");
-                workoutSessionSummaries = data.filter(log => log.exercise_name === "Workout Session Summary");
-                extraActivities = data.filter(log => log.exercise_name === "Extra Activity");
-                allHistoryItems = [...workoutSessionSummaries, ...extraActivities];
-                groupHistoryByDay();
-                console.log("Individual Exercise Logs loaded:", individualExerciseLogs);
-                console.log("Workout Session Summaries loaded:", workoutSessionSummaries);
-                console.log("Extra Activities loaded:", extraActivities);
-            } catch (e) {
-                console.error("Error inesperado al cargar el historial de entrenamientos.", "error");
-                individualExerciseLogs = [];
-                workoutSessionSummaries = [];
-                extraActivities = [];
-            }
-        }
-        
-        function groupHistoryByDay() {
-            groupedHistory = allHistoryItems.reduce((acc, item) => {
-                const date = new Date(item.raw_date).toISOString().slice(0, 10);
-                if (!acc[date]) {
-                    acc[date] = [];
-                }
-                acc[date].push(item);
-                return acc;
-            }, {});
-        }
-
-        function openFullWorkoutLogModal(sessionId) {
-            closeModalElement(mainHistoryModal);
-            fullWorkoutLogContent.innerHTML = '';
-            const sessionSummaryEntry = workoutSessionSummaries.find(s => s.session_id === sessionId);
-            if (!sessionSummaryEntry) {
-                fullWorkoutLogContent.innerHTML = '<p class="text-gray-400 text-center">No se encontraron detalles para este entrenamiento.</p>';
-                openModal(fullWorkoutLogModal);
-                return;
-            }
-            fullWorkoutLogTitle.textContent = `Entrenamiento del ${sessionSummaryEntry.date} a las ${sessionSummaryEntry.time}`;
-            let exercisesInSession = [];
-            try {
-                exercisesInSession = JSON.parse(sessionSummaryEntry.sets_performed); 
-            } catch (e) {
-                console.error("Error parsing exercises_performed for session summary:", e);
-                fullWorkoutLogContent.innerHTML = '<p class="text-red-400 text-center">Error al cargar los detalles del entrenamiento.</p>';
-                openModal(fullWorkoutLogModal);
-                return;
-            }
-            if (exercisesInSession.length === 0) {
-                fullWorkoutLogContent.innerHTML = '<p class="text-gray-400 text-center">No se registraron ejercicios en esta sesión.</p>';
-            } else {
-                exercisesInSession.forEach(exerciseEntry => {
-                    const isNewPR = exerciseEntry.personalRecord !== null && exerciseEntry.personalRecord !== undefined;
-                    const prIcon = isNewPR ? `<i class="fas fa-trophy pr-icon ml-2" title="¡Nuevo Récord Personal! (${exerciseEntry.personalRecord} kg)"></i>` : '';
-                    const escapedExerciseName = exerciseEntry.exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
-
-                    const exerciseHtml = document.createElement('div');
-                    exerciseHtml.className = 'workout-log-entry';
-                    exerciseHtml.innerHTML = `
-                        <h4 onclick="viewExerciseHistoryFromLog('${escapedExerciseName}')" style="cursor: pointer;" title="Ver historial de este ejercicio">${exerciseEntry.exerciseName}${prIcon}</h4>
-                        <ul>
-                            ${exerciseEntry.setsPerformed.map(set => {
-                                const completionClass = set.completionState === 'good' ? 'history-reps-good' : (set.completionState === 'bad' ? 'history-reps-bad' : '');
-                                const repsUnit = isTimeBased(set.reps) ? 's' : 'reps';
-                                                                return `<li>S.${set.serie}: ${set.kg || 0}kg x <span class="${completionClass}">${set.reps || 0} ${repsUnit}</span></li>`;
-                            }).join('')}
-                        </ul>
-                    `;
-                    fullWorkoutLogContent.appendChild(exerciseHtml);
-                });
-            }
-            openModal(fullWorkoutLogModal);
-        }
-
-        function setupDaySelectionTabs() { 
-            daySelectionTabsContainer.innerHTML = ''; 
-            if (typeof workoutData === 'undefined') { 
-                return; 
-            } 
-            const dayKeys = Object.keys(workoutData); 
-            dayKeys.forEach((dayKey) => { 
-                const tab = document.createElement('button'); 
-                tab.className = 'day-tab'; 
-                tab.textContent = workoutData[dayKey].name.split(':')[0].trim(); 
-                tab.dataset.dayKey = dayKey; 
-                tab.onclick = () => displayWorkoutPreview(dayKey); 
-                daySelectionTabsContainer.appendChild(tab); 
-            }); 
-            if (dayKeys[0]) { 
-                displayWorkoutPreview(dayKeys[0]); 
-            } 
-        }
-        
-        function displayWorkoutPreview(dayKey) {
-            if (isWorkoutInProgress && dayKey !== currentActiveDayKey) {
-                showInProgressWarningModal();
-                return;
-            }
-
-            currentActiveDayKey = dayKey;
-            if (typeof workoutData === 'undefined' || !workoutData[dayKey]) {
-                return;
-            }
-            const dayData = workoutData[dayKey];
-            
-            document.querySelectorAll('.day-tab').forEach(tab => {
-                tab.classList.remove('active', 'active-resume');
-                if (tab.dataset.dayKey === dayKey) {
-                    if (isWorkoutInProgress) {
-                        tab.classList.add('active-resume');
-                    } else {
-                        tab.classList.add('active');
-                    }
-                }
-            });
-
-            let previewHtml = `<h3>${dayData.name.toUpperCase()}</h3><ul>`;
-            dayData.exercises.forEach(ex => {
-                let titleText = '';
-                if (ex.isEMOM) { titleText = 'EMOM'; } 
-                else if (ex.circuitDetails) { titleText = 'CIRCUITO'; } 
-                else if (ex.isSuperset) { titleText = 'SUPERSERIE'; } 
-                else { titleText = ex.name; }
-                previewHtml += `<li>${ex.order}. ${titleText.toUpperCase()}</li>`;
-                if (ex.items && Array.isArray(ex.items)) {
-                    ex.items.forEach(sub => { previewHtml += `<li style="padding-left: 1.5rem;">${ex.order}.${sub.subOrder}. ${sub.name}</li>`; });
-                }
-            });
-            previewHtml += `</ul><button onclick="startQuickMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`;
-            workoutPreviewContainer.innerHTML = previewHtml;
-        }
-
-        function updateUIAfterResume() {
-            if (!currentActiveDayKey) return;
-
-            displayWorkoutPreview(currentActiveDayKey);
-
-            setTimeout(() => {
-                const previewContainer = document.getElementById('workoutPreviewContainer');
-                const startButton = previewContainer.querySelector('.start-workout-preview-button');
-
-                if (startButton) {
-                    startButton.innerHTML = '<i class="fas fa-play-circle mr-2"></i>Continuar Entrenamiento';
-                    startButton.classList.add('bg-green-500', 'hover:bg-green-600');
-                    startButton.onclick = () => startQuickMode(currentActiveDayKey, true);
-                }
-                
-                showCustomAlert("¡Tienes un entrenamiento en curso! Continúa donde lo dejaste.", "info");
-            }, 100);
-        }
-
-        function startQuickMode(dayKey, isResuming = false) {
-            if (isWorkoutInProgress && !isResuming) {
-                showCustomAlert("Ya hay un entrenamiento en curso. Por favor, termínalo antes de empezar uno nuevo.", "warning");
-                return;
-            }
-            
-            if (!isResuming) {
-                toggleWorkoutState();
-            } else {
-                isWorkoutInProgress = true;
-                updateWorkoutDuration();
-                workoutTimerInterval = setInterval(updateWorkoutDuration, 1000);
-                requestWakeLock();
-            }
-            
-            const dayData = workoutData[dayKey];
-            quickModeWorkoutModalTitle.textContent = dayData.name;
-            quickModeExerciseList.innerHTML = '';
-            
-            dayData.exercises.forEach(exercise => {
-                if (exercise.isSuperset || exercise.isEMOM || exercise.circuitDetails) {
-                    quickModeExerciseList.appendChild(createQuickModeSupersetCard(dayKey, exercise.order, exercise));
-                } else {
-                    quickModeExerciseList.appendChild(createQuickModeExerciseCard(dayKey, exercise.order, exercise, false));
-                }
-            });
-
-            if(isResuming) {
-                currentWorkoutSummaryData.forEach(entry => {
-                    const card = Array.from(quickModeExerciseList.querySelectorAll('.quick-mode-exercise-item')).find(c => c.dataset.currentName === entry.exerciseName);
-                    if (card) {
-                        exerciseProgressMap.set(card.id, entry.setsPerformed.length);
-                    }
-                });
-            }
-
-            updateAllExerciseCardInputStates();
-            openModal(quickModeWorkoutModal);
-        }
-        
-        function toggleSettingsMenu(button, cardId) {
-            const menu = document.getElementById(`settingsMenu-${cardId}`);
-            button.classList.toggle('active');
-            if (menu.classList.contains('is-active')) {
-                menu.classList.remove('is-active');
-            } else {
-                document.querySelectorAll('.quick-mode-header-buttons').forEach(m => m.classList.remove('is-active'));
-                document.querySelectorAll('.quick-mode-settings-button').forEach(b => b.classList.remove('active'));
-                menu.classList.add('is-active');
-            }
-        }
-
-        function showInProgressWarningModal() {
-            openModal(document.getElementById('inProgressWarningModal'));
-        }
-
-        function goToCurrentWorkout() {
-            closeModalElement(document.getElementById('inProgressWarningModal'));
-            if (currentActiveDayKey) {
-                startQuickMode(currentActiveDayKey, true);
-            }
-        }
-
-        function setupExtrasForm() {
-            extraActivitySelect.value = 'Pádel';
-            otherActivityInputGroup.style.display = 'none';
-            otherActivityNameInput.value = '';
-            extraTimeInput.value = '';
-            extraVolumeInput.value = '';
-            extraCaptureInput.value = '';
-            extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
-            uploadedCaptureFile = null;
-
-            extraActivitySelect.onchange = () => {
-                if (extraActivitySelect.value === 'Otros') {
-                    otherActivityInputGroup.style.display = 'block';
-                } else {
-                    otherActivityInputGroup.style.display = 'none';
-                }
-            };
-
-            extraCaptureInput.onchange = (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    extraCaptureFileName.textContent = file.name;
-                    uploadedCaptureFile = file;
-                } else {
-                    extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
-                    uploadedCaptureFile = null;
-                }
-            };
-            
-            registerExtraActivityButton.onclick = () => {
-                const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
-                if (activityName === '') {
-                    showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
-                    return;
-                }
-                registerExtraActivity(activityName, extraTimeInput.value.trim(), extraVolumeInput.value.trim(), uploadedCaptureFile);
-            };
         }
 
         async function registerExtraActivity(activityName, time, volume, captureFile) {
@@ -4154,6 +3739,7 @@
     </script>
 </body>
 </html>
+
 
 
 
