@@ -843,6 +843,104 @@
             max-width: 450px;
             text-align: center;
         }
+
+        /* Simple Mode Enhancements */
+        #simpleModeExerciseContainer .quick-mode-exercise-item,
+        #simpleModeExerciseContainer .quick-mode-superset-container {
+            padding: 1rem 1.5rem; /* More padding */
+        }
+
+        #simpleModeExerciseContainer .quick-mode-exercise-header .info strong {
+            font-size: 1.5rem; /* Larger exercise title */
+            line-height: 1.2;
+        }
+
+        #simpleModeExerciseContainer .quick-mode-input-row {
+            grid-template-columns: 1fr 1fr 50px; /* Make button narrower */
+            gap: 0.75rem;
+        }
+
+        #simpleModeExerciseContainer .quick-mode-input {
+            font-size: 1.2rem; /* Smaller input text */
+            padding: 0.5rem;
+            height: 50px;
+        }
+
+        #simpleModeExerciseContainer .quick-mode-register-button {
+            height: 50px;
+        }
+        #simpleModeExerciseContainer .quick-mode-register-button i {
+            font-size: 1.5rem; /* Smaller icon */
+        }
+
+        #simpleModeExerciseContainer [id^="progressDisplay-"] .text-sm {
+            font-size: 1rem !important; /* Larger set counter */
+        }
+        
+        #simpleModeExerciseContainer [id^="progressDisplay-"] .text-xs {
+             font-size: 1.1rem !important; /* Larger registered set list */
+        }
+
+        #simpleModeExerciseContainer .bg-gray-700\/50 h5 {
+            font-size: 0.9rem; /* Larger "Series registradas" */
+        }
+
+        /* Simple Mode Header Layout Customization */
+        .list-mode-header-wrapper { display: block; }
+        .simple-mode-header-wrapper { display: none; }
+
+        #simpleModeWorkoutModal .list-mode-header-wrapper { display: none; }
+        #simpleModeWorkoutModal .simple-mode-header-wrapper { 
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        #simpleModeWorkoutModal .simple-mode-header-wrapper .title-line {
+            border-bottom: 1px solid #4b5563;
+            padding-bottom: 0.5rem;
+        }
+        #simpleModeWorkoutModal .simple-mode-content-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        #simpleModeWorkoutModal .simple-mode-header-wrapper .info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* START: New styles for Simple Mode settings button positioning */
+        #simpleModeWorkoutModal .quick-mode-exercise-item .quick-mode-settings-button {
+            top: 5.75rem; /* Position vertically aligned with Series/Objective text */
+            right: 1.5rem; /* Align with card padding */
+            bottom: auto;
+            z-index: 12;
+        }
+
+        #simpleModeWorkoutModal .quick-mode-exercise-item .quick-mode-header-buttons {
+            top: 8rem; /* Position the dropdown menu below the button */
+            right: 1.5rem;
+            bottom: auto;
+        }
+        /* END: New styles */
+
+        /* Estilos de cabecera para el Modo Simple */
+        #simpleModeWorkoutModal .quick-mode-exercise-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        #simpleModeWorkoutModal .simple-mode-content-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        #simpleModeWorkoutModal .quick-mode-exercise-header .info {
+            display: flex;
+            flex-direction: column;
+        }
+
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-4 text-gray-200">
@@ -913,127 +1011,7 @@
         </div>
     </div>
 
-    <div id="detailedHistoryModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[55] opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
-            
-            <div id="exerciseHistoryListView">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg sm:text-xl font-semibold text-yellow-400">Historial de Ejercicios</h3>
-                    <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">×</button>
-                </div>
-                <div class="relative mb-4">
-                    <input type="search" id="historySearchInput" placeholder="Escribe para filtrar ejercicios..." class="w-full bg-gray-700 border-2 border-gray-600 focus:border-yellow-500 text-white rounded-lg p-3 pl-10 transition-colors focus:outline-none">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                </div>
-                <div id="exerciseHistoryList" class="max-h-96 overflow-y-auto pr-2 space-y-2">
-                    <!-- JS will populate this list -->
-                </div>
-            </div>
-
-            <div id="exerciseHistoryDetailView" style="display: none;">
-                 <div class="flex justify-between items-center mb-2">
-                    <button id="backToExerciseListBtn" class="text-gray-400 hover:text-yellow-400"><i class="fas fa-arrow-left mr-2"></i> Volver</button>
-                    <button onclick="closeDetailedHistoryModal()" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de historial detallado">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <h3 id="detailedHistoryExerciseName" class="text-lg sm:text-xl font-semibold text-yellow-400 text-center mb-4 truncate"></h3>
-                <div id="record1RMDisplay" class="text-center bg-gray-900/50 p-3 rounded-lg mb-4">
-                </div>
-                <div class="mb-6">
-                    <canvas id="rmEvolutionChart"></canvas>
-                </div>
-                <div id="detailedHistoryContent" class="max-h-80 overflow-y-auto pr-2 text-sm text-gray-300 space-y-4"></div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="fullWorkoutLogModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-[56] opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="fullWorkoutLogTitle" class="text-lg sm:text-xl font-semibold text-yellow-400"></h3>
-                <button onclick="closeModalElement(fullWorkoutLogModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de entrenamiento completo">×</button>
-            </div>
-            <div id="fullWorkoutLogContent" class="max-h-[70vh] overflow-y-auto pr-2 text-sm text-gray-300 space-y-4">
-            </div>
-            <button onclick="closeModalElement(fullWorkoutLogModal)" class="mt-6 w-full bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-2.5 px-4 rounded-lg shadow-md transition">
-                Cerrar
-            </button>
-        </div>
-    </div>
-
-    <div id="extrasModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-6 w-full max-w-sm transform scale-95">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-yellow-400">Seleccionar Actividad</h3>
-                <button onclick="closeModalElement(extrasModal)" class="text-gray-400 hover:text-yellow-400 text-2xl" aria-label="Cerrar modal de extras">×</button>
-            </div>
-            <div id="extrasOptionsContainer" class="space-y-3">
-                <div class="form-group">
-                    <label for="extraActivitySelect" class="block text-sm mb-1">Actividad:</label>
-                    <select id="extraActivitySelect" class="w-full bg-gray-700 text-white border border-gray-600 rounded-md p-2">
-                        <option value="Pádel" data-icon="fas fa-tennis-ball">Pádel</option>
-                        <option value="Bici" data-icon="fas fa-bicycle">Bici</option>
-                        <option value="Natación" data-icon="fas fa-swimmer">Natación</option>
-                        <option value="Kayak" data-icon="fas fa-water">Kayak</option>
-                        <option value="Correr" data-icon="fas fa-running">Correr</option>
-                        <option value="Trekking" data-icon="fas fa-hiking">Trekking</option>
-                        <option value="Caminar" data-icon="fas fa-walking">Caminar</option>
-                        <option value="Fútbol" data-icon="fas fa-futbol">Fútbol</option>
-                        <option value="Otros">Otros...</option>
-                    </select>
-                </div>
-
-                <div id="otherActivityInputGroup" class="form-group" style="display: none;">
-                    <label for="otherActivityName" class="block text-sm mb-1">Nombre de la actividad:</label>
-                    <input type="text" id="otherActivityName" placeholder="Escribe aquí..." class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md">
-                </div>
-
-                <div class="form-group">
-                    <label for="extraTimeInput" class="block text-sm mb-1">Tiempo invertido (hh:mm):</label>
-                    <input type="text" id="extraTimeInput" placeholder="Ej: 01:30" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9:]/g, ''); if(this.value.split(':').length > 2) { this.value = this.value.substring(0, this.value.lastIndexOf(':')); }">
-                </div>
-
-                <div class="form-group">
-                    <label for="extraVolumeInput" class="block text-sm mb-1">Volumen de entrenamiento (en metros):</label>
-                    <input type="number" id="extraVolumeInput" placeholder="Ej: 8000" class="w-full p-2 bg-gray-700 text-white border border-gray-600 rounded-md" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                </div>
-
-                <div class="form-group">
-                    <label for="extraCaptureInput" class="block text-sm mb-1">Subir captura (opcional):</label>
-                    <input type="file" id="extraCaptureInput" accept="image/*" class="hidden">
-                    <label for="extraCaptureInput" class="custom-file-input">
-                        <i class="fas fa-upload mr-2"></i>Seleccionar Archivo
-                    </label>
-                    <span id="extraCaptureFileName" class="file-name">Ningún archivo seleccionado</span>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button id="cancelExtraActivityButton" class="cancel-button">Cancelar</button>
-                <button id="registerExtraActivityButton" class="submit-button">Registrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="quickModeWorkoutModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-2 sm:p-4 z-40 opacity-0 pointer-events-none">
-        <div class="modal-content bg-gray-800/95 backdrop-blur-sm border border-yellow-500 rounded-lg shadow-xl p-4 sm:p-6 w-full overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 sm:mb-6">
-                <h3 id="quickModeWorkoutModalTitle" class="text-xl sm:text-2xl font-bold text-yellow-500 text-left"></h3>
-                <span id="workoutDuration" class="text-lg font-mono text-white">00:00</span>
-            </div>
-            <div id="quickModeExerciseList" class="space-y-4 sm:space-y-6"></div>
-            <div class="flex gap-4 mt-8">
-                <button onclick="closeQuickModeWorkoutModal()" class="w-1/2 bg-gray-600 hover:bg-gray-700 text-gray-200 font-semibold py-3 px-4 rounded-lg shadow-md">
-                    Cerrar
-                </button>
-                <button id="endQuickModeWorkoutButton" onclick="toggleWorkoutState()" class="w-1/2 workout-control-button bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-md">
-                    <i class="fas fa-flag-checkered mr-2"></i>Terminar
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- El Modal de Modo Lista (quickModeWorkoutModal) ha sido eliminado -->
 
     <div id="newRecordModal" class="modal fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[99] opacity-0 pointer-events-none">
         <div class="modal-content text-center transform scale-95 p-8 rounded-xl shadow-2xl">
@@ -1250,6 +1228,33 @@
     </div>
     <!-- End Video Confirmation Modal -->
 
+    <!-- El Modal de Elección de Modo (workoutModeChoiceModal) ha sido eliminado -->
+
+    <!-- Simple Mode Workout Modal -->
+    <div id="simpleModeWorkoutModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-between p-2 sm:p-4 z-40 opacity-0 pointer-events-none">
+        <div class="w-full max-w-2xl mt-4">
+            <div class="flex justify-between items-center bg-gray-800/95 p-4 rounded-t-lg">
+                <h3 id="simpleModeWorkoutModalTitle" class="text-lg sm:text-xl font-bold text-yellow-500 text-left"></h3>
+                <span id="simpleModeWorkoutDuration" class="text-lg font-mono text-white">00:00</span>
+                <button onclick="closeSimpleModeWorkoutModal()" class="text-gray-400 hover:text-yellow-400 text-2xl leading-none" aria-label="Cerrar entrenamiento">&times;</button>
+            </div>
+            <div id="simpleModeProgress" class="text-center bg-gray-700 p-2 text-sm font-semibold text-gray-300"></div>
+        </div>
+
+        <div id="simpleModeExerciseContainer" class="w-full max-w-2xl overflow-y-auto px-4 flex-grow my-4">
+            <!-- Exercise card will be injected here -->
+        </div>
+
+        <div class="w-full max-w-2xl bg-gray-800/95 p-4 rounded-b-lg mb-4">
+            <div class="flex justify-between items-center gap-4">
+                <button onclick="navigateSimpleMode(-1)" id="simpleModePrevButton" class="w-1/3 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md"><i class="fas fa-arrow-left"></i></button>
+                <button id="simpleModeEndWorkoutButton" onclick="toggleWorkoutState()" class="w-1/3 workout-control-button bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg shadow-md">Terminar</button>
+                <button onclick="navigateSimpleMode(1)" id="simpleModeNextButton" class="w-1/3 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-md"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <!-- End Simple Mode Workout Modal -->
+
     <!-- Numeric Keypad Modal -->
     <div id="numericKeypadModal" class="modal fixed inset-0 bg-black bg-opacity-80 flex items-end justify-center z-[100] opacity-0 pointer-events-none">
         <div class="modal-content bg-gray-800 border-2 border-yellow-500 rounded-t-xl shadow-xl p-4 w-full transform scale-95">
@@ -1355,6 +1360,13 @@
         let isKeypadOpen = false;
         let ignoreNextKeypadClose = false;
 
+        // --- Simple Mode Variables ---
+        let currentWorkoutDayKeyForPrompt = null;
+        let isSimpleModeActive = false;
+        let currentSimpleModeIndex = 0;
+        let simpleModeExercises = [];
+        // --- End Simple Mode Variables ---
+
         // Numeric Keypad Variables
         let activeInput = null;
         let keypadDisplayValue = '';
@@ -1436,825 +1448,8 @@
             }
         }
 
-        function closeModalElement(modalElement) {
-            if (!modalElement) return;
-            const content = modalElement.querySelector('.modal-content, .relative');
-            if (content) {
-                content.classList.remove('scale-100');
-                content.classList.add('scale-95');
-            }
-            modalElement.classList.remove('opacity-100', 'pointer-events-auto');
-            modalElement.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                if (!modalElement.classList.contains('opacity-100')) {
-                    modalElement.classList.add('hidden');
-                }
-            }, 300);
-        }
+        function closeQuickModeWorkoutModal() { /* Esta función ha sido eliminada */ }
 
-        function showCustomAlert(message, type = 'info') {
-            const alertContainerId = 'customAlert';
-            const existingAlert = document.getElementById(alertContainerId);
-            if (existingAlert) existingAlert.remove();
-
-            const alertContainer = document.createElement('div');
-            alertContainer.id = alertContainerId;
-            alertContainer.className = `fixed top-5 right-5 z-[100] p-4 rounded-md shadow-lg text-white max-w-sm transition-opacity duration-300 ease-out opacity-0`;
-            
-            let bgColor = 'bg-blue-500 border-blue-700';
-            let iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
-            if (type === 'error') { bgColor = 'bg-red-500 border-red-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`; } 
-            else if (type === 'warning') { bgColor = 'bg-yellow-500 border-yellow-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`; } 
-            else if (type === 'info') { bgColor = 'bg-sky-500 border-sky-700'; iconSVG = `<svg class="fill-current h-6 w-6 text-white mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 0118 0zm0 14a6 6 0 110-12 6 6 0 010 12zm-1-5a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1zm0-3a1 10 011-1h.01a1 10 110 2H10a1 10 01-1-1z"></path></svg>`; }
-            
-            alertContainer.classList.add(...bgColor.split(' '));
-            alertContainer.innerHTML = `<div class="flex items-center">${iconSVG}<span class="text-sm">${message}</span><button onclick="this.closest('#${alertContainerId}').remove()" class="ml-auto -mx-1.5 -my-1.5 bg-transparent text-white hover:text-gray-200 rounded-lg p-1.5 inline-flex h-8 w-8 items-center justify-center"><span class="sr-only">Cerrar</span><svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg></button></div>`;
-            document.body.appendChild(alertContainer);
-            setTimeout(() => { alertContainer.classList.remove('opacity-0'); alertContainer.classList.add('opacity-100'); }, 10);
-            setTimeout(() => { alertContainer.classList.remove('opacity-100'); alertContainer.classList.add('opacity-0'); setTimeout(() => {alertContainer.remove();}, 7000); }, 7000);
-        }
-
-        function showCustomConfirm(message, callback) {
-            const confirmContainerId = 'customConfirmModal';
-            if (document.getElementById(confirmContainerId)) return;
-            const confirmContainer = document.createElement('div');
-            confirmContainer.id = confirmContainerId;
-            confirmContainer.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-75 p-4 transition-opacity duration-300 ease-out opacity-0';
-            confirmContainer.innerHTML = `<div class="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm w-full transform transition-all duration-300 ease-out scale-95"><p class="text-gray-200 text-lg mb-6">${message}</p><div class="flex justify-end space-x-3"><button id="confirmCancelBtn" class="nav-button py-2 px-4 rounded-md text-sm font-medium hover:bg-gray-600">Cancelar</button><button id="confirmOkBtn" class="danger-button py-2 px-4 rounded-md text-sm font-medium">Confirmar</button></div></div>`;
-            document.body.appendChild(confirmContainer);
-            setTimeout(() => { confirmContainer.classList.remove('opacity-0'); confirmContainer.classList.add('opacity-100'); confirmContainer.querySelector('div > div').classList.remove('scale-95'); confirmContainer.querySelector('div > div').classList.add('scale-100'); }, 10);
-            document.getElementById('confirmOkBtn').onclick = () => { callback(); confirmContainer.remove(); };
-            document.getElementById('confirmCancelBtn').onclick = () => { confirmContainer.remove(); };
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const initAudio = async () => {
-                try {
-                    if (Tone.context.state !== 'running') {
-                        await Tone.start();
-                        console.log('Audio context started successfully.');
-                    }
-                    
-                    if (!toneSynth) {
-                        toneSynth = new Tone.Synth().toDestination();
-                        console.log('Tone.Synth created.');
-                    }
-
-                    toneSynth.volume.value = -Infinity;
-                    toneSynth.triggerAttackRelease("C4", "32n", Tone.now());
-                    toneSynth.volume.value = 0;
-                    
-                    console.log('Audio synth primed successfully.');
-                    showCustomAlert('Sonido activado.', 'info');
-
-                } catch (e) {
-                    console.error('Could not initialize or prime audio:', e);
-                    showCustomAlert('Error al activar el sonido.', 'error');
-                } finally {
-                    document.body.removeEventListener('click', initAudio);
-                    document.body.removeEventListener('touchstart', initAudio);
-                }
-            };
-            document.body.addEventListener('click', initAudio, { once: true });
-            document.body.addEventListener('touchstart', initAudio, { once: true });
-            
-            document.addEventListener('click', (event) => {
-                document.querySelectorAll('.quick-mode-header-buttons.is-active').forEach(menu => {
-                    const card = menu.closest('.quick-mode-exercise-item');
-                    const button = card ? card.querySelector('.quick-mode-settings-button') : null;
-                    const isClickInsideMenu = menu.contains(event.target);
-                    const isClickOnButton = button && button.contains(event.target);
-                    if (!isClickInsideMenu && !isClickOnButton) {
-                        menu.classList.remove('is-active');
-                        if (button) {
-                            button.classList.remove('active');
-                        }
-                    }
-                });
-            });
-
-            // Fix for the numeric keypad closing immediately.
-            // This flag is set on open and checked here. The first click after
-            // opening will be ignored. Subsequent clicks will close the keypad
-            // if they are outside of it.
-            document.addEventListener('click', (event) => {
-                const keypadModal = document.getElementById('numericKeypadModal');
-                if (isKeypadOpen) {
-                    if (ignoreNextKeypadClose) {
-                        ignoreNextKeypadClose = false;
-                        return;
-                    }
-                    if (!keypadModal.contains(event.target)) {
-                        closeModalElement(keypadModal);
-                        isKeypadOpen = false;
-                        activeInput.blur();
-                        activeInput = null;
-                    }
-                }
-            });
-
-            initializeSupabaseClient();
-            initializeWorkoutApp();
-            
-            const addExtrasButton = document.getElementById('addExtrasButton');
-            if(addExtrasButton) {
-                addExtrasButton.addEventListener('click', () => {
-                    setupExtrasForm();
-                    openModal(document.getElementById('extrasModal'));
-                });
-            }
-            
-            const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
-            if(cancelExtraActivityButton) {
-                cancelExtraActivityButton.addEventListener('click', () => {
-                    closeModalElement(document.getElementById('extrasModal'));
-                });
-            }
-
-            const mainMenuButton = document.getElementById('mainMenuButton');
-            if (mainMenuButton && userIdentifier) {
-                mainMenuButton.href = `/mi-webapp-pwa/index.html?usuario=${userIdentifier}`;
-            } else if (mainMenuButton) {
-                mainMenuButton.href = `/mi-webapp-pwa/index.html`;
-                console.warn("User identifier not found for main menu button. Using default link.");
-            }
-
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            document.querySelectorAll('.quick-mode-input').forEach(input => {
-                input.addEventListener('focus', function() {
-                    // This is to prevent the native keyboard from appearing on mobile
-                    // while the custom keypad is used.
-                    this.readOnly = true; 
-                    openNumericPad(this);
-                });
-                input.addEventListener('blur', function() {
-                    // Re-enable editing if the user manually focuses off it
-                    this.readOnly = false;
-                });
-            });
-        });
-
-        function initializeSupabaseClient() {
-            const supabaseUrl = 'https://izocmtacvdforxywfxgr.supabase.co';
-            
-            try {
-                supabase = window.supabase.createClient(supabaseUrl, SUPABASE_API_KEY);
-            } catch (e) {
-                console.error("Error inicializando Supabase:", e);
-                showCustomAlert("Error de configuración: No se pudo conectar a la base de datos. Asegúrate de que tu clave API de Supabase sea correcta.", "error");
-                return;
-            }
-
-            function obtenerParametroUrl(nombre) {
-                nombre = nombre.replace(/[\[\]]/g, '\\$&');
-                var regex = new RegExp('[?&]' + nombre + '(=([^&#]*)|&|#|$)'),
-                    resultados = regex.exec(window.location.href);
-                if (!resultados) return null;
-                if (!resultados[2]) return '';
-                return decodeURIComponent(resultados[2].replace(/\+/g, ' '));
-            }
-            userIdentifier = obtenerParametroUrl('usuario');
-            if (userIdentifier) {
-                console.log('User ID for training:', userIdentifier);
-                return;
-            }
-
-            const path = window.location.pathname;
-            const match = path.match(/\/app_([^/]+)/);
-            userIdentifier = match ? match[1] : null;
-
-            if (!userIdentifier) {
-                const urlParams = new URLSearchParams(window.location.search);
-                const userFromQuery = urlParams.get('user');
-                if (userFromQuery) {
-                    userIdentifier = userFromQuery;
-                } else {
-                    console.warn("User identifier not found in URL. Using a default/placeholder. Data might not be isolated correctly.");
-                    userIdentifier = "default-user-id";
-                    showCustomAlert("Advertencia: Usuario no identificado en la URL. Los datos pueden no guardarse correctamente.", "warning");
-                }
-            }
-        }
-
-        const requestWakeLock = async () => {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        console.log('Screen Wake Lock was released');
-                    });
-                    console.log('Screen Wake Lock is active');
-                    showCustomAlert('La pantalla se mantendrá encendida.', 'info');
-                } catch (err) {
-                    console.error(`${err.name}, ${err.message}`);
-                }
-            } else {
-                console.warn('Wake Lock API not supported.');
-            }
-        };
-
-        const releaseWakeLock = async () => {
-            if (wakeLock !== null) {
-                await wakeLock.release();
-                wakeLock = null;
-            }
-        };
-
-        const handleVisibilityChange = async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible' && isWorkoutInProgress) {
-                await requestWakeLock();
-            }
-        };
-
-
-        const daySelectionTabsContainer = document.getElementById('daySelectionTabs'); 
-        const workoutPreviewContainer = document.getElementById('workoutPreviewContainer'); 
-        const viewWorkoutHistoryButton = document.getElementById('viewWorkoutHistoryButton');
-        const viewExerciseHistoryButton = document.getElementById('viewExerciseHistoryButton');
-        const mainHistoryModal = document.getElementById('mainHistoryModal');
-        const calendarModal = document.getElementById('calendarModal');
-        const currentMonthYear = document.getElementById('currentMonthYear');
-        const calendarDaysContainer = document.getElementById('calendarDaysContainer');
-        const detailedDayModal = document.getElementById('detailedDayModal');
-        const detailedDayContent = document.getElementById('detailedDayContent');
-        const historySearchInput = document.getElementById('historySearchInput');
-        const mainHistoryResults = document.getElementById('mainHistoryResults');
-        const detailedHistoryModal = document.getElementById('detailedHistoryModal');
-        const exerciseHistoryListView = document.getElementById('exerciseHistoryListView');
-        const exerciseHistoryDetailView = document.getElementById('exerciseHistoryDetailView');
-        const exerciseHistoryList = document.getElementById('exerciseHistoryList');
-        const backToExerciseListBtn = document.getElementById('backToExerciseListBtn');
-        const detailedHistoryExerciseName = document.getElementById('detailedHistoryExerciseName');
-        const detailedHistoryContent = document.getElementById('detailedHistoryContent');
-        const record1RMDisplay = document.getElementById('record1RMDisplay');
-        const rmEvolutionChartCanvas = document.getElementById('rmEvolutionChart');
-        const fullWorkoutLogModal = document.getElementById('fullWorkoutLogModal');
-        const fullWorkoutLogTitle = document.getElementById('fullWorkoutLogTitle');
-        const fullWorkoutLogContent = document.getElementById('fullWorkoutLogContent');
-        const quickModeWorkoutModal = document.getElementById('quickModeWorkoutModal');
-        const quickModeWorkoutModalTitle = document.getElementById('quickModeWorkoutModalTitle');
-        const quickModeExerciseList = document.getElementById('quickModeExerciseList');
-        const endQuickModeWorkoutButton = document.getElementById('endQuickModeWorkoutButton'); 
-        const restTimerModal = document.getElementById('restTimerModal');
-        const restTimerTitle = document.getElementById('restTimerTitle');
-        const restOverallProgress = document.getElementById('restOverallProgress');
-        const restTimerDisplay = document.getElementById('restTimerDisplay');
-        const restStateLabel = document.getElementById('restStateLabel');
-        const restExerciseName = document.getElementById('restExerciseName');
-        const restExerciseDetails = document.getElementById('restExerciseDetails');
-        const restCurrentImage = document.getElementById('restCurrentImage');
-        const minimizedRestTimer = document.getElementById('minimizedRestTimer');
-        const minimizedTimerDisplay = document.getElementById('minimizedTimerDisplay');
-        const minimizedNextExercise = document.getElementById('minimizedNextExercise');
-        const extrasModal = document.getElementById('extrasModal');
-        const extraActivitySelect = document.getElementById('extraActivitySelect');
-        const otherActivityInputGroup = document.getElementById('otherActivityInputGroup');
-        const otherActivityNameInput = document.getElementById('otherActivityName');
-        const extraTimeInput = document.getElementById('extraTimeInput');
-        const extraVolumeInput = document.getElementById('extraVolumeInput');
-        const extraCaptureInput = document.getElementById('extraCaptureInput');
-        const extraCaptureFileName = document.getElementById('extraCaptureFileName');
-        const registerExtraActivityButton = document.getElementById('registerExtraActivityButton');
-        const cancelExtraActivityButton = document.getElementById('cancelExtraActivityButton');
-        const workTimerModal = document.getElementById('workTimerModal'); 
-        const workTimerTitle = document.getElementById('workTimerTitle');
-        const workOverallProgress = document.getElementById('workOverallProgress');
-        const workTimerDisplay = document.getElementById('workTimerDisplay');
-        const workStateLabel = document.getElementById('workStateLabel');
-        const workExerciseName = document.getElementById('workExerciseName');
-        const workExerciseDetails = document.getElementById('workExerciseDetails');
-        const workCurrentImage = document.getElementById('workCurrentImage');
-        const circuitTimerModal = document.getElementById('circuitTimerModal'); 
-        const circuitWelcomeView = document.getElementById('circuitWelcomeView');
-        const circuitWelcomeTitle = document.getElementById('circuitWelcomeTitle');
-        const circuitWelcomeDetails = document.getElementById('circuitWelcomeDetails');
-        const circuitWelcomeImage = document.getElementById('circuitWelcomeImage');
-        const circuitActiveView = document.getElementById('circuitActiveView');
-        const circuitOverallProgress = document.getElementById('circuitOverallProgress'); 
-        const circuitStateLabel = document.getElementById('circuitStateLabel'); 
-        const circuitExerciseName = document.getElementById('circuitExerciseName'); 
-        const circuitExerciseDetails = document.getElementById('circuitExerciseDetails'); 
-        const circuitTimerDisplay = document.getElementById('circuitTimerDisplay'); 
-        const swapExerciseModal = document.getElementById('swapExerciseModal');
-        const swapExerciseModalTitle = document.getElementById('swapExerciseModalTitle');
-        const swapExerciseModalContent = document.getElementById('swapExerciseModalContent');
-        const emomTimerModal = document.getElementById('emomTimerModal');
-        const emomWelcomeView = document.getElementById('emomWelcomeView');
-        const emomWelcomeTitle = document.getElementById('emomWelcomeTitle');
-        const emomWelcomeDetails = document.getElementById('emomWelcomeDetails');
-        const emomWelcomeImage = document.getElementById('emomWelcomeImage');
-        const emomActiveView = document.getElementById('emomActiveView');
-        const emomTimerTitle = document.getElementById('emomTimerTitle'); 
-        const emomOverallProgress = document.getElementById('emomOverallProgress');
-        const emomStateLabel = document.getElementById('emomStateLabel');
-        const emomCurrentExerciseName = document.getElementById('emomCurrentExerciseName');
-        const emomCurrentExerciseReps = document.getElementById('emomCurrentExerciseReps');
-        const emomCurrentExerciseWeight = document.getElementById('emomCurrentExerciseWeight');
-        const emomCurrentExerciseDetails = document.getElementById('emomCurrentExerciseDetails');
-        const emomIntervalTimerDisplay = document.getElementById('emomIntervalTimerDisplay'); 
-        const workoutSummaryModal = document.getElementById('workoutSummaryModal');
-        const workoutSummaryTotalTime = document.getElementById('workoutSummaryTotalTime');
-        const workoutSummaryTotalVolume = document.getElementById('workoutSummaryTotalVolume');
-        const workoutSummaryExerciseList = document.getElementById('workoutSummaryExerciseList');
-        const registerWorkoutButton = document.getElementById('registerWorkoutButton');
-        const newRecordModal = document.getElementById('newRecordModal');
-        const newRecordText = document.getElementById('newRecordText');
-        const warmupModal = document.getElementById('warmupModal');
-        const shareModal = document.getElementById('shareModal');
-        const videoConfirmModal = document.getElementById('videoConfirmModal');
-        const confirmVideoOpenBtn = document.getElementById('confirmVideoOpen');
-        
-        function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return weekNo;
-        }
-
-        function openVideoLink(videoUrl) {
-            if (!videoUrl) return;
-            openModal(videoConfirmModal);
-            confirmVideoOpenBtn.onclick = () => {
-                window.open(videoUrl, '_blank');
-                closeModalElement(videoConfirmModal);
-            };
-        }
-        function calculateEpley1RM(weight, reps) { if (reps == 0 || weight == 0) return 0; if (reps == 1) return parseFloat(weight); return parseFloat(weight) * (1 + (parseFloat(reps) / 30)); }
-        function isTimeBased(repsString) { return typeof repsString === 'string' && repsString.endsWith('s'); }
-        function parseRepRange(repString) { if (!repString || typeof repString !== 'string') return { type: 'unknown' }; const cleaned = repString.replace(/reps|lado|\/lado/gi, '').trim(); if (cleaned.includes('-')) { const [min, max] = cleaned.split('-').map(n => parseInt(n, 10)); return { type: 'range', min, max }; } if (cleaned.includes(',')) { const reps = cleaned.split(',').map(n => parseInt(n.trim(), 10)); return { type: 'specific', target: Math.min(...reps) }; } const specific = parseInt(cleaned, 10); if (!isNaN(specific)) { return { type: 'specific', target: specific }; } return { type: 'unknown' }; }
-        function getRepCompletionState(performedReps, targetRepsString) { 
-            if (isTimeBased(targetRepsString)) {
-                return 'good';
-            }
-            const parsedTarget = parseRepRange(targetRepsString); 
-            const performed = parseInt(performedReps, 10); 
-            if (isNaN(performed)) return 'neutral'; 
-            switch (parsedTarget.type) { 
-                case 'range': 
-                    if (performed >= parsedTarget.max) return 'good'; 
-                    if (performed < parsedTarget.min) return 'bad'; 
-                    return 'neutral'; 
-                case 'specific': 
-                    if (performed >= parsedTarget.target) return 'good'; 
-                    if (performed <= parsedTarget.target - 3) return 'bad'; 
-                    return 'neutral'; 
-                default: return 'neutral'; 
-            } 
-        }
-        
-        function getLastLoggedDataForSet(exerciseName, setNumber) {
-            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a,b) => new Date(b.raw_date) - new Date(a.raw_date));
-            if (entries.length > 0) {
-                const setsPerformed = entries[0].sets_performed;
-                const setData = setsPerformed.find(s => s.serie === setNumber);
-                if (setData) return { kg: setData.kg || "", reps: setData.reps || "" };
-            }
-            return { kg: "", reps: "" };
-        }
-        
-        function getLastLoggedWeightForExercise(exerciseName) {
-            const entry = getLastWorkoutEntry(exerciseName);
-            if (entry && entry.sets_performed && entry.sets_performed.length > 0) {
-                for (let i = entry.sets_performed.length - 1; i >= 0; i--) {
-                    const set = entry.sets_performed[i];
-                    if (set.kg && !isNaN(parseFloat(set.kg))) {
-                        return set.kg;
-                    }
-                }
-            }
-            return "";
-        }
-
-        function getLastWorkoutEntry(exerciseName) {
-            const historyForExercise = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(b.raw_date) - new Date(a.raw_date));
-            return historyForExercise.length > 0 ? historyForExercise[0] : null;
-        }
-
-        function openExerciseHistoryExplorer() {
-            showExerciseListView();
-            historySearchInput.value = '';
-            handleExerciseHistorySearch();
-            openModal(detailedHistoryModal);
-        }
-
-        function showExerciseListView() {
-            exerciseHistoryListView.style.display = 'block';
-            exerciseHistoryDetailView.style.display = 'none';
-        }
-
-        function showExerciseDetailView(exerciseName) {
-            exerciseHistoryListView.style.display = 'none';
-            exerciseHistoryDetailView.style.display = 'block';
-            detailedHistoryExerciseName.textContent = exerciseName;
-            const entries = individualExerciseLogs.filter(e => e.exercise_name === exerciseName).sort((a, b) => new Date(a.raw_date) - new Date(b.raw_date));
-            detailedHistoryContent.innerHTML = '';
-            const chartLabels = [], chartData = [];
-            let historicalMaxRm = 0;
-            let historicalMaxRmDate = '';
-            if (entries.length === 0) {
-                detailedHistoryContent.innerHTML = '<p class="text-gray-400 text-center">No hay registros.</p>';
-                record1RMDisplay.innerHTML = '<p class="text-gray-400">Sin récord de 1RM</p>';
-            } else {
-                entries.forEach(entry => {
-                    let maxRmForEntry = 0, bestSetForRm = null;
-                    const setsPerformed = entry.sets_performed || [];
-                    setsPerformed.forEach(set => {
-                        if (!isTimeBased(set.reps)) {
-                            const currentRm = calculateEpley1RM(set.kg, set.reps);
-                            if (currentRm > maxRmForEntry) { maxRmForEntry = currentRm; bestSetForRm = set; }
-                            if (currentRm > historicalMaxRm) { historicalMaxRm = currentRm; historicalMaxRmDate = entry.date; }
-                        }
-                    });
-                    if (maxRmForEntry > 0) {
-                        chartLabels.push(entry.date);
-                        chartData.push(maxRmForEntry.toFixed(1));
-                    }
-                    const rmDisplay = maxRmForEntry > 0 && bestSetForRm ? `<p class="text-xs text-blue-400">1RM Est. (Serie ${bestSetForRm.serie}): ${maxRmForEntry.toFixed(1)}kg</p>` : '';
-                    const setsList = setsPerformed.map(s => {
-                        const completionClass = s.completionState === 'good' ? 'history-reps-good' : (s.completionState === 'bad' ? 'history-reps-bad' : '');
-                        return `<li>Serie ${s.serie}: ${s.kg || 0}kg x <span class="${completionClass}">${s.reps || 0} ${isTimeBased(s.reps) ? 's' : 'reps'}</span></li>`;
-                    }).join('');
-                    detailedHistoryContent.innerHTML += `<div class="history-entry pb-3 mb-3"><p class="font-semibold text-yellow-400">${entry.date} - ${entry.time}</p>${rmDisplay}<ul class="list-disc list-inside pl-2 text-gray-300 mt-1">${setsList}</ul></div>`;
-                });
-                record1RMDisplay.innerHTML = `<span class="text-gray-300">Récord Histórico (1RM): </span><strong class="text-yellow-400 text-lg">${historicalMaxRm.toFixed(1)} kg</strong> <span class="text-gray-400 text-sm">(${historicalMaxRmDate})</span>`;
-            }
-            renderRmEvolutionChart(chartLabels, chartData);
-        }
-        
-        function viewExerciseHistoryFromLog(exerciseName) {
-            showExerciseDetailView(exerciseName);
-            openModal(detailedHistoryModal);
-        }
-
-        function handleExerciseHistorySearch() {
-            const query = historySearchInput.value.toLowerCase().trim();
-            exerciseHistoryList.innerHTML = '';
-            const uniqueExercises = [...new Set(individualExerciseLogs.map(item => item.exercise_name))].sort();
-            const filteredExercises = uniqueExercises.filter(name => name.toLowerCase().includes(query));
-            if (filteredExercises.length === 0) {
-                exerciseHistoryList.innerHTML = '<p class="text-gray-400 text-center py-4">No se encontraron ejercicios.</p>';
-                return;
-            }
-            filteredExercises.forEach(exerciseName => {
-                const button = document.createElement('button');
-                button.className = 'main-history-item';
-                button.textContent = exerciseName;
-                const escapedName = exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
-                button.onclick = () => showExerciseDetailView(escapedName);
-                exerciseHistoryList.appendChild(button);
-            });
-        }
-
-        function closeDetailedHistoryModal() {
-            if (rmChartInstance) {
-                rmChartInstance.destroy();
-                rmChartInstance = null;
-            }
-            closeModalElement(detailedHistoryModal);
-        }
-
-        if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderCalendar();
-            openModal(mainHistoryModal); 
-        });
-        if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
-        if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
-        if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
-        
-        function renderCalendar() {
-            const startOfWeek = getStartOfWeek(currentDate);
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(endOfWeek.getDate() + 6);
-            
-            currentMonthYear.textContent = `${months[startOfWeek.getMonth()]} ${startOfWeek.getFullYear()}`;
-            if (startOfWeek.getMonth() !== endOfWeek.getMonth()) {
-                currentMonthYear.textContent += ` - ${months[endOfWeek.getMonth()]} ${endOfWeek.getFullYear()}`;
-            }
-
-            calendarDaysContainer.innerHTML = '';
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            for (let i = 0; i < 7; i++) {
-                const day = new Date(startOfWeek);
-                day.setDate(day.getDate() + i);
-                
-                const dayKey = day.toISOString().slice(0, 10);
-                const isCurrentDay = day.toDateString() === today.toDateString();
-                const dayName = daysOfWeek[day.getDay()];
-                const dayDate = day.getDate();
-                
-                const itemsForDay = groupedHistory[dayKey] || [];
-                const hasMultipleItems = itemsForDay.length > 1;
-
-                const dayEntry = document.createElement('div');
-                dayEntry.className = `day-entry ${isCurrentDay ? 'current-day' : ''} ${hasMultipleItems ? 'has-more' : ''}`;
-                dayEntry.innerHTML = `
-                    <div class="day-info">
-                        <span class="day-name">${dayName}</span>
-                        <span class="day-date">${dayDate}</span>
-                    </div>
-                    <div class="workout-info">
-                        ${itemsForDay.length > 0 ? `<span class="workout-name">${itemsForDay[0].name_workout.toUpperCase().substring(0, 15)}${itemsForDay[0].name_workout.length > 15 ? '...' : ''}</span>` : ''}
-                        ${hasMultipleItems ? `<span class="workout-count">+${itemsForDay.length - 1}</span>` : ''}
-                    </div>
-                    ${isCurrentDay ? '<div class="day-scroll-indicator"></div>' : ''}
-                `;
-                
-                if (itemsForDay.length > 0) {
-                     dayEntry.onclick = () => showDetailedDayLog(dayKey);
-                }
-                
-                calendarDaysContainer.appendChild(dayEntry);
-            }
-        }
-        
-        function getStartOfWeek(date) {
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1);
-            const startOfWeek = new Date(date.setDate(diff));
-            startOfWeek.setHours(0, 0, 0, 0);
-            return startOfWeek;
-        }
-
-        function changeWeek(direction) {
-            currentDate.setDate(currentDate.getDate() + direction * 7);
-            renderCalendar();
-        }
-
-        function showDetailedDayLog(dayKey) {
-            const items = groupedHistory[dayKey];
-            if (!items || items.length === 0) return;
-            
-            const detailedContent = document.createElement('div');
-            detailedContent.className = 'expanded-day-view';
-            detailedContent.innerHTML = `<div class="expanded-title">Entrenos del Día ${new Date(dayKey + 'T00:00:00').getDate()}</div>`;
-
-            items.sort((a,b) => new Date(a.raw_date) - new Date(b.raw_date)).forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'expanded-item';
-                const duration = item.total_time_session ? `Duración: ${item.total_time_session}` : `Hora: ${item.time}`;
-                itemDiv.innerHTML = `<div class="item-name">${item.name_workout}</div><div class="item-time">${duration}</div>`;
-                itemDiv.onclick = () => {
-                    if (item.exercise_name === "Extra Activity") {
-                        showExtraActivityDetails(item);
-                    } else {
-                        openFullWorkoutLogModal(item.session_id);
-                    }
-                };
-                detailedContent.appendChild(itemDiv);
-            });
-            
-            calendarDaysContainer.innerHTML = '';
-            calendarDaysContainer.appendChild(detailedContent);
-
-            const backButton = document.createElement('button');
-            backButton.className = 'main-action-button mt-4';
-            backButton.innerHTML = '<i class="fas fa-arrow-left mr-2"></i>Volver';
-            backButton.onclick = renderCalendar;
-            calendarDaysContainer.appendChild(backButton);
-        }
-
-        function renderRmEvolutionChart(labels, data) { 
-            if (rmChartInstance) { rmChartInstance.destroy(); } 
-            const ctx = rmEvolutionChartCanvas.getContext('2d'); 
-            rmChartInstance = new Chart(ctx, { 
-                type: 'line', 
-                data: { 
-                    labels, 
-                    datasets: [{ 
-                        label: 'Evolución 1RM (kg)', 
-                        data, 
-                        backgroundColor: 'rgba(250, 204, 21, 0.2)', 
-                        borderColor: '#facc15', 
-                        borderWidth: 2 
-                    }] 
-                }, 
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: true, 
-                    scales: { 
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#d1d5db' } }, 
-                        x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#d1d5db' } } 
-                    }, 
-                    plugins: { legend: { labels: { color: '#d1d5db' } } } 
-                } 
-            }); 
-        }
-        
-        function viewExerciseHistoryFromLog(exerciseName) {
-            showExerciseDetailView(exerciseName);
-            openModal(detailedHistoryModal);
-        }
-
-        function handleExerciseHistorySearch() {
-            const query = historySearchInput.value.toLowerCase().trim();
-            exerciseHistoryList.innerHTML = '';
-            const uniqueExercises = [...new Set(individualExerciseLogs.map(item => item.exercise_name))].sort();
-            const filteredExercises = uniqueExercises.filter(name => name.toLowerCase().includes(query));
-            if (filteredExercises.length === 0) {
-                exerciseHistoryList.innerHTML = '<p class="text-gray-400 text-center py-4">No se encontraron ejercicios.</p>';
-                return;
-            }
-            filteredExercises.forEach(exerciseName => {
-                const button = document.createElement('button');
-                button.className = 'main-history-item';
-                button.textContent = exerciseName;
-                const escapedName = exerciseName.replace(/'/g, "\\'").replace(/"/g, '\\"');
-                button.onclick = () => showExerciseDetailView(escapedName);
-                exerciseHistoryList.appendChild(button);
-            });
-        }
-
-        function closeDetailedHistoryModal() {
-            if (rmChartInstance) {
-                rmChartInstance.destroy();
-                rmChartInstance = null;
-            }
-            closeModalElement(detailedHistoryModal);
-        }
-
-        if(viewWorkoutHistoryButton) viewWorkoutHistoryButton.addEventListener('click', () => { 
-            renderCalendar();
-            openModal(mainHistoryModal); 
-        });
-        if(viewExerciseHistoryButton) viewExerciseHistoryButton.addEventListener('click', openExerciseHistoryExplorer);
-        if(historySearchInput) historySearchInput.addEventListener('input', handleExerciseHistorySearch);
-        if(backToExerciseListBtn) backToExerciseListBtn.addEventListener('click', showExerciseListView);
-        
-        function playTimerSound(note, duration) {
-            if (toneSynth && Tone.context.state === 'running') {
-                try {
-                    toneSynth.triggerAttackRelease(note, duration, Tone.now());
-                } catch (e) {
-                    console.error("Error playing sound:", e);
-                }
-            } else {
-                console.warn("Cannot play sound, audio context not ready or synth not initialized.");
-            }
-        }
-
-        function startRestTimer(durationSeconds, nextExerciseData = null) {
-            currentRestDuration = durationSeconds;
-            clearInterval(restTimerInterval);
-            restTimerEndTime = Date.now() + currentRestDuration * 1000;
-            restStateLabel.textContent = 'DESCANSO';
-            restStateLabel.className = 'state-label rest';
-            
-            if(restCurrentImage) {
-                restCurrentImage.style.display = 'none';
-                restCurrentImage.src = '';
-            }
-            
-            if (nextExerciseData) {
-                if (nextExerciseData.type === 'nextSet') {
-                    restExerciseName.textContent = `Siguiente: Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
-                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps} con ${nextExerciseData.kg} Kg`;
-                    nextRestTimerTitle = `Serie ${nextExerciseData.setNumber} de ${nextExerciseData.totalSets}`;
-                } else {
-                    restExerciseName.textContent = `Siguiente: ${nextExerciseData.name || ''}`;
-                    restExerciseDetails.textContent = `Objetivo: ${nextExerciseData.reps || ''} con ${nextExerciseData.kg || '--'} Kg`;
-                    nextRestTimerTitle = `Siguiente: ${nextExerciseData.name || ''}`;
-                }
-                if(nextExerciseData.imageUrl && restCurrentImage) {
-                    restCurrentImage.src = nextExerciseData.imageUrl;
-                    restCurrentImage.style.display = 'block';
-                }
-            } else {
-                restExerciseName.textContent = '';
-                restExerciseDetails.textContent = '';
-                nextRestTimerTitle = '';
-            }
-
-            minimizedRestTimer.classList.remove('is-active');
-            openModal(restTimerModal);
-            playTimerSound("C5", "16n");
-            restTimerInterval = setInterval(() => {
-                const timeLeft = Math.round((restTimerEndTime - Date.now()) / 1000);
-                if (timeLeft <= 0) {
-                    clearInterval(restTimerInterval);
-                    closeRestTimerModal(false);
-                    playTimerSound("A5", "8n");
-                } else {
-                    updateRestTimerDisplay(timeLeft);
-                    if (timeLeft <= 3 && timeLeft > 0) {
-                        playTimerSound("C4", "16n");
-                    }
-                }
-            }, 1000);
-        }
-
-        function adjustRestTime(secondsAdjustment) { 
-            if (!restTimerInterval) return; 
-            restTimerEndTime += secondsAdjustment * 1000; 
-            let newTimeLeft = Math.round((restTimerEndTime - Date.now()) / 1000); 
-            if (newTimeLeft <= 0) { 
-                clearInterval(restTimerInterval); 
-                closeRestTimerModal(false); 
-                playTimerSound("A5", "8n");
-            } 
-            updateRestTimerDisplay(newTimeLeft); 
-        }
-
-        function updateRestTimerDisplay(timeLeft) { 
-            const seconds = timeLeft % 60;
-            const minutes = Math.floor(timeLeft / 60);
-            const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            restTimerDisplay.textContent = formattedTime;
-            minimizedTimerDisplay.textContent = formattedTime;
-            minimizedNextExercise.textContent = nextRestTimerTitle;
-        }
-
-        function closeRestTimerModal(skipped = false) { 
-            clearInterval(restTimerInterval); 
-            restTimerDisplay.textContent = '00:00';
-            minimizedTimerDisplay.textContent = '00:00';
-            minimizedNextExercise.textContent = '';
-            minimizedRestTimer.classList.remove('is-active');
-            closeModalElement(restTimerModal); 
-            if(restCurrentImage) {
-                restCurrentImage.style.display = 'none';
-                restCurrentImage.src = '';
-            }
-        }
-
-        function toggleRestTimerMinimize() {
-            if (restTimerModal.classList.contains('opacity-100')) {
-                closeModalElement(restTimerModal);
-                minimizedRestTimer.classList.add('is-active');
-            } else {
-                minimizedRestTimer.classList.remove('is-active');
-                openModal(restTimerModal);
-            }
-        }
-
-        function openSwapExerciseModal(cardId) {
-            const card = document.getElementById(cardId);
-            if (!card) return;
-            const originalExerciseData = JSON.parse(card.dataset.originalExerciseData || '{}');
-            const primordialExerciseData = JSON.parse(card.dataset.primordialExerciseData || '{}');
-
-            swapExerciseModalTitle.textContent = `Alternativas para: ${primordialExerciseData.name}`;
-            swapExerciseModalContent.innerHTML = '';
-
-            const alternatives = exerciseAlternatives[primordialExerciseData.name] || [];
-            
-            const isSwapped = card.dataset.isSwapped === "true";
-            if (isSwapped) {
-                const revertButton = document.createElement('button');
-                revertButton.className = 'w-full text-left p-3 bg-blue-700 hover:bg-blue-600 rounded-md transition-colors mb-2';
-                revertButton.innerHTML = `<strong class="text-yellow-300"><i class="fas fa-undo mr-2"></i>Volver a ${originalExerciseData.name}</strong>`;
-                revertButton.onclick = () => { performExerciseSwap(cardId, originalExerciseData); closeModalElement(swapExerciseModal); };
-                swapExerciseModalContent.appendChild(revertButton);
-            }
-
-            let hasAlternatives = false;
-            if (alternatives.length > 0) {
-                alternatives.forEach(alt => {
-                    if (alt.name === card.dataset.currentName) return; 
-                    hasAlternatives = true;
-                    const button = document.createElement('button');
-                    button.className = 'w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors';
-                    button.innerHTML = `<strong class="text-yellow-400">${alt.name}</strong>`;
-                    button.onclick = () => { performExerciseSwap(cardId, { ...primordialExerciseData, name: alt.name, videoUrl: alt.videoUrl, imageUrl: alt.imageUrl }); closeModalElement(swapExerciseModal); };
-                    swapExerciseModalContent.appendChild(button);
-                });
-            }
-
-            if (!hasAlternatives && !isSwapped) {
-                swapExerciseModalContent.innerHTML = '<p class="text-gray-400 text-center">No hay alternativas disponibles para este ejercicio.</p>';
-            }
-
-            openModal(swapExerciseModal);
-        }
-
-        function performExerciseSwap(cardId, newExerciseData) { 
-            const card = document.getElementById(cardId); 
-            if (!card) return; 
-            const parent = card.parentNode; 
-            const isSubItem = card.dataset.subOrder !== ''; 
-            let specialData = null; 
-            if (isSubItem) { 
-                const supersetContainer = card.closest('.quick-mode-superset-container'); 
-                if(supersetContainer){ 
-                    const supersetBlockData = workoutData[currentActiveDayKey].exercises.find(ex => `qm-superset-${currentActiveDayKey}-${ex.order}` === supersetContainer.id); 
-                    if(supersetBlockData && supersetBlockData.isEMOM) { specialData = { series: Math.ceil(supersetBlockData.emomDetails.totalIntervals / supersetBlockData.items.length) }; } 
-                    else if (supersetBlockData && supersetBlockData.circuitDetails) { specialData = { series: supersetBlockData.circuitDetails.totalRounds }; } 
-                } 
-            } 
-            const exerciseInput = newExerciseData;
-            const originalData = exerciseInput.originalExerciseData || exerciseInput;
-            const exerciseToCreate = { ...newExerciseData, originalExerciseData: originalData }; 
-            const newCard = createQuickModeExerciseCard(card.dataset.dayKey, parseInt(card.dataset.mainOrder), exerciseToCreate, isSubItem, specialData); 
-            if (parent) { parent.replaceChild(newCard, card); } 
-            updateAllExerciseCardInputStates(); 
-        }
-
-        function confirmBeforeClosingWorkoutModal(modalElement, callbackOnConfirm) { if (isWorkoutInProgress) { const confirmCloseModal = document.createElement('div'); confirmCloseModal.id = 'confirmCloseModal'; confirmCloseModal.className = 'modal fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[90]'; confirmCloseModal.innerHTML = `<div class="modal-content bg-gray-800 border-2 border-red-500 rounded-xl p-6 w-full max-w-sm text-center"><h3 class="text-xl font-semibold text-red-400 mb-3">Entrenamiento en Curso</h3><p class="text-gray-300 mb-6 text-sm">¿Seguro que quieres cerrar? El progreso se perderá.</p><div class="flex gap-4"><button id="confirmCloseYes" class="w-1/2 bg-red-600 text-white py-2.5 rounded-lg">Sí, Cerrar</button><button id="confirmCloseNo" class="w-1/2 bg-gray-600 text-white py-2.5 rounded-lg">No</button></div></div>`; document.body.appendChild(confirmCloseModal); openModal(confirmCloseModal); document.getElementById('confirmCloseYes').onclick = () => { const lastActiveDayKey = currentActiveDayKey; isWorkoutInProgress = false; clearInterval(workoutTimerInterval); currentWorkoutSummaryData = []; clearRealtimeProgress(); releaseWakeLock(); if (lastActiveDayKey) { displayWorkoutPreview(lastActiveDayKey); } closeModalElement(modalElement); closeModalElement(confirmCloseModal); confirmCloseModal.remove(); if (callbackOnConfirm) callbackOnConfirm(); }; document.getElementById('confirmCloseNo').onclick = () => { closeModalElement(confirmCloseModal); confirmCloseModal.remove(); }; } else { closeModalElement(modalElement); if (callbackOnConfirm) callbackOnConfirm(); } }
-        
         function toggleWorkoutState() { 
             if (isWorkoutInProgress) { 
                 openWorkoutSummaryModal(); 
@@ -2277,7 +1472,9 @@
             const m = Math.floor((elapsed % 3600) / 60);
             const timeString = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
             const durationEl = document.getElementById('workoutDuration'); 
+            const simpleDurationEl = document.getElementById('simpleModeWorkoutDuration');
             if (durationEl) durationEl.textContent = timeString; 
+            if (simpleDurationEl) simpleDurationEl.textContent = timeString;
         }
         
         function getHistoricalMaxRm(exerciseName) {
@@ -2320,10 +1517,18 @@
         }
 
         function showNewRecordAlert(newRm) { newRecordText.textContent = `¡Has alcanzado un 1RM estimado de ${newRm.toFixed(1)}kg!`; openModal(newRecordModal); }
-        function closeQuickModeWorkoutModal() { confirmBeforeClosingWorkoutModal(quickModeWorkoutModal, () => { releaseWakeLock(); }); }
+        
+        // La función closeQuickModeWorkoutModal() ha sido eliminada.
+
+        function closeSimpleModeWorkoutModal() {
+            confirmBeforeClosingWorkoutModal(document.getElementById('simpleModeWorkoutModal'), () => {
+                isSimpleModeActive = false;
+                releaseWakeLock();
+            });
+        }
 
         function updateAllExerciseCardInputStates() {
-            document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item').forEach(card => {
+            document.querySelectorAll('#quickModeWorkoutModal .quick-mode-exercise-item, #simpleModeWorkoutModal .quick-mode-exercise-item').forEach(card => {
                 const exerciseName = card.dataset.currentName;
                 const cardId = card.id;
                 const logEntry = currentWorkoutSummaryData.find(e => e.exerciseName === exerciseName);
@@ -2494,21 +1699,27 @@
                     imageHtml = `<div class="flex-shrink-0">${imageTag}</div>`;
                 }
             }
+
+            // El HTML de listModeHeaderHtml ha sido eliminado.
+
+            const simpleModeHeaderHtml = `
+                <div class="title-line">
+                    <strong class="text-yellow-400">${isSubItem ? `${mainOrder}.${exerciseInput.subOrder}` : exerciseInput.order}. ${exerciseInput.name}</strong> ${increaseWeightIndicator}
+                </div>
+                <div class="simple-mode-content-row">
+                    ${imageHtml}
+                    <div class="info flex-grow">
+                        <span class="block text-sm font-medium text-gray-400">Nº de Series:</span>
+                        <span class="block text-2xl font-bold text-white mb-2">${totalSets}</span>
+                        <span class="block text-sm font-medium text-gray-400">Objetivo:</span>
+                        <span class="block text-2xl font-bold text-white">${repsString}</span>
+                    </div>
+                </div>
+            `;
+
             card.innerHTML = ` 
                 <div class="quick-mode-exercise-header"> 
-                    <div class="flex-top-row">
-                        ${imageHtml}
-                        <div class="info-and-settings">
-                            <div class="info-line-with-settings">
-                                <div class="info"> 
-                                    <div class="title-line"> 
-                                        <strong>${isSubItem ? `${mainOrder}.${exerciseInput.subOrder}` : exerciseInput.order}. ${exerciseInput.name}</strong> ${increaseWeightIndicator} 
-                                    </div> 
-                                    <span>${seriesText} | Objetivo: ${repsString}</span> 
-                                </div> 
-                            </div>
-                        </div>
-                    </div>
+                    ${simpleModeHeaderHtml}
                 </div> 
                 <div id="quickViewBody-${cardId}" class="quick-mode-input-row"> 
                     <input type="text" pattern="[0-9]*[.,]?[0-9]*" inputmode="none" onfocus="openNumericPad(this)" value="${lastData.kg || ''}" placeholder="${kgPlaceholder}" class="quick-mode-input" aria-label="Peso para ${exerciseInput.name}" data-field-type="kg"> 
@@ -2658,6 +1869,14 @@
                 exerciseProgressMap.set(cardId, totalSets);
                 updateAllExerciseCardInputStates();
                 showCustomAlert(`¡Ejercicio "${exerciseData.name}" completado!`, "info");
+
+                if (isSimpleModeActive) {
+                    setTimeout(() => {
+                        if (currentSimpleModeIndex < simpleModeExercises.length - 1) {
+                            navigateSimpleMode(1);
+                        }
+                    }, 800);
+                }
             } else {
                 exerciseProgressMap.set(cardId, currentSet);
                 
@@ -2917,7 +2136,18 @@
             openModal(workoutSummaryModal);
         }
 
-        function closeWorkoutSummaryModal(registered = false) { closeModalElement(workoutSummaryModal); if (registered) { currentWorkoutSummaryData = []; closeModalElement(quickModeWorkoutModal); } }
+        function closeWorkoutSummaryModal(registered = false) { 
+            closeModalElement(workoutSummaryModal); 
+            if (registered) { 
+                currentWorkoutSummaryData = []; 
+                if (isSimpleModeActive) {
+                    closeModalElement(document.getElementById('simpleModeWorkoutModal'));
+                    isSimpleModeActive = false;
+                } else {
+                    closeModalElement(quickModeWorkoutModal);
+                }
+            } 
+        }
         
         function parseDurationToSeconds(durationInput) {
             if (durationInput === null || typeof durationInput === 'undefined' || durationInput === '') { return 0; }
@@ -3957,7 +3187,7 @@
                     ex.items.forEach(sub => { previewHtml += `<li style="padding-left: 1.5rem;">${ex.order}.${sub.subOrder}. ${sub.name}</li>`; });
                 }
             });
-            previewHtml += `</ul><button onclick="startQuickMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`;
+            previewHtml += `</ul><button onclick="promptWorkoutMode('${dayKey}')" class="start-workout-preview-button"><i class="fas fa-play mr-2"></i>Empezar Entrenamiento</button>`;
             workoutPreviewContainer.innerHTML = previewHtml;
         }
 
@@ -3973,7 +3203,7 @@
                 if (startButton) {
                     startButton.innerHTML = '<i class="fas fa-play-circle mr-2"></i>Continuar Entrenamiento';
                     startButton.classList.add('bg-green-500', 'hover:bg-green-600');
-                    startButton.onclick = () => startQuickMode(currentActiveDayKey, true);
+                    startButton.onclick = () => promptWorkoutMode(currentActiveDayKey, true);
                 }
                 
                 showCustomAlert("¡Tienes un entrenamiento en curso! Continúa donde lo dejaste.", "info");
@@ -4039,119 +3269,261 @@
         function goToCurrentWorkout() {
             closeModalElement(document.getElementById('inProgressWarningModal'));
             if (currentActiveDayKey) {
-                startQuickMode(currentActiveDayKey, true);
+                if (isSimpleModeActive) {
+                    startSimpleMode(currentActiveDayKey, true);
+                }
+                // No 'else' needed, as Simple Mode is the only mode.
             }
         }
 
-        function setupExtrasForm() {
-            extraActivitySelect.value = 'Pádel';
-            otherActivityInputGroup.style.display = 'none';
-            otherActivityNameInput.value = '';
-            extraTimeInput.value = '';
-            extraVolumeInput.value = '';
-            extraCaptureInput.value = '';
-            extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
-            uploadedCaptureFile = null;
-
-            extraActivitySelect.onchange = () => {
-                if (extraActivitySelect.value === 'Otros') {
-                    otherActivityInputGroup.style.display = 'block';
-                } else {
-                    otherActivityInputGroup.style.display = 'none';
-                }
-            };
-
-            extraCaptureInput.onchange = (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    extraCaptureFileName.textContent = file.name;
-                    uploadedCaptureFile = file;
-                } else {
-                    extraCaptureFileName.textContent = 'Ningún archivo seleccionado';
-                    uploadedCaptureFile = null;
-                }
-            };
-            
-            registerExtraActivityButton.onclick = () => {
-                const activityName = extraActivitySelect.value === 'Otros' ? otherActivityNameInput.value.trim() : extraActivitySelect.value;
-                if (activityName === '') {
-                    showCustomAlert("Por favor, introduce el nombre de la actividad.", "warning");
-                    return;
-                }
-                registerExtraActivity(activityName, extraTimeInput.value.trim(), extraVolumeInput.value.trim(), uploadedCaptureFile);
-            };
+        function promptWorkoutMode(dayKey, isResuming = false) {
+            currentWorkoutDayKeyForPrompt = dayKey;
+            // No more modal, just start Simple Mode directly.
+            startSimpleMode(currentWorkoutDayKeyForPrompt, isResuming);
         }
 
-        async function registerExtraActivity(activityName, time, volume, captureFile) {
-            if (!supabase || !userIdentifier) {
-                showCustomAlert("No se pudo registrar la actividad. Usuario no identificado.", "error");
+        function startSimpleMode(dayKey, isResuming = false) {
+            if (isWorkoutInProgress && !isResuming) {
+                showCustomAlert("Ya hay un entrenamiento en curso.", "warning");
                 return;
             }
+
+            if (!isResuming) {
+                toggleWorkoutState();
+            } else {
+                isWorkoutInProgress = true;
+                updateWorkoutDuration();
+                workoutTimerInterval = setInterval(updateWorkoutDuration, 1000);
+                requestWakeLock();
+            }
+
+            isSimpleModeActive = true;
+            const dayData = workoutData[dayKey];
+            document.getElementById('simpleModeWorkoutModalTitle').textContent = dayData.name;
+            simpleModeExercises = dayData.exercises;
             
-            closeModalElement(extrasModal);
-            showCustomAlert(`Registrando "${activityName}"...`, "info");
-            
-            let captureUrl = null;
-            if (captureFile) {
-                try {
-                    const filePath = `extra_captures/${userIdentifier}/${Date.now()}_${captureFile.name}`;
-                    const { data, error } = await supabase.storage
-                        .from('workout-captures')
-                        .upload(filePath, captureFile, {
-                            cacheControl: '3600',
-                            upsert: false
-                        });
-                    
-                    if (error) {
-                        throw new Error(`Error uploading image: ${error.message}`);
+            if (isResuming) {
+                // 1. Popular el exerciseProgressMap desde los datos cargados
+                exerciseProgressMap.clear(); 
+                currentWorkoutSummaryData.forEach(entry => {
+                    let cardId = null;
+                    for (const ex of simpleModeExercises) {
+                        if (ex.items) {
+                            const subEx = ex.items.find(item => item.name === entry.exerciseName);
+                            if (subEx) {
+                                cardId = `qm-ex-${dayKey}-${subEx.order}-${subEx.subOrder}`;
+                                break;
+                            }
+                        } else if (ex.name === entry.exerciseName) {
+                            cardId = `qm-ex-${dayKey}-${ex.order}`;
+                            break;
+                        }
+                    }
+                    if (cardId) {
+                        exerciseProgressMap.set(cardId, entry.setsPerformed.length);
+                    }
+                });
+
+                // 2. Encontrar el índice correcto para reanudar
+                let resumeIndex = 0;
+                for (let i = 0; i < simpleModeExercises.length; i++) {
+                    const ex = simpleModeExercises[i];
+                    const exercisesToCheck = ex.items ? ex.items : [ex];
+                    let allSubItemsCompleted = true;
+
+                    // Determinar specialData para sets (lógica duplicada de createQuickModeSupersetCard)
+                    let specialData = null;
+                    if (ex.isEMOM && ex.emomDetails && ex.items) {
+                        const exerciseCount = ex.items.length;
+                        const totalIntervals = parseInt(ex.emomDetails.totalIntervals, 10);
+                        if (exerciseCount > 0 && totalIntervals > 0) {
+                            specialData = { series: Math.ceil(totalIntervals / exerciseCount) };
+                        }
+                    } else if (ex.circuitDetails) {
+                        specialData = { series: ex.circuitDetails.totalRounds };
+                    }
+
+                    for (const subEx of exercisesToCheck) {
+                        const subCardId = ex.items ? `qm-ex-${dayKey}-${subEx.order}-${subEx.subOrder}` : `qm-ex-${dayKey}-${subEx.order}`;
+                        // Lógica de createQuickModeExerciseCard para totalSets
+                        const totalSets = specialData ? specialData.series : (subEx.sets || 1); 
+                        const loggedSets = exerciseProgressMap.get(subCardId) || 0;
+                        
+                        if (loggedSets < totalSets) {
+                            allSubItemsCompleted = false;
+                            break;
+                        }
                     }
                     
-                    const publicUrl = supabase.storage
-                        .from('workout-captures')
-                        .getPublicUrl(filePath).data.publicUrl;
-                    captureUrl = publicUrl;
-                } catch (error) {
-                    console.error("Error al subir la imagen:", error);
-                    showCustomAlert(`Error al subir la imagen: ${error.message}`, "error");
+                    if (!allSubItemsCompleted) {
+                        resumeIndex = i;
+                        break;
+                    }
                 }
+                currentSimpleModeIndex = resumeIndex;
+
+            } else {
+                currentSimpleModeIndex = 0;
+                exerciseProgressMap.clear(); // Limpiar mapa para un nuevo entreno
+            }
+
+            renderSimpleModeExercise(currentSimpleModeIndex);
+            openModal(document.getElementById('simpleModeWorkoutModal'));
+        }
+
+        // La función startQuickMode() ha sido eliminada.
+
+        function renderSimpleModeExercise(index) {
+            const container = document.getElementById('simpleModeExerciseContainer');
+            const progressEl = document.getElementById('simpleModeProgress');
+            const prevButton = document.getElementById('simpleModePrevButton');
+            const nextButton = document.getElementById('simpleModeNextButton');
+
+            container.innerHTML = ''; // Limpiar tarjeta anterior
+
+            if (!simpleModeExercises || index < 0 || index >= simpleModeExercises.length) {
+                container.innerHTML = '<p class="text-center text-red-500">Error: Ejercicio no encontrado.</p>';
+                if (prevButton) {
+                    prevButton.disabled = true;
+                    prevButton.classList.add('button-disabled');
+                }
+                if (nextButton) {
+                    nextButton.disabled = true;
+                    nextButton.classList.add('button-disabled');
+                }
+                return;
+            }
+
+            currentSimpleModeIndex = index;
+            const exercise = simpleModeExercises[index];
+            const dayKey = currentActiveDayKey;
+
+            let card;
+            if (exercise.isSuperset || exercise.isEMOM || exercise.circuitDetails) {
+                card = createQuickModeSupersetCard(dayKey, exercise.order, exercise);
+            } else {
+                card = createQuickModeExerciseCard(dayKey, exercise.order, exercise, false);
             }
             
-            const [hoursStr = '0', minutesStr = '0'] = time.split(':');
-            const totalTimeInSeconds = (parseInt(hoursStr) * 3600) + (parseInt(minutesStr) * 60);
-
-            const logEntry = {
-                client_id: userIdentifier,
-                date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-                time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                raw_date: new Date().toISOString(),
-                exercise_name: "Extra Activity",
-                name_workout: activityName,
-                sets_performed: '[]',
-                completion_state: "completed",
-                session_id: crypto.randomUUID(),
-                total_time_session: formatTimeHHMM(totalTimeInSeconds) || null,
-                total_volume_session: volume || null,
-                capture_url: captureUrl
-            };
+            if (card) {
+                container.appendChild(card);
+            } else {
+                console.error("No se pudo crear la tarjeta para el ejercicio:", exercise);
+                container.innerHTML = '<p class="text-center text-red-500">Error al crear la tarjeta del ejercicio.</p>';
+            }
             
-            try {
-                const { error } = await supabase
-                    .from('workout_logs')
-                    .insert([logEntry]);
-                
-                if (error) {
-                    throw new Error(`Error inserting extra activity log: ${error.message}`);
-                }
-                
-                showCustomAlert(`Actividad "${activityName}" registrada con éxito.`, "info");
-                await loadWorkoutLogs();
-                renderCalendar();
-            } catch (error) {
-                console.error("Error al registrar la actividad extra:", error);
-                showCustomAlert(`Error al registrar la actividad: ${error.message}`, "error");
+            // Actualizar texto de progreso
+            if (progressEl) {
+                progressEl.textContent = `Ejercicio ${index + 1} de ${simpleModeExercises.length}`;
+            }
+
+            // Actualizar botones de navegación
+            if (prevButton) {
+                prevButton.disabled = (index === 0);
+                prevButton.classList.toggle('button-disabled', prevButton.disabled);
+            }
+            if (nextButton) {
+                nextButton.disabled = (index === simpleModeExercises.length - 1);
+                nextButton.classList.toggle('button-disabled', nextButton.disabled);
+            }
+
+            // Actualizar el estado de la tarjeta (para progreso, etc.)
+            updateAllExerciseCardInputStates();
+        }
+
+        function navigateSimpleMode(direction) {
+            const newIndex = currentSimpleModeIndex + direction;
+            if (newIndex >= 0 && newIndex < simpleModeExercises.length) {
+                renderSimpleModeExercise(newIndex);
             }
         }
+
+        // ---===[ INICIALIZACIÓN DE LA APP ]===---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM fully loaded. Initializing app...");
+
+            // 1. Setup Supabase Client
+            try {
+                const { createClient } = window.supabase;
+                const SUPABASE_URL = 'https://izocmtacvdforxywfxgr.supabase.co';
+                // La API key (SUPABASE_API_KEY) ya está definida en el script
+                supabase = createClient(SUPABASE_URL, SUPABASE_API_KEY);
+                console.log("Supabase client initialized.");
+            } catch (e) {
+                console.error("Failed to initialize Supabase client:", e);
+                document.body.innerHTML = '<div style="color: red; text-align: center; padding: 20px;">Error fatal: No se pudo inicializar la base de datos.</div>';
+                return;
+            }
+
+            // 2. Get User Identifier from URL (El paso que faltaba)
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                userIdentifier = urlParams.get('user'); 
+                
+                if (!userIdentifier) {
+                    console.warn("No 'user' parameter in URL. Using 'default-user'.");
+                    userIdentifier = 'default-user'; // Fallback
+                }
+
+                console.log(`User Identifier set to: ${userIdentifier}`);
+            } catch (e) {
+                console.error("Failed to get user from URL:", e);
+                userIdentifier = 'default-user'; // Fallback
+            }
+
+            // 3. Initialize the main application (La llamada que faltaba)
+            initializeWorkoutApp();
+
+            // 4. Setup other listeners (También faltaban)
+            document.getElementById('viewWorkoutHistoryButton').onclick = () => {
+                currentDate = new Date();
+                renderCalendar();
+                openModal(mainHistoryModal);
+            };
+            
+            // Nota: El botón 'addExtrasButton' no existe en el HTML, pero si lo añades, esto funcionará.
+            // const addExtrasBtn = document.getElementById('addExtrasButton');
+            // if (addExtrasBtn) {
+            //     addExtrasBtn.onclick = () => {
+            //         setupExtrasForm();
+            //         openModal(extrasModal);
+            //     };
+            // }
+
+            // Listener for closing settings menus if clicking outside
+            document.addEventListener('click', (event) => {
+                // Close settings menus
+                const activeMenu = document.querySelector('.quick-mode-header-buttons.is-active');
+                const activeButton = document.querySelector('.quick-mode-settings-button.active');
+                if (activeMenu && activeButton && !activeButton.contains(event.target) && !activeMenu.contains(event.target)) {
+                    activeMenu.classList.remove('is-active');
+                    activeButton.classList.remove('active');
+                }
+
+                // Close numeric keypad if clicking outside
+                const keypadModal = document.getElementById('numericKeypadModal');
+                if (isKeypadOpen && !keypadModal.querySelector('.modal-content').contains(event.target)) {
+                    if (ignoreNextKeypadClose) {
+                        ignoreNextKeypadClose = false;
+                    } else {
+                        closeModalElement(keypadModal);
+                        isKeypadOpen = false;
+                        activeInput = null;
+                    }
+                }
+            });
+
+            // Set main menu URL
+            const mainMenuButton = document.getElementById('mainMenuButton');
+            if (mainMenuButton) {
+                mainMenuButton.href = `${APP_CONFIG.urls.mainPanelUrl}${userIdentifier || ''}`;
+            }
+        });
+
     </script>
 </body>
 </html>
+
+
+
 
