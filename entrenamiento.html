@@ -2907,7 +2907,11 @@
                 }
                 
                 const restDurationMatch = typeof exerciseData.rest === 'string' ? exerciseData.rest.match(/(\d+)s/) : null;
-                if (restDurationMatch) {
+                
+                // --- START MODIFICATION ---
+                // Solo inicia el temporizador de descanso automáticamente si estamos en Modo Simple
+                if (restDurationMatch && isSimpleModeActive) {
+                // --- END MODIFICATION ---
                     const restSeconds = parseInt(restDurationMatch[1], 10);
                     if (restSeconds > 0) {
                         let nextExerciseForRest = null;
@@ -3126,7 +3130,17 @@
                     
                     setTimeout(() => {
                         closeModalElement(workoutSummaryModal);
-                        closeModalElement(quickModeWorkoutModal);
+                        
+                        // --- START MODIFICATION ---
+                        // Check which modal is active and close it
+                        if (isSimpleModeActive) {
+                            closeModalElement(document.getElementById('simpleModeWorkoutModal'));
+                            isSimpleModeActive = false; // Reset simple mode state
+                        } else {
+                            closeModalElement(quickModeWorkoutModal);
+                        }
+                        // --- END MODIFICATION ---
+
                         if (lastActiveDayKey) {
                             displayWorkoutPreview(lastActiveDayKey);
                         }
@@ -4516,17 +4530,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
