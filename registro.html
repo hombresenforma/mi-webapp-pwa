@@ -196,6 +196,13 @@
                 <i class="fas fa-home mr-2"></i>Menú Principal
             </a>
 
+            <!-- NUEVO: Indicador de Semana de Progreso -->
+            <div id="programWeekDisplay" class="text-center bg-gray-700/70 p-4 rounded-lg mb-6 border border-yellow-500/50">
+                <p class="text-sm font-medium text-gray-400">Progreso del Programa:</p>
+                <p id="weekNumberText" class="text-2xl font-bold text-yellow-400">Cargando Semana...</p>
+            </div>
+            <!-- FIN NUEVO ELEMENTO -->
+
             <!-- Body Record Section -->
             <div id="bodyRecordSection" class="tab-content active">
                 <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 text-center mb-6">REGISTROS CORPORALES</h2>
@@ -358,7 +365,7 @@
                     <div id="viewport-after" class="image-viewport">
                         <img id="photo-after" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de después">
                     </div>
-                     <!-- Controls moved outside viewport -->
+                    <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-after" class="comparator-nav-btn prev">&lt;</button>
                         <div class="flex items-center gap-2">
@@ -416,6 +423,7 @@
         let supabase = null;
         let userId = null;
         let bodyRecords = []; 
+        let programStartDate = null; // NUEVO: Fecha del registro más antiguo (Semana 0)
         let progressChartInstance = null; 
         let photoComparatorState = {
             before: { index: 0, record: null, scale: 1, x: 0, y: 0 },
@@ -633,6 +641,46 @@
             }
         }
 
+        // NUEVO: Función para calcular y mostrar la semana del programa
+        function calculateAndDisplayProgramWeek() {
+            const weekNumberTextEl = document.getElementById('weekNumberText');
+            const programWeekDisplayEl = document.getElementById('programWeekDisplay');
+
+            if (!programStartDate) {
+                if (weekNumberTextEl) weekNumberTextEl.textContent = 'Sin Registros (Semana 0)';
+                if (programWeekDisplayEl) programWeekDisplayEl.querySelector('p:first-child').textContent = `Progreso del Programa:`;
+                return;
+            }
+
+            // Normalizar la fecha de inicio y hoy a medianoche UTC para un cálculo preciso de días.
+            // Esto evita que las diferencias de hora del día o zona horaria afecten el cálculo de días.
+            const start = new Date(programStartDate.getTime());
+            start.setUTCHours(0, 0, 0, 0); 
+
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0); 
+
+            const MS_PER_DAY = 1000 * 60 * 60 * 24;
+            const timeDifference = today.getTime() - start.getTime();
+            const daysDifference = timeDifference / MS_PER_DAY;
+            
+            // La Semana 0 incluye los primeros 7 días (días 0-6).
+            // Math.floor(daysDifference / 7) calcula correctamente las semanas completadas.
+            let weeksPassed = Math.floor(daysDifference / 7);
+
+            if (weeksPassed < 0) {
+                weeksPassed = 0;
+            }
+
+            if (weekNumberTextEl) {
+                weekNumberTextEl.textContent = `Semana ${weeksPassed}`;
+            }
+            if (programWeekDisplayEl) {
+                programWeekDisplayEl.querySelector('p:first-child').textContent = `Progreso del Programa (Inicio: ${formatRecordDate(programStartDate.toISOString())}):`;
+            }
+        }
+
+
         async function initializeBodyRecordApp() {
             // Cargar la configuración del usuario desde Supabase antes de inicializar la app
             await fetchUserConfig();
@@ -763,6 +811,17 @@
                     return;
                 }
                 bodyRecords = data;
+
+                // NUEVO: Determinar la fecha de inicio del programa (Semana 0)
+                if (bodyRecords.length > 0) {
+                    // Ordenar por fecha ascendente para encontrar el registro más antiguo
+                    const oldestRecord = [...bodyRecords].sort((a, b) => new Date(a.fecha_registro) - new Date(b.fecha_registro))[0];
+                    programStartDate = new Date(oldestRecord.fecha_registro);
+                } else {
+                    programStartDate = null;
+                }
+
+                calculateAndDisplayProgramWeek(); // NUEVO: Mostrar la semana del programa
                 renderBodyRecords();
                 renderProgressChart();
             }
