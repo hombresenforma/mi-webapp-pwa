@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+​​<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -196,13 +196,6 @@
                 <i class="fas fa-home mr-2"></i>Menú Principal
             </a>
 
-            <!-- NUEVO: Indicador de Semana de Progreso -->
-            <div id="programWeekDisplay" class="text-center bg-gray-700/70 p-4 rounded-lg mb-6 border border-yellow-500/50">
-                <p class="text-sm font-medium text-gray-400">Progreso del Programa:</p>
-                <p id="weekNumberText" class="text-2xl font-bold text-yellow-400">Cargando Semana...</p>
-            </div>
-            <!-- FIN NUEVO ELEMENTO -->
-
             <!-- Body Record Section -->
             <div id="bodyRecordSection" class="tab-content active">
                 <h2 class="text-xl sm:text-2xl font-bold text-yellow-400 text-center mb-6">REGISTROS CORPORALES</h2>
@@ -365,7 +358,7 @@
                     <div id="viewport-after" class="image-viewport">
                         <img id="photo-after" src="https://placehold.co/400x600/374151/9ca3af?text=Selecciona+Foto" alt="Foto de después">
                     </div>
-                    <!-- Controls moved outside viewport -->
+                     <!-- Controls moved outside viewport -->
                     <div class="flex items-center justify-between w-full mt-2">
                         <button id="prev-after" class="comparator-nav-btn prev">&lt;</button>
                         <div class="flex items-center gap-2">
@@ -423,7 +416,6 @@
         let supabase = null;
         let userId = null;
         let bodyRecords = []; 
-        let programStartDate = null; // Fecha del registro más antiguo (Semana 0)
         let progressChartInstance = null; 
         let photoComparatorState = {
             before: { index: 0, record: null, scale: 1, x: 0, y: 0 },
@@ -600,34 +592,6 @@
             }
         }
 
-        // NUEVO: Función para calcular la semana del programa para una fecha dada
-        function calculateProgramWeekForDate(recordDate) {
-            if (!programStartDate) {
-                return 'N/D'; // No disponible si no hay fecha de inicio (Semana 0)
-            }
-        
-            // Normalizar ambas fechas a medianoche UTC para un cálculo preciso de días.
-            const start = new Date(programStartDate.getTime());
-            start.setUTCHours(0, 0, 0, 0); 
-
-            const date = new Date(recordDate);
-            date.setUTCHours(0, 0, 0, 0);
-
-            // Asegurarse de que el registro no sea anterior a la fecha de inicio (Semana 0)
-            if (date.getTime() < start.getTime()) {
-                return 'N/D';
-            }
-
-            const MS_PER_DAY = 1000 * 60 * 60 * 24;
-            const timeDifference = date.getTime() - start.getTime();
-            const daysDifference = timeDifference / MS_PER_DAY;
-            
-            // Math.floor(daysDifference / 7) calcula correctamente las semanas completadas.
-            let weeksPassed = Math.floor(daysDifference / 7);
-
-            return `Semana ${weeksPassed}`;
-        }
-        
         // #############################################################
         // #                   BODY RECORD APP LOGIC                   #
         // #############################################################
@@ -668,45 +632,6 @@
                 console.log("No se encontró una configuración específica para el usuario. Usando la configuración por defecto.");
             }
         }
-
-        // Función para calcular y mostrar la semana del programa (en el panel superior)
-        function calculateAndDisplayProgramWeek() {
-            const weekNumberTextEl = document.getElementById('weekNumberText');
-            const programWeekDisplayEl = document.getElementById('programWeekDisplay');
-
-            if (!programStartDate) {
-                if (weekNumberTextEl) weekNumberTextEl.textContent = 'Sin Registros (Semana 0)';
-                if (programWeekDisplayEl) programWeekDisplayEl.querySelector('p:first-child').textContent = `Progreso del Programa:`;
-                return;
-            }
-
-            // Normalizar la fecha de inicio y hoy a medianoche UTC para un cálculo preciso de días.
-            const start = new Date(programStartDate.getTime());
-            start.setUTCHours(0, 0, 0, 0); 
-
-            const today = new Date();
-            today.setUTCHours(0, 0, 0, 0); 
-
-            const MS_PER_DAY = 1000 * 60 * 60 * 24;
-            const timeDifference = today.getTime() - start.getTime();
-            const daysDifference = timeDifference / MS_PER_DAY;
-            
-            // La Semana 0 incluye los primeros 7 días (días 0-6).
-            // Math.floor(daysDifference / 7) calcula correctamente las semanas completadas.
-            let weeksPassed = Math.floor(daysDifference / 7);
-
-            if (weeksPassed < 0) {
-                weeksPassed = 0;
-            }
-
-            if (weekNumberTextEl) {
-                weekNumberTextEl.textContent = `Semana ${weeksPassed}`;
-            }
-            if (programWeekDisplayEl) {
-                programWeekDisplayEl.querySelector('p:first-child').textContent = `Progreso del Programa (Inicio: ${formatRecordDate(programStartDate.toISOString())}):`;
-            }
-        }
-
 
         async function initializeBodyRecordApp() {
             // Cargar la configuración del usuario desde Supabase antes de inicializar la app
@@ -838,17 +763,6 @@
                     return;
                 }
                 bodyRecords = data;
-
-                // Determinar la fecha de inicio del programa (Semana 0)
-                if (bodyRecords.length > 0) {
-                    // Ordenar por fecha ascendente para encontrar el registro más antiguo
-                    const oldestRecord = [...bodyRecords].sort((a, b) => new Date(a.fecha_registro) - new Date(b.fecha_registro))[0];
-                    programStartDate = new Date(oldestRecord.fecha_registro);
-                } else {
-                    programStartDate = null;
-                }
-
-                calculateAndDisplayProgramWeek(); // Mostrar la semana del programa en el panel superior
                 renderBodyRecords();
                 renderProgressChart();
             }
@@ -862,76 +776,52 @@
             }
 
             function renderBodyRecords() {
-                const recordsHistoryContainer = document.getElementById('recordsHistoryContainer');
                 recordsHistoryContainer.innerHTML = '';
                 if (!bodyRecords || bodyRecords.length === 0) {
                     recordsHistoryContainer.innerHTML = '<p class="text-center text-gray-400">No hay registros todavía.</p>';
                     return;
                 }
-                
                 const sortedRecordsForHistory = [...bodyRecords].sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
-                
                 sortedRecordsForHistory.forEach((record) => {
-                    try {
-                        const programWeek = calculateProgramWeekForDate(record.fecha_registro); 
-                        const card = document.createElement('div');
-                        card.className = 'record-card p-3 rounded-lg shadow-md mb-3';
-                        card.dataset.recordId = record.id;
-                        const photoUrls = record.photo_urls || [];
-                        let photosHtml = '';
-                        if (photoUrls.length > 0) {
-                            photosHtml += '<div class="mt-2 pt-2 border-t border-gray-600"><p class="text-xs font-medium text-gray-300 mb-1">Fotos:</p><div class="grid grid-cols-3 gap-2">';
-                            photoUrls.forEach(photoUrl => {
-                                if(photoUrl) {
-                                    photosHtml += `<div class="history-photo-item"><img src="${photoUrl}" onclick="openPhotoPreview('${photoUrl}')" alt="Foto del registro" class="w-full h-auto object-cover rounded shadow-sm"></div>`;
-                                }
-                            });
-                            photosHtml += '</div></div>';
-                        }
-                        let metricsHtml = '';
-                        appConfig.bodyMetrics.forEach(metric => {
-                            const value = record[metric.id];
-                            if (value !== null && typeof value !== 'undefined') {
-                                metricsHtml += `<div><strong class="text-gray-300">${metric.label}:</strong> ${value} ${metric.unit}</div>`;
+                    const card = document.createElement('div');
+                    card.className = 'record-card p-3 rounded-lg shadow-md mb-3';
+                    card.dataset.recordId = record.id;
+                    const photoUrls = record.photo_urls || [];
+                    let photosHtml = '';
+                    if (photoUrls.length > 0) {
+                        photosHtml += '<div class="mt-2 pt-2 border-t border-gray-600"><p class="text-xs font-medium text-gray-300 mb-1">Fotos:</p><div class="grid grid-cols-3 gap-2">';
+                        photoUrls.forEach(photoUrl => {
+                            if(photoUrl) {
+                                photosHtml += `<div class="history-photo-item"><img src="${photoUrl}" onclick="openPhotoPreview('${photoUrl}')" alt="Foto del registro" class="w-full h-auto object-cover rounded shadow-sm"></div>`;
                             }
                         });
-                        
-                        card.innerHTML = `
-                            <div class="record-card-header flex justify-between items-center">
-                                <div>
-                                    <h3 class="text-md font-semibold text-yellow-300">${formatRecordDate(record.fecha_registro)} <span class="ml-2 px-2 py-0.5 text-xs font-bold rounded-full bg-yellow-500 text-gray-900">${programWeek}</span></h3>
-                                    <p class="text-xs text-gray-400">ID: ${userId}</p>
-                                </div>
-                                <div class="flex items-center">
-                                    <button onclick="window.deleteRecord('${record.id}', event)" class="danger-button text-xs py-1 px-2 rounded mr-2"><i class="fas fa-trash-alt"></i></button>
-                                    <i class="fas fa-chevron-down expand-icon text-yellow-400"></i>
-                                </div>
-                            </div>
-                            <div class="record-card-content">
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mt-2">${metricsHtml}</div>
-                                ${photosHtml}
-                            </div>`;
-                        
-                        // FIX: Added safety check before adding event listener to prevent synchronous crash
-                        const header = card.querySelector('.record-card-header');
-                        if (header) {
-                            header.addEventListener('click', () => card.classList.toggle('expanded'));
-                        } else {
-                            console.warn("Failed to find .record-card-header for record ID:", record.id);
-                        }
-                        
-                        recordsHistoryContainer.appendChild(card);
-
-                    } catch (e) {
-                        console.error(`Error processing record ID ${record.id}:`, e);
-                        // If a record fails to render, skip it and continue the loop
+                        photosHtml += '</div></div>';
                     }
+                    let metricsHtml = '';
+                    appConfig.bodyMetrics.forEach(metric => {
+                        const value = record[metric.id];
+                        if (value !== null && typeof value !== 'undefined') {
+                            metricsHtml += `<div><strong class="text-gray-300">${metric.label}:</strong> ${value} ${metric.unit}</div>`;
+                        }
+                    });
+                    card.innerHTML = `
+                        <div class="record-card-header flex justify-between items-center">
+                            <div>
+                                <h3 class="text-md font-semibold text-yellow-300">${formatRecordDate(record.fecha_registro)}</h3>
+                                <p class="text-xs text-gray-400">ID: ${userId}</p>
+                            </div>
+                            <div class="flex items-center">
+                                <button onclick="window.deleteRecord('${record.id}', event)" class="danger-button text-xs py-1 px-2 rounded mr-2"><i class="fas fa-trash-alt"></i></button>
+                                <i class="fas fa-chevron-down expand-icon text-yellow-400"></i>
+                            </div>
+                        </div>
+                        <div class="record-card-content">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs mt-2">${metricsHtml}</div>
+                            ${photosHtml}
+                        </div>`;
+                    card.querySelector('.record-card-header').addEventListener('click', () => card.classList.toggle('expanded'));
+                    recordsHistoryContainer.appendChild(card);
                 });
-                
-                // If records were expected but none were appended (e.g., all failed to render), display error.
-                if (recordsHistoryContainer.children.length === 0 && bodyRecords.length > 0) {
-                     recordsHistoryContainer.innerHTML = '<p class="text-center text-red-400 font-bold">Error al mostrar el historial. Consulte la consola para detalles.</p>';
-                }
             }
 
             recordForm.addEventListener('submit', async function(event) {
